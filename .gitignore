@@ -1,0 +1,27 @@
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Dependency and build output
+node_modules/
+artifacts/
+cache/
+forge-cache/
+
+# Local tool state
+.playwright-cli/
+.tmp-foundry/
+output/playwright/
+
+# Deployment backups and local runtime files
+deployments/*.backup.json
+*.log
+
+# Opaque local bundles
+files.zip
+*.bin
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

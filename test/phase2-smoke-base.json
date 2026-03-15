@@ -1,0 +1,73 @@
+{
+  "executedAt": "2026-03-15T02:58:53.152Z",
+  "network": "base",
+  "chainId": 8453,
+  "addresses": {
+    "adminPriceFeed": "0xb484695F28382E9960d37728Aa724777FC252149",
+    "tavernToken": "0x7E0185DF566269906711ada358cD816394e20447",
+    "tavernRegistry": "0xF19Fc7b03Af2704e9a8d7D11071dE92014B9A0ac",
+    "tavernEscrow": "0xd78000aDdd0e9eFAf597fDFE8BF47aF2b6cd53e4",
+    "tavernStaking": "0x8593D907FC46Ea84c2d6C74E78b04565DAD8860E",
+    "tavernGovernance": "0x46407450a1CeAB0F6BFd40e1df33D85fB1E088Ca",
+    "tavernAutomationRouter": "0x5dfCd50a8412AebC87F97eE2fD890924643b40EC",
+    "tavernClientRPG": "0xAAA156e23D8E89FBA9f17C3e4ff6ad42ed9fB4A3",
+    "tavernSubscription": "0x1868c2133Cb6cB0cF993e0F877CE0B8C758050CB"
+  },
+  "token": {
+    "maxSupply": "2100000000000000000000000000",
+    "totalSupply": "0"
+  },
+  "registry": {
+    "stakingContract": "0x8593D907FC46Ea84c2d6C74E78b04565DAD8860E",
+    "guildCount": "5",
+    "erc8004Required": false
+  },
+  "escrow": {
+    "maxQuestDeposit": "100000000000000000000",
+    "maxQuestDepositUsdc": "100000000000",
+    "settlementPaused": false,
+    "currentFeeStage": "0"
+  },
+  "staking": {
+    "stakeAmount": "100000000000000000000",
+    "slashEjectionBps": "5000",
+    "slashChallengeBps": "1000"
+  },
+  "governance": {
+    "votingPeriod": "432000",
+    "timelockDelay": "172800",
+    "quorumBps": "1000"
+  },
+  "adminPriceFeed": {
+    "decimals": "8",
+    "latestPrice": "1000000",
+    "updatedAt": "1773543061",
+    "routerIsRefresher": true
+  },
+  "rpg": {
+    "seasonDuration": "15552000",
+    "currentSeasonNumber": "1",
+    "minWithdrawalLevel": "2",
+    "minJobsForWithdrawal": "5",
+    "maxWithdrawalPerMonth": "100000000000000000000",
+    "escrow": "0xd78000aDdd0e9eFAf597fDFE8BF47aF2b6cd53e4",
+    "hasEscrowRole": true,
+    "hasKeeperRoleForRouter": true,
+    "hasSubscriptionRoleForSubscription": true
+  },
+  "subscription": {
+    "feeBps": "500",
+    "period": "2592000",
+    "contractUsdcBalance": "0",
+    "operatorWallet": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+    "clientRPG": "0xAAA156e23D8E89FBA9f17C3e4ff6ad42ed9fB4A3",
+    "registry": "0xF19Fc7b03Af2704e9a8d7D11071dE92014B9A0ac",
+    "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "hasKeeperRoleForRouter": true
+  },
+  "router": {
+    "clientRPG": "0xAAA156e23D8E89FBA9f17C3e4ff6ad42ed9fB4A3",
+    "subscriptionContract": "0x1868c2133Cb6cB0cF993e0F877CE0B8C758050CB",
+    "upkeepNeeded": false
+  }
+}

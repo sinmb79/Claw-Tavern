@@ -1,0 +1,8 @@
+{
+  "compile_force_framework": "hardhat",
+  "filter_paths": "node_modules,contracts/Mock.*",
+  "solc_remaps": [
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@chainlink/=node_modules/@chainlink/"
+  ]
+}

@@ -1,0 +1,3870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claw Tavern | Multi-Network Quest Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #120f16;
+      --bg-deep: #0b0910;
+      --panel: rgba(27, 22, 34, 0.9);
+      --panel-strong: rgba(34, 28, 42, 0.96);
+      --ink: #f5e8c8;
+      --muted: #c1b39b;
+      --gold: #d8a933;
+      --gold-soft: #f6df8e;
+      --wine: #6f294d;
+      --emerald: #2f8d71;
+      --ember: #da6b38;
+      --mist: rgba(245, 232, 200, 0.08);
+      --line: rgba(245, 232, 200, 0.12);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Spectral", Georgia, serif;
+      background:
+        radial-gradient(circle at top right, rgba(111, 41, 77, 0.35), transparent 28%),
+        radial-gradient(circle at left center, rgba(216, 169, 51, 0.18), transparent 30%),
+        linear-gradient(180deg, #17111f 0%, #0b0910 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::before {
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 92%);
+    }
+
+    body::after {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(246, 223, 142, 0.07), transparent 16%),
+        radial-gradient(circle at 88% 12%, rgba(111, 41, 77, 0.12), transparent 18%);
+    }
+
+    .heading-font { font-family: "Cinzel", serif; letter-spacing: 0.04em; }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(39, 31, 50, 0.93), rgba(21, 17, 28, 0.96));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-soft {
+      background: linear-gradient(180deg, rgba(36, 29, 45, 0.8), rgba(20, 16, 28, 0.85));
+      border: 1px solid rgba(245, 232, 200, 0.08);
+    }
+
+    .ornament { position: relative; }
+
+    .ornament::before,
+    .ornament::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 72px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(246, 223, 142, 0.7), transparent);
+      transform: translateY(-50%);
+    }
+
+    .ornament::before { left: -88px; }
+    .ornament::after { right: -88px; }
+
+    .tab-button {
+      border: 1px solid rgba(245, 232, 200, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted);
+      transition: all 180ms ease;
+    }
+
+    .tab-button:hover {
+      color: var(--ink);
+      border-color: rgba(246, 223, 142, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .tab-button.active {
+      color: #23170a;
+      background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+      border-color: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 12px 24px rgba(216, 169, 51, 0.24);
+    }
+
+    .badge {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ink);
+    }
+
+    .z-45 { z-index: 45; }
+
+    @keyframes dispute-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+
+    .state-created { background: rgba(149, 163, 184, 0.15); color: #d8dee9; border-color: rgba(148, 163, 184, 0.3); }
+    .state-funded { background: rgba(95, 160, 255, 0.15); color: #a8c7ff; border-color: rgba(95, 160, 255, 0.34); }
+    .state-accepted { background: rgba(216, 169, 51, 0.16); color: #ffe39b; border-color: rgba(216, 169, 51, 0.34); }
+    .state-inprogress { background: rgba(111, 41, 77, 0.22); color: #f0bad2; border-color: rgba(195, 95, 147, 0.4); }
+    .state-submitted { background: rgba(140, 95, 255, 0.18); color: #d8c5ff; border-color: rgba(140, 95, 255, 0.35); }
+    .state-evaluated { background: rgba(47, 141, 113, 0.18); color: #b8f0dc; border-color: rgba(47, 141, 113, 0.36); }
+    .state-autoapproved { background: rgba(55, 162, 129, 0.18); color: #b7ffe1; border-color: rgba(55, 162, 129, 0.36); }
+    .state-compensated { background: rgba(218, 107, 56, 0.18); color: #ffd3b8; border-color: rgba(218, 107, 56, 0.38); }
+    .state-timedout { background: rgba(210, 76, 76, 0.18); color: #ffc0c0; border-color: rgba(210, 76, 76, 0.4); }
+    .state-cancelled { background: rgba(103, 114, 127, 0.18); color: #d4dce7; border-color: rgba(103, 114, 127, 0.35); text-decoration: line-through; }
+    .state-disputed { background: rgba(189, 77, 109, 0.24); color: #ffd1dd; border-color: rgba(189, 77, 109, 0.42); animation: dispute-blink 1.2s ease-in-out infinite; }
+
+    .action-button {
+      border: 1px solid rgba(246, 223, 142, 0.18);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+      color: var(--ink);
+      transition: all 180ms ease;
+    }
+
+    .action-button:hover:not(:disabled) {
+      border-color: rgba(246, 223, 142, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .action-button.primary {
+      color: #1d1207;
+      background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .action-button.ghost {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+    }
+
+    .action-button.warn {
+      background: linear-gradient(135deg, rgba(218, 107, 56, 0.92), rgba(173, 58, 38, 0.92));
+      border-color: rgba(255, 194, 173, 0.25);
+      color: #fff4ec;
+    }
+
+    .action-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .field {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(245, 232, 200, 0.12);
+      background: rgba(8, 7, 12, 0.42);
+      color: var(--ink);
+      padding: 0.85rem 1rem;
+      outline: none;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .field:focus {
+      border-color: rgba(246, 223, 142, 0.4);
+      box-shadow: 0 0 0 4px rgba(216, 169, 51, 0.08);
+    }
+
+    .field::placeholder { color: rgba(245, 232, 200, 0.45); }
+    .quest-card { position: relative; overflow: hidden; }
+    .quest-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(246, 223, 142, 0.05), transparent 35%); pointer-events: none; }
+    .progress-rail { height: 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, rgba(216, 169, 51, 0.65), rgba(246, 223, 142, 0.95)); }
+    .vote-bar-for .progress-fill { background: linear-gradient(90deg, rgba(47, 141, 113, 0.65), rgba(87, 210, 170, 0.95)); }
+    .vote-bar-against .progress-fill { background: linear-gradient(90deg, rgba(218, 107, 56, 0.65), rgba(255, 165, 100, 0.95)); }
+    .vote-bar-abstain .progress-fill { background: linear-gradient(90deg, rgba(148, 163, 184, 0.45), rgba(200, 210, 220, 0.7)); }
+    .stake-badge { border: 1px solid rgba(47, 141, 113, 0.35); background: rgba(47, 141, 113, 0.12); color: #b8f0dc; }
+    .stake-badge.inactive { border-color: rgba(148, 163, 184, 0.3); background: rgba(148, 163, 184, 0.1); color: #d8dee9; }
+    .stake-badge.slashed { border-color: rgba(210, 76, 76, 0.4); background: rgba(210, 76, 76, 0.12); color: #ffc0c0; }
+    .score-chip { border: 1px solid rgba(245, 232, 200, 0.12); background: rgba(255, 255, 255, 0.03); color: var(--muted); }
+    .score-chip.active { color: #21160a; background: linear-gradient(135deg, var(--gold-soft), var(--gold)); border-color: rgba(255, 255, 255, 0.18); }
+    .toast { animation: toast-in 220ms ease; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .ornament::before,
+      .ornament::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <header class="panel relative overflow-hidden rounded-[28px] p-6 sm:p-8">
+      <div class="absolute inset-y-0 right-0 w-2/5 bg-[radial-gradient(circle_at_center,rgba(216,169,51,0.18),transparent_64%)]"></div>
+      <div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-3xl">
+          <p id="network-profile-title" class="heading-font text-sm uppercase tracking-[0.35em] text-[var(--gold-soft)]">Guild Hall</p>
+          <h1 class="heading-font ornament mt-3 inline-flex items-center text-3xl font-bold sm:text-5xl">Claw Tavern</h1>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-lg">
+            A fantasy-styled quest board wired to the active Claw Tavern deployment profile.
+            Create quests, accept paid work, evaluate results, and monitor compensation state from one screen.
+          </p>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:w-[420px]">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">Network</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span id="network-name-badge" class="badge rounded-full px-3 py-1 text-xs">Loading network</span>
+              <span id="network-chain-badge" class="badge rounded-full px-3 py-1 text-xs">Chain --</span>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">Wallet</p>
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              <button id="connect-wallet" class="action-button primary rounded-full px-4 py-2 text-sm font-semibold">Connect Wallet</button>
+              <span id="account-pill" class="badge rounded-full px-3 py-1 text-xs">Read-only</span>
+            </div>
+            <p id="chain-mismatch-warning" class="mt-2 hidden text-xs text-[#ffd1dd]">Connected wallet network does not match the active profile.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <a id="admin-price-feed-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">AdminPriceFeed</p>
+          <p id="admin-price-feed-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="token-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernToken</p>
+          <p id="token-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="registry-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernRegistry</p>
+          <p id="registry-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="escrow-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernEscrow</p>
+          <p id="escrow-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="usdc-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Base USDC</p>
+          <p id="usdc-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="staking-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernStaking</p>
+          <p id="staking-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="governance-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernGovernance</p>
+          <p id="governance-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="automation-router-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">AutomationRouter</p>
+          <p id="automation-router-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="client-rpg-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernClientRPG</p>
+          <p id="client-rpg-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+        <a id="subscription-address-card" class="panel-soft rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TavernSubscription</p>
+          <p id="subscription-address-label" class="mt-2 break-all text-sm">Pending deploy</p>
+        </a>
+      </div>
+    </header>
+
+    <nav class="mt-6 grid grid-cols-3 gap-3 sm:flex">
+      <button class="tab-button active rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="quest-board">Quest Board</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="my-quests">My Quests</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="dashboard">Dashboard</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="token">Token</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="staking">Staking</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="governance">Governance</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="rpg">RPG</button>
+      <button class="tab-button rounded-2xl px-4 py-3 text-sm font-semibold" data-tab="subscription">Subscription</button>
+    </nav>
+
+    <main class="mt-6 space-y-6">
+      <section id="tab-quest-board" class="tab-panel space-y-6">
+        <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="heading-font text-xl font-semibold">Create a Quest</p>
+                <p id="create-quest-subtitle" class="mt-1 text-sm text-[var(--muted)]">The app hashes your brief locally, submits the quest, and then funds it in the correct currency.</p>
+              </div>
+              <span id="create-quest-mode-badge" class="badge rounded-full px-3 py-1 text-xs">USDC or ETH escrow</span>
+            </div>
+
+            <form id="create-quest-form" class="mt-6 grid gap-4">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Currency</span>
+                  <select id="quest-currency" class="field">
+                    <option value="USDC">USDC</option>
+                    <option value="ETH">ETH</option>
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Deposit amount</span>
+                  <input id="quest-amount" class="field" type="number" min="0" step="0.000001" placeholder="50">
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="mb-2 block text-sm text-[var(--muted)]">Brief</span>
+                <textarea id="quest-brief" class="field min-h-[128px]" placeholder="Describe the work, outcome, and success criteria."></textarea>
+              </label>
+
+              <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">briefUri</span>
+                  <input id="quest-brief-uri" class="field" type="text" placeholder="ipfs://quest-brief">
+                </label>
+                <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                  <p class="text-[var(--muted)]">Brief hash</p>
+                  <p id="brief-hash-preview" class="mt-1 break-all font-medium">Keccak hash preview appears here.</p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3 pt-2">
+                <button id="create-quest-submit" type="submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Create and Fund Quest</button>
+                <button id="refresh-board" type="button" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Refresh board</button>
+                <span id="create-quest-status" class="text-sm text-[var(--muted)]">Wallet required for quest creation.</span>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p id="quest-notes-title" class="heading-font text-xl font-semibold">Live Tavern Notes</p>
+                <p id="quest-notes-subtitle" class="mt-1 text-sm text-[var(--muted)]">Evaluation rewards use the live preview contract call. Compensation cards show current TVRN lock timing.</p>
+              </div>
+              <span id="last-refresh-label" class="badge rounded-full px-3 py-1 text-xs">Not refreshed yet</span>
+            </div>
+
+            <div class="mt-6 grid gap-3">
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Evaluation reward guide</p>
+                <p id="quest-note-reward-body" class="mt-2 text-sm leading-6">1 TVRN for all five scores, 3 TVRN with a 50+ character comment, 5 TVRN with a 100+ character comment and tags. Monthly decay and same-agent caps are applied by the contract preview.</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Compensation policy</p>
+                <p id="quest-note-compensation-body" class="mt-2 text-sm leading-6">No refund. Low quality or timeout quests convert into TVRN plus credits, then lock TVRN transfers for 30 days.</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Operator flow</p>
+                <p id="quest-note-ops-body" class="mt-2 text-sm leading-6">`register:automation` is idempotent now. `verify:automation` checks upkeep health and stale keeper roles on-chain.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p class="heading-font text-xl font-semibold">Recent Quest Board</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Latest 20 quests, newest first. Funded quests without an agent can be accepted from here.</p>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs text-[var(--muted)]">
+              <span class="badge rounded-full px-3 py-1">Created</span>
+              <span class="badge rounded-full px-3 py-1">Funded</span>
+              <span class="badge rounded-full px-3 py-1">Submitted</span>
+              <span class="badge rounded-full px-3 py-1">Compensated</span>
+            </div>
+          </div>
+          <div id="quest-board-grid" class="mt-6 grid gap-4 xl:grid-cols-2"></div>
+        </div>
+      </section>
+
+      <section id="tab-my-quests" class="tab-panel hidden space-y-6">
+        <div class="grid gap-6 xl:grid-cols-2">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Client Ledger</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Your created quests, pending reviews, and compensation outcomes.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Client actions</span>
+            </div>
+            <div id="client-quests" class="mt-6 space-y-4"></div>
+          </div>
+
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Agent Workbench</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Open opportunities, active quests, heartbeats, and result submission.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Agent actions</span>
+            </div>
+            <div id="agent-workbench" class="mt-6 space-y-4"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-dashboard" class="tab-panel hidden space-y-6">
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" id="kpi-grid"></div>
+        <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Compensated Quests</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">These cards show the live TVRN amount, credit amount, and remaining transfer lock days.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Compensation terminal state</span>
+            </div>
+            <div id="compensated-grid" class="mt-6 grid gap-4"></div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="panel rounded-[28px] p-6">
+              <p class="heading-font text-xl font-semibold">Evaluation Queue</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Submitted quests owned by the connected client show up here for review.</p>
+              <div id="evaluation-queue" class="mt-6 space-y-4"></div>
+            </div>
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Quota by Job Slot</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Six-slot rolling quota with 2% hysteresis. Values below are live jobQuota reads.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">3-day rolling</span>
+              </div>
+              <div id="quota-grid" class="mt-6 space-y-4"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-token" class="tab-panel hidden space-y-6">
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" id="token-summary"></div>
+        <div class="grid gap-6 xl:grid-cols-[1fr_1fr]">
+          <div class="panel rounded-[28px] p-6">
+            <p class="heading-font text-xl font-semibold">Wallet Snapshot</p>
+            <div id="wallet-panel" class="mt-6 space-y-4"></div>
+          </div>
+          <div class="panel rounded-[28px] p-6">
+            <p class="heading-font text-xl font-semibold">Chain Notes</p>
+            <div id="chain-panel" class="mt-6 space-y-4"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-staking" class="tab-panel hidden space-y-6">
+        <div id="staking-content"></div>
+      </section>
+
+      <section id="tab-governance" class="tab-panel hidden space-y-6">
+        <div id="governance-content"></div>
+      </section>
+
+      <section id="tab-rpg" class="tab-panel hidden space-y-6">
+        <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">My Adventurer Profile</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Level, EXP, verification, and monthly withdrawal gates from TavernClientRPG.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Client progression</span>
+            </div>
+            <div id="rpg-profile-content" class="mt-6"></div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Season Ledger</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Current season number and cadence from the live RPG contract.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">180 day cycle</span>
+              </div>
+              <div id="rpg-season-content" class="mt-6"></div>
+            </div>
+
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">TVRN Withdrawal Eligibility</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Preview the on-chain gate before calling a withdraw flow.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">Read only checker</span>
+              </div>
+              <div class="mt-6 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">TVRN amount</span>
+                  <input id="rpg-withdraw-amount" class="field" type="number" min="0" step="0.0001" placeholder="25">
+                </label>
+                <button id="rpg-check-eligibility" type="button" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Check Eligibility</button>
+              </div>
+              <div id="rpg-eligibility-output" class="mt-4"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-subscription" class="tab-panel hidden space-y-6">
+        <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Browse Agent Subscriptions</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Check an agent monthly rate, approve USDC if needed, then subscribe on-chain.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Immediate settle</span>
+            </div>
+            <div class="mt-6 grid gap-4">
+              <label class="block">
+                <span class="mb-2 block text-sm text-[var(--muted)]">Agent address</span>
+                <input id="subscription-agent-address" class="field" type="text" placeholder="0x...">
+              </label>
+              <div class="flex flex-wrap gap-3">
+                <button id="subscription-check-rate" type="button" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Check Rate</button>
+                <button id="subscription-subscribe" type="button" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Subscribe</button>
+              </div>
+            </div>
+            <div id="subscription-rate-result" class="mt-6"></div>
+            <div id="subscription-action-status" class="mt-4"></div>
+          </div>
+
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">My Active Subscriptions</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Known subscriptions found from quest-linked agents and the current lookup target.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">ClientAgentSub</span>
+            </div>
+            <div id="subscription-active-list" class="mt-6 space-y-4"></div>
+          </div>
+        </div>
+
+        <div class="panel-soft rounded-[28px] p-6">
+          <p class="heading-font text-xl font-semibold">Fee Transparency</p>
+          <div class="mt-3 text-sm leading-6 text-[var(--muted)]">
+            <p>Subscription fees are settled immediately: 95% goes directly to the agent, 5% platform fee.</p>
+            <p class="mt-2">No funds are held in escrow. Trustless, transparent, on-chain.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="tx-overlay" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/55 px-4">
+    <div class="panel max-w-lg rounded-[28px] p-6 text-center">
+      <p class="heading-font text-xl font-semibold">Transaction in progress</p>
+      <p id="tx-overlay-text" class="mt-3 text-sm leading-6 text-[var(--muted)]">Waiting for wallet confirmation...</p>
+      <div class="mx-auto mt-5 h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-[var(--gold)]"></div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="fixed inset-0 z-45 hidden items-center justify-center bg-black/55 px-4">
+    <div class="panel max-w-lg rounded-[28px] p-6 text-center">
+      <p class="heading-font text-xl font-semibold">Confirm Transaction</p>
+      <p id="confirm-modal-text" class="mt-3 text-sm leading-6 text-[var(--muted)]"></p>
+      <div id="confirm-modal-details" class="panel-soft mt-4 rounded-2xl p-4 text-left text-sm"></div>
+      <div class="mt-5 flex justify-center gap-3">
+        <button id="confirm-modal-ok" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Confirm</button>
+        <button id="confirm-modal-cancel" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="evaluation-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
+    <div class="panel w-full max-w-3xl rounded-[28px] p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="heading-font text-2xl font-semibold">Submit Evaluation</p>
+          <p id="evaluation-subtitle" class="mt-2 text-sm text-[var(--muted)]">Five-axis scoring, optional commentary, and live reward preview.</p>
+        </div>
+        <button id="close-evaluation-modal" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
+      </div>
+      <div id="evaluation-score-grid" class="mt-6 grid gap-5 md:grid-cols-2"></div>
+      <div class="mt-6 grid gap-4">
+        <label class="block">
+          <span class="mb-2 block text-sm text-[var(--muted)]">Comment</span>
+          <textarea id="evaluation-comment" class="field min-h-[120px]" placeholder="What worked, what did not, and whether you would hire the same agent again."></textarea>
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-sm text-[var(--muted)]">Tags</span>
+          <input id="evaluation-tags" class="field" type="text" placeholder="accurate, practical, responsive">
+        </label>
+      </div>
+      <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Reward preview</p>
+          <p id="evaluation-reward-preview" class="mt-2 text-lg font-semibold">Reward preview unavailable</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Live preview uses previewEvaluationReward(client, agent, comment, tags) so monthly decay and same-agent caps are reflected.</p>
+        </div>
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Reward ladder</p>
+          <ul class="mt-2 space-y-2 text-sm text-[var(--muted)]">
+            <li>5 scores submitted: +1 TVRN</li>
+            <li>5 scores + 50+ character comment: +3 TVRN</li>
+            <li>5 scores + 100+ character comment + tags: +5 TVRN</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <button id="submit-evaluation-button" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Submit Evaluation</button>
+        <button id="mark-viewed-button" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Mark Result Viewed</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-stack" class="fixed bottom-4 right-4 z-[60] flex max-w-sm flex-col gap-3"></div>
+
+  <script>
+    const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+    const NETWORK_CONFIG = {
+      baseSepolia: {
+        profileKey: "baseSepolia",
+        networkLabel: "Base Sepolia",
+        guildHallLabel: "Base Sepolia Guild Hall",
+        chainName: "Base Sepolia",
+        chainId: 84532,
+        chainHex: "0x14A34",
+        rpcUrl: "https://sepolia.base.org",
+        explorer: "https://sepolia.basescan.org",
+        explorerTx: "https://sepolia.basescan.org/tx/",
+        zeroAddress: ZERO_ADDRESS,
+        addresses: {
+          adminPriceFeed: "0x1E072c705Cb306BA3Dd03A5f952ecd0c82416F80",
+          tavernToken: "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+          tavernRegistry: "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
+          tavernEscrow: "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+          tavernStaking: "0x77235E24b49936cE3D6b195E6a1c4c68F686D82A",
+          tavernGovernance: "0x8c653FFe2EaD67a7147D86e9a0c9617F31b95f3C",
+          tavernAutomationRouter: "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+          tavernClientRPG: "0x877183b139981A4e7Dd593f6223C56e28032fc7D",
+          tavernSubscription: "0xEDc2D80075F26399f3af2d61800bdf95DCC90AaA",
+          usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+        }
+      },
+      base: {
+        profileKey: "base",
+        networkLabel: "Base Mainnet",
+        guildHallLabel: "Base Mainnet Guild Hall",
+        chainName: "Base",
+        chainId: 8453,
+        chainHex: "0x2105",
+        rpcUrl: "https://mainnet.base.org",
+        explorer: "https://basescan.org",
+        explorerTx: "https://basescan.org/tx/",
+        zeroAddress: ZERO_ADDRESS,
+        addresses: {
+          adminPriceFeed: "0xb484695F28382E9960d37728Aa724777FC252149",
+          tavernToken: "0x7E0185DF566269906711ada358cD816394e20447",
+          tavernRegistry: "0xF19Fc7b03Af2704e9a8d7D11071dE92014B9A0ac",
+          tavernEscrow: "0xd78000aDdd0e9eFAf597fDFE8BF47aF2b6cd53e4",
+          tavernStaking: "0x8593D907FC46Ea84c2d6C74E78b04565DAD8860E",
+          tavernGovernance: "0x46407450a1CeAB0F6BFd40e1df33D85fB1E088Ca",
+          tavernAutomationRouter: "0x5dfCd50a8412AebC87F97eE2fD890924643b40EC",
+          tavernClientRPG: "0xAAA156e23D8E89FBA9f17C3e4ff6ad42ed9fB4A3",
+          tavernSubscription: "0x1868c2133Cb6cB0cF993e0F877CE0B8C758050CB",
+          usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        }
+      }
+    };
+
+    const ACTIVE_NETWORK_KEY = new URLSearchParams(window.location.search).get("network") === "base"
+      ? "base"
+      : "baseSepolia";
+    const CONFIG = NETWORK_CONFIG[ACTIVE_NETWORK_KEY];
+    document.title = `Claw Tavern | ${CONFIG.networkLabel} Quest Board`;
+
+    const STATE_NAMES = [
+      "Created",
+      "Funded",
+      "Accepted",
+      "InProgress",
+      "Submitted",
+      "Evaluated",
+      "AutoApproved",
+      "Compensated",
+      "TimedOut",
+      "Cancelled",
+      "Disputed"
+    ];
+
+    const STATE_CLASS = {
+      Created: "state-created",
+      Funded: "state-funded",
+      Accepted: "state-accepted",
+      InProgress: "state-inprogress",
+      Submitted: "state-submitted",
+      Evaluated: "state-evaluated",
+      AutoApproved: "state-autoapproved",
+      Compensated: "state-compensated",
+      TimedOut: "state-timedout",
+      Cancelled: "state-cancelled",
+      Disputed: "state-disputed"
+    };
+
+    const JOB_LABELS = ["Reasoning", "Coding", "Economy", "Orchestration", "Assistant", "Other"];
+
+    const EVALUATION_AXES = [
+      ["task_completion", "Task completion"],
+      ["accuracy", "Accuracy"],
+      ["practicality", "Practicality"],
+      ["communication", "Communication"],
+      ["rehire_intent", "Rehire intent"]
+    ];
+
+    const GOV_STATE_NAMES = ["Active", "Defeated", "Queued", "Executed", "Cancelled"];
+
+    const GOV_STATE_CLASSES = {
+      Active: "state-accepted",
+      Defeated: "state-timedout",
+      Queued: "state-submitted",
+      Executed: "state-evaluated",
+      Cancelled: "state-cancelled"
+    };
+
+    const PROPOSAL_TYPE_NAMES = [
+      "Guild Fee Change",
+      "Guild Master Change",
+      "Sub-Token Issuance",
+      "Platform Fee Change",
+      "Force Dissolve Guild",
+      "Emergency Freeze"
+    ];
+
+    const STAKING_BOND_AMOUNT = ethers.parseUnits("100", 18);
+    const STAKING_COOLDOWN_SECONDS = 7 * 24 * 60 * 60;
+    const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
+
+    const ESCROW_ABI = [
+      "function nextQuestId() view returns (uint256)",
+      "function currentFeeStage() view returns (uint256)",
+      "function quests(uint256) view returns (uint256 questId, address client, address agent, address currency, uint256 depositAmount, uint8 state, uint256 createdAt, uint256 fundedAt, uint256 acceptedAt, uint256 submittedAt, uint256 resultViewedAt, uint256 evaluatedAt, bool compensated, uint256 tvrnUnlockTime)",
+      "function questBriefUris(uint256) view returns (string)",
+      "function evaluationAvgScore(uint256) view returns (uint256)",
+      "function clientTvrnUnlockAt(address) view returns (uint256)",
+      "function creditBalanceOf(address) view returns (uint256)",
+      "function getQuestResult(uint256) view returns (bytes32 resultHash, string resultUri, uint256 heartbeatAt)",
+      "function previewCompensation(uint256) view returns (uint256 tvrnAmount, uint256 creditAmountUsd18, uint256 operatorAmount)",
+      "function previewEvaluationReward(address,address,string,string[]) view returns (uint256)",
+      "function createQuest(address,uint256,bytes32,string) returns (uint256)",
+      "function fundQuestUSDC(uint256)",
+      "function fundQuestETH(uint256) payable",
+      "function cancelQuest(uint256)",
+      "function acceptQuest(uint256)",
+      "function recordHeartbeat(uint256)",
+      "function submitResult(uint256,bytes32,string)",
+      "function recordResultViewed(uint256)",
+      "function submitEvaluation(uint256,uint8[5],string,string[])",
+      "event QuestCreated(uint256 indexed questId, address indexed client, address currency, uint256 amount)"
+    ];
+
+    const TOKEN_ABI = [
+      "function balanceOf(address) view returns (uint256)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)",
+      "function tvrnUnlockAt(address) view returns (uint256)",
+      "function remainingEcosystemPool() view returns (uint256)",
+      "function approve(address,uint256) returns (bool)",
+      "function allowance(address,address) view returns (uint256)"
+    ];
+
+    const REGISTRY_ABI = [
+      "function jobQuota(uint256) view returns (uint256)",
+      "function agents(address) view returns (uint256 guildId, uint8 rank, uint256 reputation, uint256 questsDone, uint256 totalEarned, uint256 joinedAt, bool isActive, string modelType, address wallet)"
+    ];
+
+    const USDC_ABI = [
+      "function balanceOf(address) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function approve(address spender, uint256 amount) returns (bool)",
+      "function allowance(address owner, address spender) view returns (uint256)"
+    ];
+
+    const STAKING_ABI = [
+      "function stakes(address) view returns (uint256 amount, uint256 unstakeRequestAt, bool slashed)",
+      "function isStaked(address) view returns (bool)",
+      "function stake()",
+      "function requestUnstake()",
+      "function withdraw()"
+    ];
+
+    const GOVERNANCE_ABI = [
+      "function nextProposalId() view returns (uint256)",
+      "function proposals(uint256) view returns (uint256 id, address proposer, uint8 proposalType, bytes callData, address target, uint256 forVotes, uint256 againstVotes, uint256 abstainVotes, uint256 startTime, uint256 endTime, uint256 eta, uint8 state, string description)",
+      "function hasVoted(uint256, address) view returns (bool)",
+      "function quorum() view returns (uint256)",
+      "function getVotingPower(address, uint256) view returns (uint256)",
+      "function propose(uint8, address, bytes, string) returns (uint256)",
+      "function vote(uint256, uint8)",
+      "function queue(uint256)",
+      "function execute(uint256)",
+      "function cancel(uint256)",
+      "function hasRole(bytes32,address) view returns (bool)",
+      "event ProposalCreated(uint256 indexed id, address indexed proposer, uint8 proposalType, address target, string description)"
+    ];
+
+    const ADMIN_PRICE_FEED_ABI = [
+      "function latestRoundData() view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)",
+      "function refreshPrice()"
+    ];
+
+    const AUTOMATION_ROUTER_ABI = [
+      "function checkUpkeep(bytes) view returns (bool upkeepNeeded, bytes performData)",
+      "function clientRPG() view returns (address)",
+      "function subscriptionContract() view returns (address)"
+    ];
+
+    // v2 exposes public getters directly instead of a single getClientProfile/currentSeason helper.
+    const RPG_ABI = [
+      "function clientProfiles(address) view returns (uint256 registeredAt, uint256 exp, uint256 level, uint256 totalJobsCompleted, uint256 lastWithdrawalAt, uint256 withdrawnThisMonth, uint256 lastWithdrawalMonth, bool verified, bool banned)",
+      "function clientClaimable(address) view returns (uint256)",
+      "function currentSeasonNumber() view returns (uint256)",
+      "function checkWithdrawalEligible(address,uint256) view returns (bool eligible, string reason)"
+    ];
+
+    // v2 exposes clientAgentSub + subscriptions(...) instead of a separate getSubscription helper.
+    const SUBSCRIPTION_ABI = [
+      "function subscriptions(uint256) view returns (address client, address agent, uint256 monthlyRateUsdc, uint256 currentPeriodStart, uint256 currentPeriodEnd, bool active, bool cancelledByClient)",
+      "function clientAgentSub(address,address) view returns (uint256)",
+      "function agentMonthlyRate(address) view returns (uint256)",
+      "function subscribe(address)",
+      "function cancelSubscription(uint256)"
+    ];
+
+    const RPG_LEVEL_LABELS = {
+      0: "Unranked",
+      1: "Novice",
+      2: "Apprentice",
+      3: "Journeyman",
+      4: "Veteran",
+      5: "Master",
+      6: "Legend"
+    };
+    const RPG_LEVEL_THRESHOLDS = [0, 100, 500, 2000, 8000, 20000];
+    const MAX_SUBSCRIPTION_AGENT_SCAN = 20;
+
+    const appState = {
+      activeNetworkKey: ACTIVE_NETWORK_KEY,
+      currentTab: "quest-board",
+      readProvider: new ethers.JsonRpcProvider(CONFIG.rpcUrl),
+      browserProvider: null,
+      signer: null,
+      account: null,
+      chainId: null,
+      questTotal: 0,
+      quests: [],
+      quotas: [],
+      feeStage: 0,
+      tvrnSymbol: "TVRN",
+      tvrnDecimals: 18,
+      usdcDecimals: 6,
+      blockNumber: null,
+      balances: {
+        tvrn: 0n,
+        usdc: 0n,
+        creditUsd18: 0n,
+        unlockAt: 0n,
+        ecosystemPool: 0n
+      },
+      stakeInfo: {
+        amount: 0n,
+        unstakeRequestAt: 0n,
+        slashed: false
+      },
+      agentProfile: null,
+      proposals: [],
+      governanceProposalCount: 0,
+      governanceQuorum: 0n,
+      votingPower: 0n,
+      isGovernanceAdmin: false,
+      rpgProfile: null,
+      rpgClaimable: 0n,
+      rpgSeasonNumber: null,
+      rpgStatus: "",
+      rpgEligibility: null,
+      subscriptionLookupAgent: "",
+      subscriptionLookupRate: null,
+      subscriptionLookupSubscription: null,
+      subscriptionLookupMessage: "",
+      subscriptionLookupError: "",
+      subscriptionSubscriptions: [],
+      subscriptionListNote: "",
+      subscriptionLastAction: null,
+      lastRefreshAt: null,
+      pendingAction: "",
+      evaluationQuestId: null,
+      evaluationScores: [5, 5, 5, 5, 5]
+    };
+
+    const refs = {};
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function bindRefs() {
+      refs.networkProfileTitle = $("network-profile-title");
+      refs.networkNameBadge = $("network-name-badge");
+      refs.networkChainBadge = $("network-chain-badge");
+      refs.connectWallet = $("connect-wallet");
+      refs.accountPill = $("account-pill");
+      refs.chainMismatchWarning = $("chain-mismatch-warning");
+      refs.questBoardGrid = $("quest-board-grid");
+      refs.clientQuests = $("client-quests");
+      refs.agentWorkbench = $("agent-workbench");
+      refs.kpiGrid = $("kpi-grid");
+      refs.compensatedGrid = $("compensated-grid");
+      refs.evaluationQueue = $("evaluation-queue");
+      refs.quotaGrid = $("quota-grid");
+      refs.tokenSummary = $("token-summary");
+      refs.stakingContent = $("staking-content");
+      refs.governanceContent = $("governance-content");
+      refs.rpgProfileContent = $("rpg-profile-content");
+      refs.rpgSeasonContent = $("rpg-season-content");
+      refs.rpgWithdrawAmount = $("rpg-withdraw-amount");
+      refs.rpgCheckEligibility = $("rpg-check-eligibility");
+      refs.rpgEligibilityOutput = $("rpg-eligibility-output");
+      refs.subscriptionAgentAddress = $("subscription-agent-address");
+      refs.subscriptionCheckRate = $("subscription-check-rate");
+      refs.subscriptionSubscribe = $("subscription-subscribe");
+      refs.subscriptionRateResult = $("subscription-rate-result");
+      refs.subscriptionActionStatus = $("subscription-action-status");
+      refs.subscriptionActiveList = $("subscription-active-list");
+      refs.walletPanel = $("wallet-panel");
+      refs.chainPanel = $("chain-panel");
+      refs.adminPriceFeedAddressCard = $("admin-price-feed-address-card");
+      refs.adminPriceFeedAddressLabel = $("admin-price-feed-address-label");
+      refs.tokenAddressCard = $("token-address-card");
+      refs.tokenAddressLabel = $("token-address-label");
+      refs.registryAddressCard = $("registry-address-card");
+      refs.registryAddressLabel = $("registry-address-label");
+      refs.escrowAddressCard = $("escrow-address-card");
+      refs.escrowAddressLabel = $("escrow-address-label");
+      refs.usdcAddressCard = $("usdc-address-card");
+      refs.usdcAddressLabel = $("usdc-address-label");
+      refs.stakingAddressCard = $("staking-address-card");
+      refs.stakingAddressLabel = $("staking-address-label");
+      refs.governanceAddressCard = $("governance-address-card");
+      refs.governanceAddressLabel = $("governance-address-label");
+      refs.automationRouterAddressCard = $("automation-router-address-card");
+      refs.automationRouterAddressLabel = $("automation-router-address-label");
+      refs.clientRpgAddressCard = $("client-rpg-address-card");
+      refs.clientRpgAddressLabel = $("client-rpg-address-label");
+      refs.subscriptionAddressCard = $("subscription-address-card");
+      refs.subscriptionAddressLabel = $("subscription-address-label");
+      refs.txOverlay = $("tx-overlay");
+      refs.txOverlayText = $("tx-overlay-text");
+      refs.confirmModal = $("confirm-modal");
+      refs.confirmModalText = $("confirm-modal-text");
+      refs.confirmModalDetails = $("confirm-modal-details");
+      refs.confirmModalOk = $("confirm-modal-ok");
+      refs.confirmModalCancel = $("confirm-modal-cancel");
+      refs.toastStack = $("toast-stack");
+      refs.lastRefreshLabel = $("last-refresh-label");
+      refs.briefHashPreview = $("brief-hash-preview");
+      refs.createQuestSubtitle = $("create-quest-subtitle");
+      refs.createQuestModeBadge = $("create-quest-mode-badge");
+      refs.questCurrency = $("quest-currency");
+      refs.questAmount = $("quest-amount");
+      refs.questBrief = $("quest-brief");
+      refs.questBriefUri = $("quest-brief-uri");
+      refs.createQuestSubmit = $("create-quest-submit");
+      refs.createQuestStatus = $("create-quest-status");
+      refs.createQuestForm = $("create-quest-form");
+      refs.refreshBoard = $("refresh-board");
+      refs.questNotesTitle = $("quest-notes-title");
+      refs.questNotesSubtitle = $("quest-notes-subtitle");
+      refs.questNoteRewardBody = $("quest-note-reward-body");
+      refs.questNoteCompensationBody = $("quest-note-compensation-body");
+      refs.questNoteOpsBody = $("quest-note-ops-body");
+      refs.evaluationModal = $("evaluation-modal");
+      refs.evaluationSubtitle = $("evaluation-subtitle");
+      refs.evaluationScoreGrid = $("evaluation-score-grid");
+      refs.evaluationComment = $("evaluation-comment");
+      refs.evaluationTags = $("evaluation-tags");
+      refs.evaluationRewardPreview = $("evaluation-reward-preview");
+      refs.submitEvaluationButton = $("submit-evaluation-button");
+      refs.markViewedButton = $("mark-viewed-button");
+      refs.closeEvaluationModal = $("close-evaluation-modal");
+    }
+
+    function isZeroAddress(value) {
+      return !value || value.toLowerCase() === CONFIG.zeroAddress.toLowerCase();
+    }
+
+    function hasCoreDeployment() {
+      return ![
+        CONFIG.addresses.tavernToken,
+        CONFIG.addresses.tavernRegistry,
+        CONFIG.addresses.tavernEscrow,
+        CONFIG.addresses.usdc
+      ].some(isZeroAddress);
+    }
+
+    function getOptionalContract(address, abi, runner) {
+      return isZeroAddress(address) ? null : new ethers.Contract(address, abi, runner);
+    }
+
+    function getReadContracts() {
+      if (!hasCoreDeployment()) {
+        throw new Error(`${CONFIG.networkLabel} profile is not populated yet.`);
+      }
+
+      const provider = appState.readProvider;
+      return {
+        adminPriceFeed: getOptionalContract(CONFIG.addresses.adminPriceFeed, ADMIN_PRICE_FEED_ABI, provider),
+        escrow: new ethers.Contract(CONFIG.addresses.tavernEscrow, ESCROW_ABI, provider),
+        token: new ethers.Contract(CONFIG.addresses.tavernToken, TOKEN_ABI, provider),
+        registry: new ethers.Contract(CONFIG.addresses.tavernRegistry, REGISTRY_ABI, provider),
+        usdc: new ethers.Contract(CONFIG.addresses.usdc, USDC_ABI, provider),
+        staking: getOptionalContract(CONFIG.addresses.tavernStaking, STAKING_ABI, provider),
+        governance: getOptionalContract(CONFIG.addresses.tavernGovernance, GOVERNANCE_ABI, provider),
+        automationRouter: getOptionalContract(CONFIG.addresses.tavernAutomationRouter, AUTOMATION_ROUTER_ABI, provider),
+        clientRPG: getOptionalContract(CONFIG.addresses.tavernClientRPG, RPG_ABI, provider),
+        subscription: getOptionalContract(CONFIG.addresses.tavernSubscription, SUBSCRIPTION_ABI, provider)
+      };
+    }
+
+    function getWriteContracts() {
+      if (!appState.signer) {
+        throw new Error("Connect a wallet first.");
+      }
+      if (!hasCoreDeployment()) {
+        throw new Error(`${CONFIG.networkLabel} profile is not populated yet.`);
+      }
+
+      return {
+        adminPriceFeed: getOptionalContract(CONFIG.addresses.adminPriceFeed, ADMIN_PRICE_FEED_ABI, appState.signer),
+        escrow: new ethers.Contract(CONFIG.addresses.tavernEscrow, ESCROW_ABI, appState.signer),
+        token: new ethers.Contract(CONFIG.addresses.tavernToken, TOKEN_ABI, appState.signer),
+        registry: new ethers.Contract(CONFIG.addresses.tavernRegistry, REGISTRY_ABI, appState.signer),
+        usdc: new ethers.Contract(CONFIG.addresses.usdc, USDC_ABI, appState.signer),
+        staking: getOptionalContract(CONFIG.addresses.tavernStaking, STAKING_ABI, appState.signer),
+        governance: getOptionalContract(CONFIG.addresses.tavernGovernance, GOVERNANCE_ABI, appState.signer),
+        automationRouter: getOptionalContract(CONFIG.addresses.tavernAutomationRouter, AUTOMATION_ROUTER_ABI, appState.signer),
+        clientRPG: getOptionalContract(CONFIG.addresses.tavernClientRPG, RPG_ABI, appState.signer),
+        subscription: getOptionalContract(CONFIG.addresses.tavernSubscription, SUBSCRIPTION_ABI, appState.signer)
+      };
+    }
+
+    function shortenAddress(value) {
+      if (!value || value === CONFIG.zeroAddress) {
+        return "Unassigned";
+      }
+      return `${value.slice(0, 6)}...${value.slice(-4)}`;
+    }
+
+    function shortenHash(value) {
+      if (!value || /^0x0+$/.test(value)) {
+        return "n/a";
+      }
+      return `${value.slice(0, 10)}...${value.slice(-6)}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function sanitizeUri(uri) {
+      if (!uri) {
+        return null;
+      }
+      if (uri.startsWith("ipfs://")) {
+        return `https://ipfs.io/ipfs/${uri.replace("ipfs://", "")}`;
+      }
+      if (uri.startsWith("https://") || uri.startsWith("http://")) {
+        return uri;
+      }
+      return null;
+    }
+
+    function stateNameFromIndex(index) {
+      return STATE_NAMES[index] ?? `Unknown (${index})`;
+    }
+
+    function stateBadge(state) {
+      const name = stateNameFromIndex(state);
+      const css = STATE_CLASS[name] ?? "state-created";
+      return `<span class="badge ${css} rounded-full px-3 py-1 text-xs font-semibold">${escapeHtml(name)}</span>`;
+    }
+
+    function formatTimestamp(value) {
+      const unix = Number(value ?? 0n);
+      if (!unix) {
+        return "Not set";
+      }
+      return new Date(unix * 1000).toLocaleString();
+    }
+
+    function formatRelativeDays(unlockAt) {
+      const ts = Number(unlockAt ?? 0n);
+      if (!ts) {
+        return "Unlocked";
+      }
+      const now = Date.now();
+      const diffMs = ts * 1000 - now;
+      if (diffMs <= 0) {
+        return "Unlocked";
+      }
+      return `${Math.ceil(diffMs / (1000 * 60 * 60 * 24))} days left`;
+    }
+
+    function formatCountdown(targetTimestamp) {
+      const ts = Number(targetTimestamp ?? 0n);
+      if (!ts) {
+        return "Not started";
+      }
+
+      const remaining = ts - Math.floor(Date.now() / 1000);
+      if (remaining <= 0) {
+        return "Ready now";
+      }
+
+      const days = Math.floor(remaining / 86400);
+      const hours = Math.floor((remaining % 86400) / 3600);
+      const minutes = Math.floor((remaining % 3600) / 60);
+
+      if (days > 0) {
+        return `${days}d ${hours}h remaining`;
+      }
+      if (hours > 0) {
+        return `${hours}h ${minutes}m remaining`;
+      }
+      return `${Math.max(1, minutes)}m remaining`;
+    }
+
+    function formatUnits(value, decimals, digits = 4) {
+      const text = ethers.formatUnits(value ?? 0n, decimals);
+      const [whole, fraction = ""] = text.split(".");
+      if (!fraction.length) {
+        return whole;
+      }
+      return `${whole}.${fraction.slice(0, digits).replace(/0+$/, "")}`.replace(/\.$/, "");
+    }
+
+    function formatQuestValue(currency, amount) {
+      if (currency === CONFIG.zeroAddress) {
+        return `${formatUnits(amount, 18)} ETH`;
+      }
+      return `${formatUnits(amount, appState.usdcDecimals, 2)} USDC`;
+    }
+
+    function formatUsdCredit(value) {
+      return `${formatUnits(value, 18, 2)} credits`;
+    }
+
+    function getRpgLevelLabel(level) {
+      return RPG_LEVEL_LABELS[Number(level ?? 0)] ?? `Level ${level}`;
+    }
+
+    function getRpgProgress(exp, level) {
+      const safeLevel = Math.max(0, Number(level ?? 0));
+      const safeExp = Number(exp ?? 0n);
+
+      if (safeLevel >= RPG_LEVEL_THRESHOLDS.length) {
+        return {
+          percent: 100,
+          currentFloor: RPG_LEVEL_THRESHOLDS[RPG_LEVEL_THRESHOLDS.length - 1],
+          nextThreshold: null,
+          remaining: 0
+        };
+      }
+
+      const currentIndex = Math.max(0, safeLevel - 1);
+      const currentFloor = RPG_LEVEL_THRESHOLDS[currentIndex] ?? 0;
+      const nextThreshold = RPG_LEVEL_THRESHOLDS[currentIndex + 1] ?? null;
+      if (!nextThreshold) {
+        return { percent: 100, currentFloor, nextThreshold: null, remaining: 0 };
+      }
+
+      const span = Math.max(1, nextThreshold - currentFloor);
+      const percent = ((Math.max(safeExp, currentFloor) - currentFloor) / span) * 100;
+      return {
+        percent: Math.max(0, Math.min(100, percent)),
+        currentFloor,
+        nextThreshold,
+        remaining: Math.max(0, nextThreshold - safeExp)
+      };
+    }
+
+    function renderToneBadge(label, tone = "slate") {
+      const styles = {
+        gold: "border-color: rgba(216, 169, 51, 0.36); background: rgba(216, 169, 51, 0.14); color: #ffe39b;",
+        emerald: "border-color: rgba(47, 141, 113, 0.36); background: rgba(47, 141, 113, 0.16); color: #b8f0dc;",
+        ember: "border-color: rgba(218, 107, 56, 0.4); background: rgba(218, 107, 56, 0.16); color: #ffd3b8;",
+        slate: "border-color: rgba(148, 163, 184, 0.3); background: rgba(148, 163, 184, 0.12); color: #d8dee9;"
+      };
+
+      return `<span class="badge rounded-full px-3 py-1 text-xs font-semibold" style="${styles[tone] ?? styles.slate}">${escapeHtml(label)}</span>`;
+    }
+
+    function normalizeSubscription(subId, subRaw) {
+      return {
+        subId: Number(subId),
+        client: subRaw.client,
+        agent: subRaw.agent,
+        monthlyRateUsdc: subRaw.monthlyRateUsdc,
+        currentPeriodStart: Number(subRaw.currentPeriodStart),
+        currentPeriodEnd: Number(subRaw.currentPeriodEnd),
+        active: Boolean(subRaw.active),
+        cancelledByClient: Boolean(subRaw.cancelledByClient)
+      };
+    }
+
+    function getSubscriptionStatusMeta(subscription) {
+      const now = Math.floor(Date.now() / 1000);
+
+      if (!subscription.active) {
+        return { label: subscription.cancelledByClient ? "Cancelled" : "Expired", tone: "slate" };
+      }
+      if (subscription.cancelledByClient && now <= subscription.currentPeriodEnd) {
+        return { label: "Cancelled at term end", tone: "ember" };
+      }
+      if (now > subscription.currentPeriodEnd) {
+        return { label: "Expired awaiting upkeep", tone: "ember" };
+      }
+      return { label: "Active", tone: "emerald" };
+    }
+
+    function collectKnownAgentAddresses(extraAgent = "") {
+      const deduped = new Map();
+
+      if (extraAgent && !isZeroAddress(extraAgent)) {
+        deduped.set(extraAgent.toLowerCase(), extraAgent);
+      }
+
+      for (const quest of appState.quests) {
+        if (!quest.agent || isZeroAddress(quest.agent)) {
+          continue;
+        }
+        deduped.set(quest.agent.toLowerCase(), quest.agent);
+      }
+
+      return Array.from(deduped.values()).slice(0, MAX_SUBSCRIPTION_AGENT_SCAN);
+    }
+
+    function shortenText(value, limit = 120) {
+      const text = String(value ?? "").trim();
+      if (!text) {
+        return "No description provided.";
+      }
+      return text.length > limit ? `${text.slice(0, limit - 1)}...` : text;
+    }
+
+    function governanceStateNameFromIndex(index) {
+      return GOV_STATE_NAMES[index] ?? `Unknown (${index})`;
+    }
+
+    function governanceStateBadge(index) {
+      const name = governanceStateNameFromIndex(index);
+      const css = GOV_STATE_CLASSES[name] ?? "state-created";
+      return `<span class="badge ${css} rounded-full px-3 py-1 text-xs font-semibold">${escapeHtml(name)}</span>`;
+    }
+
+    function proposalTypeNameFromIndex(index) {
+      return PROPOSAL_TYPE_NAMES[index] ?? `Type ${index}`;
+    }
+
+    function proposalVotePercent(votes, totalVotes) {
+      if (!totalVotes) {
+        return 0;
+      }
+      return (Number(votes) / Number(totalVotes)) * 100;
+    }
+
+    function renderProgressBar(value, cssClass = "") {
+      const width = Math.max(0, Math.min(100, value));
+      return `
+        <div class="progress-rail ${cssClass}">
+          <div class="progress-fill" style="width:${width}%"></div>
+        </div>
+      `;
+    }
+
+    function isProposalVotingOpen(proposal) {
+      return proposal.state === 0 && proposal.endTime > Math.floor(Date.now() / 1000);
+    }
+
+    function hasProposalVotingEnded(proposal) {
+      return proposal.state === 0 && proposal.endTime <= Math.floor(Date.now() / 1000);
+    }
+
+    function canExecuteProposal(proposal) {
+      return proposal.state === 2 && proposal.eta > 0 && proposal.eta <= Math.floor(Date.now() / 1000);
+    }
+
+    function activeQuestCount(quests) {
+      return quests.filter((quest) => [1, 2, 3, 4].includes(quest.state)).length;
+    }
+
+    function safeAverageDisplay(tenths) {
+      return tenths ? (tenths / 10).toFixed(1) : "n/a";
+    }
+
+    function getCompensationReason(quest) {
+      if (!quest.compensated) {
+        return "n/a";
+      }
+      if (!quest.submittedAt && !quest.evaluatedAt) {
+        return "TimedOut";
+      }
+      if (!quest.resultViewedAt && quest.avgScoreTenths <= 10) {
+        return "Unread + 1 point";
+      }
+      return "Viewed + <=2 points";
+    }
+
+    function buildTxLink(hash) {
+      return `${CONFIG.explorerTx}${hash}`;
+    }
+
+    function renderAddressCard(card, labelNode, address) {
+      if (!card || !labelNode) {
+        return;
+      }
+
+      if (isZeroAddress(address)) {
+        card.removeAttribute("href");
+        card.classList.add("opacity-70");
+        labelNode.textContent = "Pending deploy";
+        return;
+      }
+
+      card.href = `${CONFIG.explorer}/address/${address}`;
+      card.classList.remove("opacity-70");
+      labelNode.textContent = shortenAddress(address);
+    }
+
+    function setPending(label) {
+      appState.pendingAction = label;
+      refs.txOverlayText.textContent = label;
+      refs.txOverlay.classList.remove("hidden");
+      refs.txOverlay.classList.add("flex");
+    }
+
+    function clearPending() {
+      refs.txOverlay.classList.add("hidden");
+      refs.txOverlay.classList.remove("flex");
+      appState.pendingAction = "";
+    }
+
+    function pushToast(message, kind = "info", txHash = null) {
+      const node = document.createElement("div");
+      const palette = {
+        info: "border-[rgba(246,223,142,0.25)] bg-[rgba(30,24,38,0.95)]",
+        success: "border-[rgba(55,162,129,0.35)] bg-[rgba(17,35,31,0.95)]",
+        error: "border-[rgba(218,107,56,0.4)] bg-[rgba(51,23,18,0.96)]"
+      };
+
+      node.className = `toast panel rounded-2xl border px-4 py-3 text-sm ${palette[kind] ?? palette.info}`;
+      node.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="font-semibold">${escapeHtml(message)}</p>
+            ${txHash ? `<a class="mt-1 inline-block text-xs text-[var(--gold-soft)] underline-offset-2 hover:underline" href="${buildTxLink(txHash)}" target="_blank" rel="noreferrer">View tx on explorer</a>` : ""}
+          </div>
+          <button class="text-xs text-[var(--muted)]" aria-label="Dismiss">Close</button>
+        </div>
+      `;
+      node.querySelector("button").addEventListener("click", () => node.remove());
+      refs.toastStack.appendChild(node);
+      window.setTimeout(() => node.remove(), 6500);
+    }
+
+    function getNetworkLabel() {
+      if (!appState.chainId) {
+        return "Read-only";
+      }
+      return Number(appState.chainId) === CONFIG.chainId ? CONFIG.networkLabel : `Chain ${appState.chainId}`;
+    }
+
+    function updateNetworkChrome() {
+      refs.networkProfileTitle.textContent = CONFIG.guildHallLabel;
+      refs.networkNameBadge.textContent = CONFIG.networkLabel;
+      refs.networkChainBadge.textContent = `Chain ${CONFIG.chainId}`;
+
+      renderAddressCard(refs.adminPriceFeedAddressCard, refs.adminPriceFeedAddressLabel, CONFIG.addresses.adminPriceFeed);
+      renderAddressCard(refs.tokenAddressCard, refs.tokenAddressLabel, CONFIG.addresses.tavernToken);
+      renderAddressCard(refs.registryAddressCard, refs.registryAddressLabel, CONFIG.addresses.tavernRegistry);
+      renderAddressCard(refs.escrowAddressCard, refs.escrowAddressLabel, CONFIG.addresses.tavernEscrow);
+      renderAddressCard(refs.usdcAddressCard, refs.usdcAddressLabel, CONFIG.addresses.usdc);
+      renderAddressCard(refs.stakingAddressCard, refs.stakingAddressLabel, CONFIG.addresses.tavernStaking);
+      renderAddressCard(refs.governanceAddressCard, refs.governanceAddressLabel, CONFIG.addresses.tavernGovernance);
+      renderAddressCard(refs.automationRouterAddressCard, refs.automationRouterAddressLabel, CONFIG.addresses.tavernAutomationRouter);
+      renderAddressCard(refs.clientRpgAddressCard, refs.clientRpgAddressLabel, CONFIG.addresses.tavernClientRPG);
+      renderAddressCard(refs.subscriptionAddressCard, refs.subscriptionAddressLabel, CONFIG.addresses.tavernSubscription);
+    }
+
+    function updateQuestBoardChrome() {
+      const live = hasCoreDeployment();
+      const questFields = [refs.questCurrency, refs.questAmount, refs.questBrief, refs.questBriefUri, refs.createQuestSubmit];
+
+      for (const field of questFields) {
+        field.disabled = !live;
+      }
+
+      refs.createQuestSubtitle.textContent = live
+        ? "The app hashes your brief locally, submits the quest, and then funds it in the correct currency."
+        : `${CONFIG.networkLabel} is configured in the UI, but live contract addresses have not been populated yet.`;
+      refs.createQuestModeBadge.textContent = live ? "USDC or ETH escrow" : "Pending deploy";
+      refs.createQuestStatus.textContent = live
+        ? "Wallet required for quest creation."
+        : `${CONFIG.networkLabel} quest creation is disabled until this profile is populated.`;
+
+      refs.questNotesTitle.textContent = live ? "Live Tavern Notes" : `${CONFIG.networkLabel} Rollout Notes`;
+      refs.questNotesSubtitle.textContent = live
+        ? "Evaluation rewards use the live preview contract call. Compensation cards show current TVRN lock timing."
+        : "This profile can already drive wallet switching and read-only chrome, but on-chain write actions remain disabled.";
+      refs.questNoteRewardBody.textContent = live
+        ? "1 TVRN for all five scores, 3 TVRN with a 50+ character comment, 5 TVRN with a 100+ character comment and tags. Monthly decay and same-agent caps are applied by the contract preview."
+        : "Reward previews stay disabled until the active profile has live TavernToken, TavernRegistry, and TavernEscrow addresses.";
+      refs.questNoteCompensationBody.textContent = live
+        ? "No refund. Low quality or timeout quests convert into TVRN plus credits, then lock TVRN transfers for 30 days."
+        : "Compensation policy is defined, but no settlement route is active on this profile until deployment addresses are filled in.";
+      refs.questNoteOpsBody.textContent = live
+        ? "`register:automation` is idempotent now. `verify:automation` checks upkeep health and stale keeper roles on-chain."
+        : "Populate the `base` profile after a real deploy and rerun browser QA before treating the mainnet frontend as production-ready.";
+
+      if (!live) {
+        refs.lastRefreshLabel.textContent = "Pending deploy";
+      }
+    }
+
+    function updateChainMismatchWarning() {
+      const hasMismatch = Boolean(appState.account) && Boolean(appState.chainId) && Number(appState.chainId) !== CONFIG.chainId;
+      refs.chainMismatchWarning.textContent = hasMismatch
+        ? `Connected wallet is on chain ${appState.chainId}, but this view expects ${CONFIG.networkLabel}.`
+        : "";
+      refs.chainMismatchWarning.classList.toggle("hidden", !hasMismatch);
+    }
+
+    function updateWalletPill() {
+      refs.accountPill.textContent = appState.account ? `${shortenAddress(appState.account)} | ${getNetworkLabel()}` : "Read-only";
+      refs.connectWallet.textContent = appState.account ? "Refresh Wallet" : "Connect Wallet";
+      updateChainMismatchWarning();
+    }
+
+    async function ensureConfiguredNetwork() {
+      if (!window.ethereum) {
+        throw new Error("No injected wallet found. Install MetaMask or Coinbase Wallet.");
+      }
+
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      if (!accounts || !accounts.length) {
+        throw new Error("Wallet connection was rejected.");
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      let network = await provider.getNetwork();
+
+      if (Number(network.chainId) !== CONFIG.chainId) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: CONFIG.chainHex }]
+          });
+        } catch (error) {
+          if (error && error.code === 4902) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: CONFIG.chainHex,
+                chainName: CONFIG.chainName,
+                nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                rpcUrls: [CONFIG.rpcUrl],
+                blockExplorerUrls: [CONFIG.explorer]
+              }]
+            });
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      appState.signer = await appState.browserProvider.getSigner();
+      appState.account = await appState.signer.getAddress();
+      appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
+      updateWalletPill();
+    }
+
+    async function syncBrowserWalletState() {
+      if (!window.ethereum) {
+        return;
+      }
+
+      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      appState.signer = await appState.browserProvider.getSigner();
+      appState.account = await appState.signer.getAddress();
+      appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
+      updateWalletPill();
+    }
+
+    async function primeMetadata() {
+      if (!hasCoreDeployment()) {
+        appState.tvrnSymbol = "TVRN";
+        appState.tvrnDecimals = 18;
+        appState.usdcDecimals = 6;
+        return;
+      }
+
+      const { token, usdc } = getReadContracts();
+      const [symbol, tvrnDecimals, usdcDecimals] = await Promise.all([
+        token.symbol(),
+        token.decimals(),
+        usdc.decimals()
+      ]);
+      appState.tvrnSymbol = symbol;
+      appState.tvrnDecimals = Number(tvrnDecimals);
+      appState.usdcDecimals = Number(usdcDecimals);
+    }
+
+    async function fetchQuest(questId, contracts) {
+      const [questRaw, briefUri, resultTuple, avgScoreTenths] = await Promise.all([
+        contracts.escrow.quests(questId),
+        contracts.escrow.questBriefUris(questId),
+        contracts.escrow.getQuestResult(questId),
+        contracts.escrow.evaluationAvgScore(questId)
+      ]);
+
+      const quest = {
+        questId: Number(questRaw.questId),
+        client: questRaw.client,
+        agent: questRaw.agent,
+        currency: questRaw.currency,
+        depositAmount: questRaw.depositAmount,
+        state: Number(questRaw.state),
+        createdAt: Number(questRaw.createdAt),
+        fundedAt: Number(questRaw.fundedAt),
+        acceptedAt: Number(questRaw.acceptedAt),
+        submittedAt: Number(questRaw.submittedAt),
+        resultViewedAt: Number(questRaw.resultViewedAt),
+        evaluatedAt: Number(questRaw.evaluatedAt),
+        compensated: Boolean(questRaw.compensated),
+        tvrnUnlockTime: questRaw.tvrnUnlockTime,
+        briefUri,
+        resultHash: resultTuple.resultHash,
+        resultUri: resultTuple.resultUri,
+        heartbeatAt: resultTuple.heartbeatAt,
+        avgScoreTenths: Number(avgScoreTenths)
+      };
+
+      if (quest.compensated) {
+        const preview = await contracts.escrow.previewCompensation(questId);
+        quest.compensationPreview = {
+          tvrnAmount: preview.tvrnAmount,
+          creditAmountUsd18: preview.creditAmountUsd18,
+          operatorAmount: preview.operatorAmount
+        };
+      }
+
+      return quest;
+    }
+
+    async function fetchProposal(proposalId, governanceContract) {
+      const reads = [governanceContract.proposals(proposalId)];
+      if (appState.account) {
+        reads.push(governanceContract.hasVoted(proposalId, appState.account));
+      }
+
+      const [proposalRaw, hasVoted = false] = await Promise.all(reads);
+      return {
+        id: Number(proposalRaw.id),
+        proposer: proposalRaw.proposer,
+        proposalType: Number(proposalRaw.proposalType),
+        callData: proposalRaw.callData,
+        target: proposalRaw.target,
+        forVotes: proposalRaw.forVotes,
+        againstVotes: proposalRaw.againstVotes,
+        abstainVotes: proposalRaw.abstainVotes,
+        startTime: Number(proposalRaw.startTime),
+        endTime: Number(proposalRaw.endTime),
+        eta: Number(proposalRaw.eta),
+        state: Number(proposalRaw.state),
+        description: proposalRaw.description,
+        hasVoted: Boolean(hasVoted)
+      };
+    }
+
+    async function fetchAllQuests(contracts) {
+      const total = Number(await contracts.escrow.nextQuestId());
+      appState.questTotal = total;
+
+      if (!total) {
+        return [];
+      }
+
+      const results = [];
+      const batchSize = 5;
+
+      for (let start = total; start >= 1; start -= batchSize) {
+        const ids = [];
+        for (let current = start; current > start - batchSize && current >= 1; current -= 1) {
+          ids.push(current);
+        }
+        const batch = await Promise.all(ids.map((id) => fetchQuest(id, contracts)));
+        results.push(...batch);
+      }
+
+      return results;
+    }
+
+    async function refreshData() {
+      if (!hasCoreDeployment()) {
+        appState.quests = [];
+        appState.quotas = Array(6).fill(0);
+        appState.feeStage = 0;
+        appState.blockNumber = await appState.readProvider.getBlockNumber().catch(() => null);
+        appState.lastRefreshAt = new Date();
+        appState.proposals = [];
+        appState.governanceProposalCount = 0;
+        appState.governanceQuorum = 0n;
+        appState.votingPower = 0n;
+        appState.isGovernanceAdmin = false;
+        appState.balances = {
+          tvrn: 0n,
+          usdc: 0n,
+          creditUsd18: 0n,
+          unlockAt: 0n,
+          ecosystemPool: 0n
+        };
+        appState.stakeInfo = { amount: 0n, unstakeRequestAt: 0n, slashed: false };
+        appState.agentProfile = null;
+        appState.rpgProfile = null;
+        appState.rpgClaimable = 0n;
+        appState.rpgSeasonNumber = null;
+        appState.rpgStatus = "RPG system not available on this network.";
+        appState.rpgEligibility = null;
+        appState.subscriptionLookupRate = null;
+        appState.subscriptionLookupSubscription = null;
+        appState.subscriptionLookupMessage = "Subscription system not available on this network.";
+        appState.subscriptionLookupError = "";
+        appState.subscriptionSubscriptions = [];
+        appState.subscriptionListNote = "";
+        refs.lastRefreshLabel.textContent = `Refreshed ${appState.lastRefreshAt.toLocaleTimeString()}`;
+        renderAll();
+        return;
+      }
+
+      const contracts = getReadContracts();
+      const [quests, quotas, feeStage, blockNumber, ecosystemPool] = await Promise.all([
+        fetchAllQuests(contracts),
+        Promise.all(Array.from({ length: 6 }, (_, index) => contracts.registry.jobQuota(index))),
+        contracts.escrow.currentFeeStage(),
+        appState.readProvider.getBlockNumber(),
+        contracts.token.remainingEcosystemPool().catch(() => 0n)
+      ]);
+
+      appState.quests = quests;
+      appState.quotas = quotas.map((value) => Number(value));
+      appState.feeStage = Number(feeStage);
+      appState.blockNumber = blockNumber;
+      appState.balances.ecosystemPool = ecosystemPool;
+      appState.lastRefreshAt = new Date();
+      appState.proposals = [];
+      appState.governanceProposalCount = 0;
+      appState.governanceQuorum = 0n;
+      appState.votingPower = 0n;
+      appState.isGovernanceAdmin = false;
+
+      if (appState.account) {
+        const [tvrnBalance, usdcBalance, creditBalance, unlockAt, agentProfile, stakeInfo] = await Promise.all([
+          contracts.token.balanceOf(appState.account),
+          contracts.usdc.balanceOf(appState.account),
+          contracts.escrow.creditBalanceOf(appState.account),
+          contracts.token.tvrnUnlockAt(appState.account),
+          contracts.registry.agents(appState.account),
+          contracts.staking ? contracts.staking.stakes(appState.account) : Promise.resolve({ amount: 0n, unstakeRequestAt: 0n, slashed: false })
+        ]);
+
+        appState.balances.tvrn = tvrnBalance;
+        appState.balances.usdc = usdcBalance;
+        appState.balances.creditUsd18 = creditBalance;
+        appState.balances.unlockAt = unlockAt;
+        appState.stakeInfo = {
+          amount: stakeInfo.amount ?? 0n,
+          unstakeRequestAt: stakeInfo.unstakeRequestAt ?? 0n,
+          slashed: Boolean(stakeInfo.slashed)
+        };
+        appState.agentProfile = {
+          guildId: Number(agentProfile.guildId),
+          rank: Number(agentProfile.rank),
+          reputation: Number(agentProfile.reputation),
+          questsDone: Number(agentProfile.questsDone),
+          totalEarned: agentProfile.totalEarned,
+          joinedAt: Number(agentProfile.joinedAt),
+          isActive: Boolean(agentProfile.isActive),
+          modelType: agentProfile.modelType,
+          wallet: agentProfile.wallet
+        };
+      } else {
+        appState.balances.tvrn = 0n;
+        appState.balances.usdc = 0n;
+        appState.balances.creditUsd18 = 0n;
+        appState.balances.unlockAt = 0n;
+        appState.stakeInfo = { amount: 0n, unstakeRequestAt: 0n, slashed: false };
+        appState.agentProfile = null;
+        appState.rpgEligibility = null;
+      }
+
+      if (contracts.governance) {
+        const [proposalCount, quorumValue] = await Promise.all([
+          contracts.governance.nextProposalId(),
+          contracts.governance.quorum()
+        ]);
+        const count = Number(proposalCount);
+        appState.governanceProposalCount = count;
+        appState.governanceQuorum = quorumValue;
+
+        if (count > 0) {
+          const start = Math.max(0, count - 20);
+          const proposalReads = [];
+          for (let proposalId = count - 1; proposalId >= start; proposalId -= 1) {
+            proposalReads.push(fetchProposal(proposalId, contracts.governance));
+          }
+          appState.proposals = await Promise.all(proposalReads);
+        }
+
+        if (appState.account && count > 0) {
+          const [votingPower, isGovernanceAdmin] = await Promise.all([
+            contracts.governance.getVotingPower(appState.account, count - 1),
+            contracts.governance.hasRole(DEFAULT_ADMIN_ROLE, appState.account)
+          ]);
+          appState.votingPower = votingPower;
+          appState.isGovernanceAdmin = Boolean(isGovernanceAdmin);
+        }
+      }
+
+      await Promise.all([
+        loadRPGData({ contracts, skipRender: true }),
+        loadSubscriptionData({ contracts, skipRender: true, agentAddress: appState.subscriptionLookupAgent })
+      ]);
+
+      refs.lastRefreshLabel.textContent = `Refreshed ${appState.lastRefreshAt.toLocaleTimeString()}`;
+      renderAll();
+    }
+
+    function renderAll() {
+      updateNetworkChrome();
+      updateQuestBoardChrome();
+      renderQuestBoard();
+      renderMyQuests();
+      renderDashboard();
+      renderTokenTab();
+      renderStakingTab();
+      renderGovernanceTab();
+      renderRPGTab();
+      renderSubscriptionTab();
+      renderGovernanceAddressCard();
+      updateWalletPill();
+    }
+
+    async function loadRPGData(options = {}) {
+      const { contracts = null, skipRender = false } = options;
+
+      appState.rpgProfile = null;
+      appState.rpgClaimable = 0n;
+      appState.rpgSeasonNumber = null;
+      appState.rpgStatus = "";
+
+      if (!hasCoreDeployment() || isZeroAddress(CONFIG.addresses.tavernClientRPG)) {
+        appState.rpgStatus = "RPG system not available on this network.";
+        if (!skipRender) {
+          renderRPGTab();
+        }
+        return;
+      }
+
+      const clientRPG = contracts?.clientRPG ?? getReadContracts().clientRPG;
+      if (!clientRPG) {
+        appState.rpgStatus = "RPG system not available on this network.";
+        if (!skipRender) {
+          renderRPGTab();
+        }
+        return;
+      }
+
+      try {
+        const seasonPromise = clientRPG.currentSeasonNumber();
+        const accountReads = appState.account
+          ? Promise.all([
+              clientRPG.clientProfiles(appState.account),
+              clientRPG.clientClaimable(appState.account)
+            ])
+          : Promise.resolve([null, 0n]);
+        const [[profileRaw, claimable], seasonNumber] = await Promise.all([accountReads, seasonPromise]);
+
+        appState.rpgSeasonNumber = Number(seasonNumber);
+        if (profileRaw && Number(profileRaw.registeredAt) > 0) {
+          appState.rpgProfile = {
+            registeredAt: Number(profileRaw.registeredAt),
+            exp: profileRaw.exp,
+            level: Number(profileRaw.level),
+            totalJobsCompleted: Number(profileRaw.totalJobsCompleted),
+            lastWithdrawalAt: Number(profileRaw.lastWithdrawalAt),
+            withdrawnThisMonth: profileRaw.withdrawnThisMonth,
+            lastWithdrawalMonth: Number(profileRaw.lastWithdrawalMonth),
+            verified: Boolean(profileRaw.verified),
+            banned: Boolean(profileRaw.banned)
+          };
+          appState.rpgClaimable = claimable ?? 0n;
+        } else {
+          appState.rpgStatus = appState.account
+            ? "No RPG profile yet. Finish the first client flow to register."
+            : "Connect wallet to view your profile.";
+        }
+      } catch (error) {
+        appState.rpgStatus = extractErrorMessage(error);
+      }
+
+      if (!skipRender) {
+        renderRPGTab();
+      }
+    }
+
+    async function loadSubscriptionData(options = {}) {
+      const { contracts = null, skipRender = false } = options;
+      const requestedAgent = typeof options.agentAddress === "string"
+        ? options.agentAddress.trim()
+        : (refs.subscriptionAgentAddress?.value?.trim() ?? appState.subscriptionLookupAgent);
+
+      appState.subscriptionLookupAgent = requestedAgent;
+      appState.subscriptionLookupRate = null;
+      appState.subscriptionLookupSubscription = null;
+      appState.subscriptionLookupMessage = "";
+      appState.subscriptionLookupError = "";
+      appState.subscriptionSubscriptions = [];
+      appState.subscriptionListNote = "";
+
+      if (!hasCoreDeployment() || isZeroAddress(CONFIG.addresses.tavernSubscription)) {
+        appState.subscriptionLookupMessage = "Subscription system not available on this network.";
+        if (!skipRender) {
+          renderSubscriptionTab();
+        }
+        return;
+      }
+
+      const subscription = contracts?.subscription ?? getReadContracts().subscription;
+      if (!subscription) {
+        appState.subscriptionLookupMessage = "Subscription system not available on this network.";
+        if (!skipRender) {
+          renderSubscriptionTab();
+        }
+        return;
+      }
+
+      let normalizedAgent = "";
+      if (requestedAgent) {
+        try {
+          normalizedAgent = ethers.getAddress(requestedAgent);
+          const rate = await subscription.agentMonthlyRate(normalizedAgent);
+          appState.subscriptionLookupRate = rate;
+          appState.subscriptionLookupMessage = rate > 0n
+            ? "Monthly rate loaded."
+            : "This agent has not configured a monthly rate yet.";
+
+          if (appState.account) {
+            const subId = await subscription.clientAgentSub(appState.account, normalizedAgent);
+            if (subId > 0n) {
+              const subRaw = await subscription.subscriptions(subId);
+              appState.subscriptionLookupSubscription = normalizeSubscription(subId, subRaw);
+            }
+          }
+        } catch (error) {
+          appState.subscriptionLookupError = extractErrorMessage(error) === "invalid address"
+            ? "Enter a valid agent address."
+            : extractErrorMessage(error);
+        }
+      } else {
+        appState.subscriptionLookupMessage = "Paste an agent address to check the monthly rate.";
+      }
+
+      if (!appState.account) {
+        appState.subscriptionListNote = "Connect wallet to inspect your subscriptions.";
+        if (!skipRender) {
+          renderSubscriptionTab();
+        }
+        return;
+      }
+
+      const knownAgents = collectKnownAgentAddresses(normalizedAgent);
+      if (!knownAgents.length) {
+        appState.subscriptionListNote = "Subscription lookup is limited to agents seen in quest activity or the current lookup address.";
+        if (!skipRender) {
+          renderSubscriptionTab();
+        }
+        return;
+      }
+
+      const subIdResults = await Promise.allSettled(
+        knownAgents.map((agent) => subscription.clientAgentSub(appState.account, agent))
+      );
+      const subscriptionReads = [];
+      for (const result of subIdResults) {
+        if (result.status === "fulfilled" && result.value > 0n) {
+          subscriptionReads.push(
+            subscription.subscriptions(result.value)
+              .then((subRaw) => normalizeSubscription(result.value, subRaw))
+              .catch(() => null)
+          );
+        }
+      }
+
+      const subscriptions = (await Promise.all(subscriptionReads))
+        .filter(Boolean)
+        .sort((left, right) => right.currentPeriodEnd - left.currentPeriodEnd);
+
+      appState.subscriptionSubscriptions = subscriptions;
+      appState.subscriptionListNote = subscriptions.length
+        ? "Live on-chain subscriptions found for this wallet."
+        : "No subscriptions found yet. Broader history lookup still benefits from indexing.";
+
+      if (!skipRender) {
+        renderSubscriptionTab();
+      }
+    }
+
+    function renderRPGTab() {
+      const contractAvailable = hasCoreDeployment() && !isZeroAddress(CONFIG.addresses.tavernClientRPG);
+      const profile = appState.rpgProfile;
+      const progress = profile ? getRpgProgress(profile.exp, profile.level) : null;
+
+      refs.rpgWithdrawAmount.disabled = !contractAvailable || !appState.account;
+      refs.rpgCheckEligibility.disabled = !contractAvailable || !appState.account;
+
+      if (!contractAvailable) {
+        refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">RPG system not available on this network.</div>`;
+        refs.rpgSeasonContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data becomes available after RPG deployment.</div>`;
+      } else if (!appState.account) {
+        refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect wallet to view your profile.</div>`;
+        refs.rpgSeasonContent.innerHTML = appState.rpgSeasonNumber
+          ? `
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+                <p class="mt-2 text-2xl font-semibold">Season ${appState.rpgSeasonNumber}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Cycle note</p>
+                <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Season resets are keeper-driven every 180 days.</p>
+              </div>
+            </div>
+          `
+          : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data is loading.</div>`;
+      } else if (!profile) {
+        refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${escapeHtml(appState.rpgStatus || "Profile not available yet.")}</div>`;
+        refs.rpgSeasonContent.innerHTML = appState.rpgSeasonNumber
+          ? `
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <p class="text-2xl font-semibold">Season ${appState.rpgSeasonNumber}</p>
+                ${renderToneBadge(`S${appState.rpgSeasonNumber}`, "gold")}
+              </div>
+            </div>
+          `
+          : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data is loading.</div>`;
+      } else {
+        refs.rpgProfileContent.innerHTML = `
+          <div class="grid gap-4">
+            <div class="panel-soft rounded-[24px] p-5">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-lg font-semibold">${escapeHtml(getRpgLevelLabel(profile.level))}</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Level ${profile.level} adventurer profile</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  ${renderToneBadge(profile.verified ? "Verified" : "Unverified", profile.verified ? "emerald" : "slate")}
+                  ${renderToneBadge(profile.banned ? "Banned" : "In good standing", profile.banned ? "ember" : "gold")}
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span>${escapeHtml(String(profile.exp))} EXP</span>
+                  <span class="text-[var(--muted)]">${progress.nextThreshold ? `${progress.remaining} EXP to next level` : "Max tier reached"}</span>
+                </div>
+                ${renderProgressBar(progress.percent)}
+                <div class="mt-2 flex items-center justify-between text-xs text-[var(--muted)]">
+                  <span>${progress.currentFloor} EXP floor</span>
+                  <span>${progress.nextThreshold ?? "Cap"} EXP</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Total jobs</p>
+                <p class="mt-2 text-xl font-semibold">${profile.totalJobsCompleted}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Registered</p>
+                <p class="mt-2 text-sm leading-6">${escapeHtml(formatTimestamp(profile.registeredAt))}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Claimable</p>
+                <p class="mt-2 text-xl font-semibold">${escapeHtml(formatUnits(appState.rpgClaimable, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Withdrawn this month</p>
+                <p class="mt-2 text-xl font-semibold">${escapeHtml(formatUnits(profile.withdrawnThisMonth, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Last withdrawal</p>
+                <p class="mt-2 text-sm leading-6">${escapeHtml(formatTimestamp(profile.lastWithdrawalAt))}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Monthly cap</p>
+                <p class="mt-2 text-xl font-semibold">100 ${escapeHtml(appState.tvrnSymbol)}</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        refs.rpgSeasonContent.innerHTML = `
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <p class="text-2xl font-semibold">Season ${appState.rpgSeasonNumber ?? "n/a"}</p>
+                ${renderToneBadge(`S${appState.rpgSeasonNumber ?? "--"}`, "gold")}
+              </div>
+            </div>
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Withdrawal gate</p>
+              <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Requires Lv.2+, 5 jobs+, verified profile, 30 day account age, and monthly cap room.</p>
+            </div>
+          </div>
+        `;
+      }
+
+      refs.rpgEligibilityOutput.innerHTML = appState.rpgEligibility
+        ? `
+          <div class="panel-soft rounded-2xl p-4" style="${appState.rpgEligibility.eligible
+            ? "border-color: rgba(47, 141, 113, 0.32); background: rgba(47, 141, 113, 0.12);"
+            : "border-color: rgba(218, 107, 56, 0.34); background: rgba(218, 107, 56, 0.12);"}">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="font-semibold">${appState.rpgEligibility.eligible ? "Eligible" : "Not eligible"}</p>
+              ${renderToneBadge(appState.rpgEligibility.eligible ? "Pass" : "Blocked", appState.rpgEligibility.eligible ? "emerald" : "ember")}
+            </div>
+            <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${escapeHtml(appState.rpgEligibility.eligible
+              ? `${appState.rpgEligibility.amountText} ${appState.tvrnSymbol} can pass the current gate.`
+              : appState.rpgEligibility.reason)}</p>
+          </div>
+        `
+        : `<div class="panel-soft rounded-2xl p-4 text-sm text-[var(--muted)]">${contractAvailable ? (appState.account ? "Enter a TVRN amount and run the eligibility check." : "Connect wallet to run the eligibility check.") : "RPG deployment required for eligibility previews."}</div>`;
+    }
+
+    function renderSubscriptionTab() {
+      const contractAvailable = hasCoreDeployment() && !isZeroAddress(CONFIG.addresses.tavernSubscription);
+      const lookupAgent = appState.subscriptionLookupAgent ?? "";
+      const lookupRate = appState.subscriptionLookupRate;
+      const lookupSubscription = appState.subscriptionLookupSubscription;
+      const lookupAgentLabel = /^0x[a-fA-F0-9]{40}$/.test(lookupAgent) ? shortenAddress(lookupAgent) : lookupAgent;
+      const hasPositiveLookupRate = lookupRate !== null && lookupRate > 0n;
+      const canSubscribe = contractAvailable && Boolean(appState.account) && Boolean(lookupAgent) && hasPositiveLookupRate;
+
+      if (refs.subscriptionAgentAddress.value !== lookupAgent) {
+        refs.subscriptionAgentAddress.value = lookupAgent;
+      }
+
+      refs.subscriptionCheckRate.disabled = !contractAvailable;
+      refs.subscriptionSubscribe.disabled = !canSubscribe;
+
+      if (!contractAvailable) {
+        refs.subscriptionRateResult.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Subscription system not available on this network.</div>`;
+      } else {
+        const summaryCard = lookupAgent
+          ? `
+            <div class="panel-soft rounded-[24px] p-5">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-lg font-semibold">${escapeHtml(lookupAgentLabel)}</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">${lookupRate !== null ? `${formatUnits(lookupRate, appState.usdcDecimals, 2)} USDC / 30 days` : "Rate unavailable"}</p>
+                </div>
+                ${hasPositiveLookupRate ? renderToneBadge("Subscribable", "emerald") : renderToneBadge("No rate", "slate")}
+              </div>
+              <div class="mt-4 space-y-2 text-sm text-[var(--muted)]">
+                <p>${escapeHtml(appState.subscriptionLookupError || appState.subscriptionLookupMessage || "Paste an agent address to load the monthly rate.")}</p>
+                ${lookupSubscription ? `<p>Existing subscription: <span class="text-[var(--ink)]">#${lookupSubscription.subId}</span> | ${escapeHtml(getSubscriptionStatusMeta(lookupSubscription).label)}</p>` : ""}
+              </div>
+              ${lookupSubscription ? `
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Current period start</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatTimestamp(lookupSubscription.currentPeriodStart))}</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Current period end</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatTimestamp(lookupSubscription.currentPeriodEnd))}</p>
+                  </div>
+                </div>
+              ` : ""}
+            </div>
+          `
+          : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${escapeHtml(appState.subscriptionLookupError || appState.subscriptionLookupMessage || "Paste an agent address to check the monthly rate.")}</div>`;
+
+        refs.subscriptionRateResult.innerHTML = summaryCard;
+      }
+
+      refs.subscriptionActionStatus.innerHTML = appState.subscriptionLastAction
+        ? `
+          <div class="panel-soft rounded-2xl p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="font-semibold">${escapeHtml(appState.subscriptionLastAction.label)}</p>
+              ${renderToneBadge("Tx sent", "gold")}
+            </div>
+            <a class="mt-2 inline-block text-sm text-[var(--gold-soft)] underline-offset-2 hover:underline" href="${buildTxLink(appState.subscriptionLastAction.hash)}" target="_blank" rel="noreferrer">${escapeHtml(appState.subscriptionLastAction.hash)}</a>
+          </div>
+        `
+        : "";
+
+      if (!contractAvailable) {
+        refs.subscriptionActiveList.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Subscription system not available on this network.</div>`;
+      } else if (!appState.account) {
+        refs.subscriptionActiveList.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect wallet to inspect your subscriptions.</div>`;
+      } else if (!appState.subscriptionSubscriptions.length) {
+        refs.subscriptionActiveList.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${escapeHtml(appState.subscriptionListNote || "No subscriptions found yet.")}</div>`;
+      } else {
+        refs.subscriptionActiveList.innerHTML = `
+          <p class="text-sm text-[var(--muted)]">${escapeHtml(appState.subscriptionListNote)}</p>
+          ${appState.subscriptionSubscriptions.map((subscription) => {
+            const status = getSubscriptionStatusMeta(subscription);
+            const canCancel = subscription.active && !subscription.cancelledByClient;
+            return `
+              <article class="panel-soft rounded-[24px] p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="heading-font text-lg font-semibold">Subscription #${subscription.subId}</p>
+                    <p class="mt-1 text-sm text-[var(--muted)]">Agent ${escapeHtml(shortenAddress(subscription.agent))}</p>
+                  </div>
+                  ${renderToneBadge(status.label, status.tone)}
+                </div>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Monthly rate</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatUnits(subscription.monthlyRateUsdc, appState.usdcDecimals, 2))} USDC</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Client</p>
+                    <p class="mt-1 font-medium">${escapeHtml(shortenAddress(subscription.client))}</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Period start</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatTimestamp(subscription.currentPeriodStart))}</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Period end</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatTimestamp(subscription.currentPeriodEnd))}</p>
+                  </div>
+                </div>
+                ${canCancel ? `
+                  <div class="mt-5">
+                    <button class="action-button warn rounded-full px-4 py-2 text-sm font-semibold" data-subscription-action="cancel-subscription" data-subscription-id="${subscription.subId}">Cancel at term end</button>
+                  </div>
+                ` : ""}
+              </article>
+            `;
+          }).join("")}
+        `;
+      }
+    }
+
+    function renderQuestBoard() {
+      if (!appState.quests.length) {
+        refs.questBoardGrid.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${
+          hasCoreDeployment()
+            ? `No quests have been created on ${escapeHtml(CONFIG.networkLabel)} yet.`
+            : `${escapeHtml(CONFIG.networkLabel)} profile is configured, but live contract addresses have not been populated yet.`
+        }</div>`;
+        return;
+      }
+
+      refs.questBoardGrid.innerHTML = appState.quests.slice(0, 20).map((quest) => {
+        const isOpenOpportunity = quest.state === 1 && quest.agent === CONFIG.zeroAddress && appState.account && quest.client.toLowerCase() !== appState.account.toLowerCase();
+        const resultUrl = sanitizeUri(quest.resultUri);
+        return `
+          <article class="quest-card panel-soft rounded-[24px] p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
+              </div>
+              ${stateBadge(quest.state)}
+            </div>
+            <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                <p class="text-[var(--muted)]">Client</p>
+                <p class="mt-1 font-medium">${escapeHtml(shortenAddress(quest.client))}</p>
+              </div>
+              <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                <p class="text-[var(--muted)]">Agent</p>
+                <p class="mt-1 font-medium">${escapeHtml(shortenAddress(quest.agent))}</p>
+              </div>
+            </div>
+            <div class="mt-4 space-y-2 text-sm text-[var(--muted)]">
+              <p>Created: ${escapeHtml(formatTimestamp(quest.createdAt))}</p>
+              <p>Brief URI: ${quest.briefUri ? `<span class="font-medium text-[var(--ink)]">${escapeHtml(quest.briefUri)}</span>` : "n/a"}</p>
+              ${quest.resultHash && quest.resultHash !== "0x0000000000000000000000000000000000000000000000000000000000000000" ? `<p>Result hash: <span class="font-medium text-[var(--ink)]">${escapeHtml(shortenHash(quest.resultHash))}</span></p>` : ""}
+            </div>
+            <div class="mt-5 flex flex-wrap gap-3">
+              ${isOpenOpportunity ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="accept-quest" data-id="${quest.questId}">Accept quest</button>` : ""}
+              ${resultUrl ? `<a class="action-button rounded-full px-4 py-2 text-sm font-semibold" href="${resultUrl}" target="_blank" rel="noreferrer">Open result</a>` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderMyQuests() {
+      if (!appState.account) {
+        const prompt = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect a wallet to unlock client and agent actions.</div>`;
+        refs.clientQuests.innerHTML = prompt;
+        refs.agentWorkbench.innerHTML = prompt;
+        return;
+      }
+
+      const address = appState.account.toLowerCase();
+      const clientQuests = appState.quests.filter((quest) => quest.client.toLowerCase() === address);
+      const agentQuests = appState.quests.filter((quest) => quest.agent.toLowerCase() === address);
+      const openOpportunities = appState.quests.filter((quest) =>
+        quest.state === 1 &&
+        quest.agent === CONFIG.zeroAddress &&
+        quest.client.toLowerCase() !== address
+      );
+
+      refs.clientQuests.innerHTML = clientQuests.length
+        ? clientQuests.map(renderClientQuestCard).join("")
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No quests created by this wallet yet.</div>`;
+
+      refs.agentWorkbench.innerHTML = `
+        ${openOpportunities.length ? `
+          <div class="rounded-[24px] border border-[rgba(246,223,142,0.18)] bg-[rgba(216,169,51,0.06)] p-4">
+            <p class="heading-font text-lg font-semibold">Open opportunities</p>
+            <div class="mt-4 space-y-3">
+              ${openOpportunities.map((quest) => `
+                <div class="panel-soft rounded-2xl p-4">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="font-semibold">Quest #${quest.questId}</p>
+                      <p class="text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
+                    </div>
+                    <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="accept-quest" data-id="${quest.questId}">Accept</button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+        ${agentQuests.length ? agentQuests.map(renderAgentQuestCard).join("") : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">This wallet has not accepted a quest yet.</div>`}
+      `;
+    }
+
+    function renderClientQuestCard(quest) {
+      const resultUrl = sanitizeUri(quest.resultUri);
+      const isCreated = quest.state === 0;
+      const canEvaluate = quest.state === 4;
+
+      return `
+        <article class="quest-card panel-soft rounded-[24px] p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
+            </div>
+            ${stateBadge(quest.state)}
+          </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+              <p class="text-[var(--muted)]">Agent</p>
+              <p class="mt-1 font-medium">${escapeHtml(shortenAddress(quest.agent))}</p>
+            </div>
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+              <p class="text-[var(--muted)]">Avg score</p>
+              <p class="mt-1 font-medium">${escapeHtml(safeAverageDisplay(quest.avgScoreTenths))}</p>
+            </div>
+          </div>
+          <div class="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            <p>Submitted: ${escapeHtml(formatTimestamp(quest.submittedAt))}</p>
+            <p>Viewed: ${escapeHtml(formatTimestamp(quest.resultViewedAt))}</p>
+            ${quest.compensated ? `<p>Compensation reason: <span class="text-[var(--ink)]">${escapeHtml(getCompensationReason(quest))}</span></p>` : ""}
+          </div>
+          <div class="mt-5 flex flex-wrap gap-3">
+            ${isCreated ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="fund-created" data-id="${quest.questId}">Fund now</button>` : ""}
+            ${isCreated ? `<button class="action-button warn rounded-full px-4 py-2 text-sm font-semibold" data-action="cancel-quest" data-id="${quest.questId}">Cancel</button>` : ""}
+            ${resultUrl ? `<a class="action-button rounded-full px-4 py-2 text-sm font-semibold" href="${resultUrl}" target="_blank" rel="noreferrer">Open result URI</a>` : ""}
+            ${quest.state === 4 && !quest.resultViewedAt ? `<button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-action="mark-viewed" data-id="${quest.questId}">Mark viewed</button>` : ""}
+            ${canEvaluate ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="open-evaluation" data-id="${quest.questId}">Evaluate</button>` : ""}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderAgentQuestCard(quest) {
+      const actionable = quest.state === 2 || quest.state === 3;
+
+      return `
+        <article class="quest-card panel-soft rounded-[24px] p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
+            </div>
+            ${stateBadge(quest.state)}
+          </div>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+              <p class="text-[var(--muted)]">Client</p>
+              <p class="mt-1 font-medium">${escapeHtml(shortenAddress(quest.client))}</p>
+            </div>
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+              <p class="text-[var(--muted)]">Last heartbeat</p>
+              <p class="mt-1 font-medium">${escapeHtml(formatTimestamp(quest.heartbeatAt))}</p>
+            </div>
+          </div>
+          ${actionable ? `
+            <div class="mt-5 rounded-2xl border border-white/8 bg-black/10 p-4">
+              <div class="flex flex-wrap gap-3">
+                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-action="heartbeat" data-id="${quest.questId}">Record heartbeat</button>
+              </div>
+              <div class="mt-4 grid gap-3">
+                <textarea class="field result-body" rows="4" placeholder="Paste or summarize the result body to derive a deterministic result hash."></textarea>
+                <input class="field result-uri" type="text" placeholder="https://... or ipfs://...">
+                <button class="action-button primary rounded-full px-4 py-3 text-sm font-semibold" data-action="submit-result" data-id="${quest.questId}">Submit result</button>
+              </div>
+            </div>
+          ` : ""}
+          ${quest.resultUri ? `<p class="mt-4 text-sm text-[var(--muted)]">Result URI: <span class="text-[var(--ink)]">${escapeHtml(quest.resultUri)}</span></p>` : ""}
+        </article>
+      `;
+    }
+
+    function renderDashboard() {
+      const total = appState.questTotal;
+      const active = activeQuestCount(appState.quests);
+      const compensated = appState.quests.filter((quest) => quest.compensated);
+      const submittedForClient = appState.account
+        ? appState.quests.filter((quest) => quest.state === 4 && quest.client.toLowerCase() === appState.account.toLowerCase())
+        : [];
+
+      refs.kpiGrid.innerHTML = [
+        ["Active quests", String(active), "Funded, accepted, in progress, or submitted"],
+        ["Total quests", String(total), "All quests ever created on this deployment"],
+        ["Fee stage", `${appState.feeStage}%`, "Live currentFeeStage() read from escrow"],
+        [`${appState.tvrnSymbol} balance`, formatUnits(appState.balances.tvrn, appState.tvrnDecimals), "Connected wallet balance"]
+      ].map(([title, value, note]) => `
+        <article class="panel rounded-[24px] p-5">
+          <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">${escapeHtml(title)}</p>
+          <p class="heading-font mt-4 text-3xl font-bold">${escapeHtml(value)}</p>
+          <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(note)}</p>
+        </article>
+      `).join("");
+
+      refs.compensatedGrid.innerHTML = compensated.length
+        ? compensated.map((quest) => {
+            const preview = quest.compensationPreview || { tvrnAmount: 0n, creditAmountUsd18: 0n };
+            return `
+              <article class="panel-soft rounded-[24px] p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+                    <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(getCompensationReason(quest))}</p>
+                  </div>
+                  <span class="badge state-compensated rounded-full px-3 py-1 text-xs font-semibold">Compensation complete</span>
+                </div>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">TVRN paid</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatUnits(preview.tvrnAmount, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+                  </div>
+                  <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                    <p class="text-[var(--muted)]">Credit paid</p>
+                    <p class="mt-1 font-medium">${escapeHtml(formatUsdCredit(preview.creditAmountUsd18))}</p>
+                  </div>
+                </div>
+                <div class="mt-4 text-sm text-[var(--muted)]">
+                  <p>TVRN unlock: ${escapeHtml(formatTimestamp(quest.tvrnUnlockTime))}</p>
+                  <p>Lock status: <span class="text-[var(--ink)]">${escapeHtml(formatRelativeDays(quest.tvrnUnlockTime))}</span></p>
+                </div>
+              </article>
+            `;
+          }).join("")
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No compensated quests on the board yet.</div>`;
+
+      refs.evaluationQueue.innerHTML = submittedForClient.length
+        ? submittedForClient.map((quest) => `
+          <article class="panel-soft rounded-[24px] p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Submitted by ${escapeHtml(shortenAddress(quest.agent))}</p>
+              </div>
+              <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="open-evaluation" data-id="${quest.questId}">Evaluate now</button>
+            </div>
+            <p class="mt-3 text-sm text-[var(--muted)]">Result viewed: ${escapeHtml(formatTimestamp(quest.resultViewedAt))}</p>
+          </article>
+        `).join("")
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No submitted quests waiting for your evaluation.</div>`;
+
+      refs.quotaGrid.innerHTML = JOB_LABELS.map((label, index) => {
+        const value = appState.quotas[index] || 0;
+        return `
+          <div>
+            <div class="mb-2 flex items-center justify-between text-sm">
+              <span>${escapeHtml(label)}</span>
+              <span class="text-[var(--muted)]">${(value / 100).toFixed(2)}%</span>
+            </div>
+            <div class="progress-rail">
+              <div class="progress-fill" style="width:${Math.min(100, value / 100)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTokenTab() {
+      refs.tokenSummary.innerHTML = [
+        ["TVRN", formatUnits(appState.balances.tvrn, appState.tvrnDecimals), "Connected wallet balance"],
+        ["Credits", formatUsdCredit(appState.balances.creditUsd18), "Live creditBalanceOf(account)"],
+        ["USDC", formatUnits(appState.balances.usdc, appState.usdcDecimals, 2), "Base USDC balance"],
+        ["Unlock", formatRelativeDays(appState.balances.unlockAt), "From TavernToken.tvrnUnlockAt(account)"]
+      ].map(([title, value, note]) => `
+        <article class="panel rounded-[24px] p-5">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">${escapeHtml(title)}</p>
+          <p class="heading-font mt-4 text-3xl font-bold">${escapeHtml(value)}</p>
+          <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(note)}</p>
+        </article>
+      `).join("");
+
+      refs.walletPanel.innerHTML = `
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Address</p>
+          <p class="mt-2 break-all text-sm">${escapeHtml(appState.account ?? "Not connected")}</p>
+        </div>
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TVRN unlock time</p>
+          <p class="mt-2 text-sm">${escapeHtml(formatTimestamp(appState.balances.unlockAt))}</p>
+        </div>
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Agent profile</p>
+          ${appState.agentProfile && appState.agentProfile.isActive ? `
+            <div class="mt-2 space-y-1 text-sm">
+              <p>Guild ID: ${appState.agentProfile.guildId}</p>
+              <p>Rank: ${appState.agentProfile.rank}</p>
+              <p>Reputation: ${appState.agentProfile.reputation}</p>
+              <p>Quests done: ${appState.agentProfile.questsDone}</p>
+              <p>Model type: ${escapeHtml(appState.agentProfile.modelType || "n/a")}</p>
+            </div>
+          ` : `<p class="mt-2 text-sm text-[var(--muted)]">This wallet is not currently registered as an active agent.</p>`}
+        </div>
+      `;
+
+      refs.chainPanel.innerHTML = `
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Chain info</p>
+          <div class="mt-2 space-y-1 text-sm">
+            <p>Network: ${escapeHtml(CONFIG.networkLabel)}</p>
+            <p>Chain ID: ${CONFIG.chainId}</p>
+            <p>Latest block: ${appState.blockNumber ?? "n/a"}</p>
+          </div>
+        </div>
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Escrow notes</p>
+          <div class="mt-2 space-y-1 text-sm text-[var(--muted)]">
+            <p>Fee stage upgrades are keeper-driven and now health-checkable.</p>
+            <p>TVRN compensation stays transfer-locked for 30 days.</p>
+            <p>Current ecosystem pool: ${escapeHtml(formatUnits(appState.balances.ecosystemPool, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGovernanceAddressCard() {
+      renderAddressCard(refs.governanceAddressCard, refs.governanceAddressLabel, CONFIG.addresses.tavernGovernance);
+    }
+
+    function renderStakingTab() {
+      if (isZeroAddress(CONFIG.addresses.tavernStaking)) {
+        refs.stakingContent.innerHTML = `
+          <div class="panel rounded-[28px] p-6">
+            <p class="heading-font text-xl font-semibold">Staking</p>
+            <p class="mt-3 text-sm text-[var(--muted)]">
+              The staking contract is not yet deployed on ${escapeHtml(CONFIG.networkLabel)}.
+              Check back after the next coordinated deploy.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const stakeAmount = appState.stakeInfo.amount ?? 0n;
+      const requestAt = Number(appState.stakeInfo.unstakeRequestAt ?? 0n);
+      const cooldownEndsAt = requestAt ? requestAt + STAKING_COOLDOWN_SECONDS : 0;
+      const hasStake = stakeAmount > 0n;
+      const isSlashed = Boolean(appState.stakeInfo.slashed);
+      const isWithdrawPending = requestAt > 0;
+      const isWithdrawReady = cooldownEndsAt > 0 && cooldownEndsAt <= Math.floor(Date.now() / 1000);
+
+      let statusTitle = "No active stake";
+      let statusBody = "Connect a wallet to inspect your bond and post the 100 TVRN guild bond.";
+      let badgeClass = "stake-badge inactive";
+      let badgeLabel = appState.account ? "Idle" : "Wallet needed";
+      let actionHtml = appState.account
+        ? `<button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="stake-bond">Approve and stake 100 TVRN</button>`
+        : `<button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Connect wallet to bond</button>`;
+
+      if (appState.account && hasStake && !isSlashed && !isWithdrawPending) {
+        statusTitle = "Bond posted";
+        statusBody = `Staked amount: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave the guild before requesting an unstake.`;
+        badgeClass = "stake-badge";
+        badgeLabel = "Active bond";
+        actionHtml = `<button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="request-unstake">Request unstake</button>`;
+      } else if (appState.account && hasStake && isWithdrawPending) {
+        statusTitle = isSlashed ? "Slashed bond in cooldown" : "Unstake requested";
+        statusBody = `Cooldown ends ${formatTimestamp(cooldownEndsAt)}. ${formatCountdown(cooldownEndsAt)}`;
+        badgeClass = isSlashed ? "stake-badge slashed" : "stake-badge inactive";
+        badgeLabel = isWithdrawReady ? "Withdraw ready" : "Cooldown running";
+        actionHtml = `<button class="action-button ${isWithdrawReady ? "primary" : ""} rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="withdraw-bond" ${isWithdrawReady ? "" : "disabled"}>${isWithdrawReady ? "Withdraw bond" : "Withdraw locked"}</button>`;
+      } else if (appState.account && hasStake && isSlashed) {
+        statusTitle = "Bond slashed";
+        statusBody = `Remaining bond: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave the guild, then request unstake to start the 7 day cooldown.`;
+        badgeClass = "stake-badge slashed";
+        badgeLabel = "Slashed";
+        actionHtml = `<button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="request-unstake">Request unstake</button>`;
+      } else if (appState.account) {
+        statusBody = "Post the fixed 100 TVRN bond to unlock guild registration on the Phase 2 registry.";
+      }
+
+      refs.stakingContent.innerHTML = `
+        <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Staking Bond</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">A fixed 100 TVRN bond is required to join the guild. Cooldown and slash rules are enforced on-chain by TavernStaking.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">Live contract</span>
+            </div>
+
+            <div class="panel-soft mt-6 rounded-[24px] p-5">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Bond rule</p>
+              <p class="mt-3 text-sm leading-6 text-[var(--muted)]">100 TVRN bond required to join a guild. 7 day cooldown to withdraw. 50% slash penalty for bad actors.</p>
+            </div>
+
+            <div class="panel-soft mt-4 rounded-[24px] p-5">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="heading-font text-lg font-semibold">${escapeHtml(statusTitle)}</p>
+                  <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${escapeHtml(statusBody)}</p>
+                </div>
+                <span class="badge ${badgeClass} rounded-full px-3 py-1 text-xs font-semibold">${escapeHtml(badgeLabel)}</span>
+              </div>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                  <p class="text-[var(--muted)]">Staked amount</p>
+                  <p class="mt-1 font-medium">${escapeHtml(formatUnits(stakeAmount, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+                </div>
+                <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                  <p class="text-[var(--muted)]">Cooldown status</p>
+                  <p class="mt-1 font-medium">${escapeHtml(isWithdrawPending ? formatCountdown(cooldownEndsAt) : "Not started")}</p>
+                </div>
+              </div>
+              <div class="mt-5 flex flex-wrap gap-3">
+                ${actionHtml}
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="panel rounded-[28px] p-6">
+              <p class="heading-font text-xl font-semibold">Bond Details</p>
+              <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Bond amount</p>
+                  <p class="mt-2 text-lg font-semibold">100 TVRN</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Cooldown</p>
+                  <p class="mt-2 text-lg font-semibold">7 days</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Slash</p>
+                  <p class="mt-2 text-lg font-semibold">50% burn</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Prerequisite</p>
+                  <p class="mt-2 text-sm leading-6 text-[var(--muted)]">You must call <code>leaveGuild()</code> before requesting an unstake.</p>
+                </div>
+              </div>
+            </div>
+            <div class="panel rounded-[28px] p-6">
+              <p class="heading-font text-xl font-semibold">Guild Notes</p>
+              <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
+                <p>Staking uses the live Phase 2 TavernStaking deployment at ${escapeHtml(shortenAddress(CONFIG.addresses.tavernStaking))}.</p>
+                <p>Approval and stake happen as two separate wallet prompts when TVRN allowance is too low.</p>
+                <p>Withdraw stays disabled until the full 7 day cooldown has elapsed on-chain.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGovernanceTab() {
+      if (isZeroAddress(CONFIG.addresses.tavernGovernance)) {
+        refs.governanceContent.innerHTML = `
+          <div class="panel rounded-[28px] p-6">
+            <p class="heading-font text-xl font-semibold">Governance</p>
+            <p class="mt-3 text-sm text-[var(--muted)]">
+              The governance contract is not yet deployed on ${escapeHtml(CONFIG.networkLabel)}.
+              Proposal creation, voting, queueing, and execution will unlock after the next coordinated deploy.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const votingPowerLabel = !appState.account
+        ? "Connect wallet"
+        : appState.governanceProposalCount
+          ? String(appState.votingPower)
+          : "Waiting for first proposal";
+
+      refs.governanceContent.innerHTML = `
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          ${[
+            ["Total proposals", String(appState.governanceProposalCount), "Latest 20 proposals rendered below"],
+            ["Quorum threshold", String(appState.governanceQuorum), "Live governance.quorum() read"],
+            ["Your voting power", votingPowerLabel, "sqrt voting with activity and founding bonuses"],
+            ["Proposal threshold", "100 TVRN", "Minimum wallet balance required to propose"]
+          ].map(([title, value, note]) => `
+            <article class="panel rounded-[24px] p-5">
+              <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">${escapeHtml(title)}</p>
+              <p class="heading-font mt-4 text-3xl font-bold">${escapeHtml(value)}</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(note)}</p>
+            </article>
+          `).join("")}
+        </div>
+
+        <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <div class="panel rounded-[28px] p-6">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="heading-font text-xl font-semibold">Create a Proposal</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Draft a decree with target calldata. Execution can still revert until Phase 3 GOVERNANCE_ROLE wiring is complete.</p>
+              </div>
+              <span class="badge rounded-full px-3 py-1 text-xs">5 day vote, 2 day timelock</span>
+            </div>
+
+            <form id="governance-proposal-form" class="mt-6 grid gap-4">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Proposal type</span>
+                  <select id="proposal-type" class="field">
+                    ${PROPOSAL_TYPE_NAMES.map((label, index) => `<option value="${index}">${escapeHtml(label)}</option>`).join("")}
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Target address</span>
+                  <input id="proposal-target" class="field" type="text" placeholder="0x...">
+                </label>
+              </div>
+              <label class="block">
+                <span class="mb-2 block text-sm text-[var(--muted)]">callData (hex)</span>
+                <textarea id="proposal-calldata" class="field min-h-[120px]" placeholder="0x..."></textarea>
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm text-[var(--muted)]">Description</span>
+                <textarea id="proposal-description" class="field min-h-[120px]" placeholder="Summarize the decree, rationale, and expected outcome."></textarea>
+              </label>
+              <div class="flex flex-wrap items-center gap-3 pt-2">
+                <button type="submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Submit Proposal</button>
+                <span class="text-sm text-[var(--muted)]">Requires 100+ TVRN balance and a connected wallet.</span>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel rounded-[28px] p-6">
+            <p class="heading-font text-xl font-semibold">Proposal Type Reference</p>
+            <div class="mt-6 grid gap-3">
+              ${[
+                ["Guild Fee Change", "Change a guild's fee rate"],
+                ["Guild Master Change", "Replace a guild master"],
+                ["Sub-Token Issuance", "Issue sub-tokens for a guild"],
+                ["Platform Fee Change", "Change platform-wide fee"],
+                ["Force Dissolve Guild", "Force dissolve an inactive guild"],
+                ["Emergency Freeze", "Instant queue, no timelock delay"]
+              ].map(([title, copy]) => `
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-sm font-semibold">${escapeHtml(title)}</p>
+                  <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${escapeHtml(copy)}</p>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="heading-font text-xl font-semibold">Latest Proposals</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Newest first, capped at the latest 20 proposals.</p>
+            </div>
+            <span class="badge rounded-full px-3 py-1 text-xs">On-chain list</span>
+          </div>
+          <div class="mt-6 space-y-4">
+            ${appState.proposals.length ? appState.proposals.map((proposal) => {
+              const turnout = proposal.forVotes + proposal.againstVotes + proposal.abstainVotes;
+              const forPct = proposalVotePercent(proposal.forVotes, turnout);
+              const againstPct = proposalVotePercent(proposal.againstVotes, turnout);
+              const abstainPct = proposalVotePercent(proposal.abstainVotes, turnout);
+              const canVote = appState.account && isProposalVotingOpen(proposal) && !proposal.hasVoted;
+              const canQueue = hasProposalVotingEnded(proposal);
+              const canExecute = canExecuteProposal(proposal);
+              const canCancel = appState.account && (
+                proposal.proposer.toLowerCase() === appState.account.toLowerCase() || appState.isGovernanceAdmin
+              ) && [0, 2].includes(proposal.state);
+
+              let timingLabel = `Voting ends ${formatTimestamp(proposal.endTime)}`;
+              if (proposal.state === 0 && hasProposalVotingEnded(proposal)) {
+                timingLabel = "Voting ended. Queue to finalize.";
+              } else if (proposal.state === 2) {
+                timingLabel = canExecute
+                  ? "Executable now"
+                  : `ETA ${formatTimestamp(proposal.eta)} (${formatCountdown(proposal.eta)})`;
+              } else if (proposal.state === 3) {
+                timingLabel = "Execution completed.";
+              } else if (proposal.state === 4) {
+                timingLabel = "Proposal was cancelled.";
+              } else if (proposal.state === 1) {
+                timingLabel = "Proposal was defeated.";
+              }
+
+              return `
+                <article class="panel-soft rounded-[24px] p-5">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <p class="heading-font text-lg font-semibold">Proposal #${proposal.id}</p>
+                        <span class="badge rounded-full px-3 py-1 text-xs">${escapeHtml(proposalTypeNameFromIndex(proposal.proposalType))}</span>
+                        ${governanceStateBadge(proposal.state)}
+                      </div>
+                      <p class="mt-2 text-sm text-[var(--muted)]">Proposer: ${escapeHtml(shortenAddress(proposal.proposer))} | Target: ${escapeHtml(shortenAddress(proposal.target))}</p>
+                    </div>
+                    <span class="badge rounded-full px-3 py-1 text-xs">${escapeHtml(timingLabel)}</span>
+                  </div>
+
+                  <p class="mt-4 text-sm leading-6 text-[var(--muted)]">${escapeHtml(shortenText(proposal.description, 120))}</p>
+                  <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                    <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                      <p class="text-[var(--muted)]">callData</p>
+                      <p class="mt-1 font-medium">${escapeHtml(shortenHash(proposal.callData || "0x"))}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/8 bg-black/10 p-3">
+                      <p class="text-[var(--muted)]">Turnout</p>
+                      <p class="mt-1 font-medium">${escapeHtml(String(turnout))}</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 grid gap-3">
+                    <div>
+                      <div class="mb-2 flex items-center justify-between text-sm">
+                        <span>For</span>
+                        <span class="text-[var(--muted)]">${forPct.toFixed(1)}%</span>
+                      </div>
+                      ${renderProgressBar(forPct, "vote-bar-for")}
+                    </div>
+                    <div>
+                      <div class="mb-2 flex items-center justify-between text-sm">
+                        <span>Against</span>
+                        <span class="text-[var(--muted)]">${againstPct.toFixed(1)}%</span>
+                      </div>
+                      ${renderProgressBar(againstPct, "vote-bar-against")}
+                    </div>
+                    <div>
+                      <div class="mb-2 flex items-center justify-between text-sm">
+                        <span>Abstain</span>
+                        <span class="text-[var(--muted)]">${abstainPct.toFixed(1)}%</span>
+                      </div>
+                      ${renderProgressBar(abstainPct, "vote-bar-abstain")}
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex flex-wrap gap-3">
+                    ${canVote ? `
+                      <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="vote-for" data-proposal-id="${proposal.id}">Vote For</button>
+                      <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="vote-against" data-proposal-id="${proposal.id}">Vote Against</button>
+                      <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="vote-abstain" data-proposal-id="${proposal.id}">Abstain</button>
+                    ` : ""}
+                    ${proposal.hasVoted && isProposalVotingOpen(proposal) ? `<button class="action-button rounded-full px-4 py-2 text-sm font-semibold" disabled>Already voted</button>` : ""}
+                    ${canQueue ? `<button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="queue-proposal" data-proposal-id="${proposal.id}">Queue</button>` : ""}
+                    ${proposal.state === 2 && !canExecute ? `<button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" disabled>Timelock running</button>` : ""}
+                    ${canExecute ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="execute-proposal" data-proposal-id="${proposal.id}">Execute</button>` : ""}
+                    ${canCancel ? `<button class="action-button warn rounded-full px-4 py-2 text-sm font-semibold" data-phase2-action="cancel-proposal" data-proposal-id="${proposal.id}">Cancel</button>` : ""}
+                  </div>
+                </article>
+              `;
+            }).join("") : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No proposals have been created yet on this deployment.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function setActiveTab(tabName) {
+      appState.currentTab = tabName;
+      document.querySelectorAll(".tab-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === tabName);
+      });
+      document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.toggle("hidden", panel.id !== `tab-${tabName}`);
+      });
+
+      if (tabName === "rpg") {
+        loadRPGData().catch((error) => {
+          appState.rpgStatus = extractErrorMessage(error);
+          renderRPGTab();
+        });
+      }
+
+      if (tabName === "subscription") {
+        loadSubscriptionData({ agentAddress: refs.subscriptionAgentAddress?.value ?? appState.subscriptionLookupAgent }).catch((error) => {
+          appState.subscriptionLookupError = extractErrorMessage(error);
+          renderSubscriptionTab();
+        });
+      }
+    }
+
+    function updateBriefHashPreview() {
+      const brief = refs.questBrief.value.trim();
+      if (!brief) {
+        refs.briefHashPreview.textContent = "Keccak hash preview appears here.";
+        return;
+      }
+      refs.briefHashPreview.textContent = ethers.keccak256(ethers.toUtf8Bytes(brief));
+    }
+
+    function buildConfirmationDetails(items) {
+      return items
+        .filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "")
+        .map(([label, value]) => `
+          <p>
+            <span class="text-[var(--muted)]">${escapeHtml(label)}:</span>
+            <strong class="text-[var(--ink)]">${escapeHtml(value)}</strong>
+          </p>
+        `)
+        .join("");
+    }
+
+    function askConfirmation(label, details) {
+      return new Promise((resolve) => {
+        refs.confirmModalText.textContent = label;
+        refs.confirmModalDetails.innerHTML = details || "<p class=\"text-[var(--muted)]\">Review the action and confirm to continue.</p>";
+        refs.confirmModal.classList.remove("hidden");
+        refs.confirmModal.classList.add("flex");
+
+        function cleanup(result) {
+          refs.confirmModal.classList.add("hidden");
+          refs.confirmModal.classList.remove("flex");
+          refs.confirmModalOk.removeEventListener("click", onOk);
+          refs.confirmModalCancel.removeEventListener("click", onCancel);
+          resolve(result);
+        }
+
+        function onOk() {
+          cleanup(true);
+        }
+
+        function onCancel() {
+          cleanup(false);
+        }
+
+        refs.confirmModalOk.addEventListener("click", onOk);
+        refs.confirmModalCancel.addEventListener("click", onCancel);
+      });
+    }
+
+    async function performWrite(label, callback) {
+      setPending(label);
+      try {
+        const result = await callback();
+        pushToast(`${label} succeeded.`, "success", result?.hash ?? null);
+        return result;
+      } catch (error) {
+        const message = extractErrorMessage(error);
+        pushToast(message, "error");
+        throw error;
+      } finally {
+        clearPending();
+      }
+    }
+
+    function extractErrorMessage(error) {
+      const candidate =
+        error?.shortMessage ||
+        error?.reason ||
+        error?.info?.error?.message ||
+        error?.message ||
+        "Transaction failed.";
+
+      return String(candidate).replace("execution reverted: ", "");
+    }
+
+    async function parseQuestIdFromReceipt(receipt, contract) {
+      for (const log of receipt.logs ?? []) {
+        try {
+          const parsed = contract.interface.parseLog(log);
+          if (parsed && parsed.name === "QuestCreated") {
+            return Number(parsed.args.questId);
+          }
+        } catch (_) {
+          // ignore non-escrow logs
+        }
+      }
+      return null;
+    }
+
+    async function createQuestAndFund(event) {
+      event.preventDefault();
+      const amountText = refs.questAmount.value.trim();
+      const briefText = refs.questBrief.value.trim();
+      const briefUri = refs.questBriefUri.value.trim() || "ipfs://placeholder";
+      const currencyLabel = refs.questCurrency.value;
+
+      if (!amountText || Number(amountText) <= 0) {
+        pushToast("Enter a valid deposit amount.", "error");
+        return;
+      }
+
+      if (!briefText) {
+        pushToast("Write a quest brief before creating the quest.", "error");
+        return;
+      }
+
+      const currency = currencyLabel === "ETH" ? CONFIG.zeroAddress : CONFIG.addresses.usdc;
+      const depositAmount = currencyLabel === "ETH"
+        ? ethers.parseEther(amountText)
+        : ethers.parseUnits(amountText, appState.usdcDecimals);
+      const briefHash = ethers.keccak256(ethers.toUtf8Bytes(briefText));
+      const confirmed = await askConfirmation(
+        "Create and fund quest?",
+        buildConfirmationDetails([
+          ["Currency", currencyLabel],
+          ["Amount", currencyLabel === "ETH" ? `${amountText} ETH` : `${amountText} USDC`],
+          ["Wallet flow", currencyLabel === "ETH" ? "2 wallet confirmations expected" : "2-3 wallet confirmations expected"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow, usdc } = getWriteContracts();
+
+      const createTx = await performWrite("Creating quest", () =>
+        escrow.createQuest(currency, depositAmount, briefHash, briefUri)
+      );
+      const createReceipt = await createTx.wait();
+      const questId = await parseQuestIdFromReceipt(createReceipt, escrow);
+
+      if (!questId) {
+        throw new Error("Quest created but questId could not be parsed from logs.");
+      }
+
+      if (currencyLabel === "ETH") {
+        const fundTx = await performWrite(`Funding quest #${questId} with ETH`, () =>
+          escrow.fundQuestETH(questId, { value: depositAmount })
+        );
+        await fundTx.wait();
+      } else {
+        const allowance = await usdc.allowance(appState.account, CONFIG.addresses.tavernEscrow);
+        if (allowance < depositAmount) {
+          const approveTx = await performWrite("Approving USDC for escrow", () =>
+            usdc.approve(CONFIG.addresses.tavernEscrow, depositAmount)
+          );
+          await approveTx.wait();
+        }
+        const fundTx = await performWrite(`Funding quest #${questId} with USDC`, () =>
+          escrow.fundQuestUSDC(questId)
+        );
+        await fundTx.wait();
+      }
+
+      refs.createQuestForm.reset();
+      updateBriefHashPreview();
+      await refreshData();
+    }
+
+    async function fundCreatedQuest(questId) {
+      const quest = appState.quests.find((item) => item.questId === questId);
+      if (!quest) {
+        throw new Error("Quest not found.");
+      }
+
+      const confirmed = await askConfirmation(
+        `Fund quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Amount", formatQuestValue(quest.currency, quest.depositAmount)],
+          ["Wallet flow", quest.currency === CONFIG.zeroAddress ? "1 wallet confirmation expected" : "1-2 wallet confirmations expected"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow, usdc } = getWriteContracts();
+      if (quest.currency === CONFIG.zeroAddress) {
+        const tx = await performWrite(`Funding quest #${questId} with ETH`, () =>
+          escrow.fundQuestETH(questId, { value: quest.depositAmount })
+        );
+        await tx.wait();
+      } else {
+        const allowance = await usdc.allowance(appState.account, CONFIG.addresses.tavernEscrow);
+        if (allowance < quest.depositAmount) {
+          const approveTx = await performWrite("Approving USDC for escrow", () =>
+            usdc.approve(CONFIG.addresses.tavernEscrow, quest.depositAmount)
+          );
+          await approveTx.wait();
+        }
+        const tx = await performWrite(`Funding quest #${questId} with USDC`, () =>
+          escrow.fundQuestUSDC(questId)
+        );
+        await tx.wait();
+      }
+
+      await refreshData();
+    }
+
+    async function acceptQuest(questId) {
+      const confirmed = await askConfirmation(
+        `Accept quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Function", `acceptQuest(${questId})`]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Accepting quest #${questId}`, () => escrow.acceptQuest(questId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function cancelQuest(questId) {
+      const confirmed = await askConfirmation(
+        `Cancel quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Function", `cancelQuest(${questId})`]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Cancelling quest #${questId}`, () => escrow.cancelQuest(questId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function recordHeartbeat(questId) {
+      const confirmed = await askConfirmation(
+        `Record heartbeat for quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Function", `recordHeartbeat(${questId})`]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Recording heartbeat for quest #${questId}`, () => escrow.recordHeartbeat(questId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function submitResult(button, questId) {
+      const card = button.closest(".quest-card");
+      const resultBody = card.querySelector(".result-body").value.trim();
+      const resultUri = card.querySelector(".result-uri").value.trim();
+
+      if (!resultBody) {
+        pushToast("Paste or summarize the result body to derive a result hash.", "error");
+        return;
+      }
+
+      if (!resultUri) {
+        pushToast("Provide a result URI before submitting.", "error");
+        return;
+      }
+
+      const resultHash = ethers.keccak256(ethers.toUtf8Bytes(resultBody));
+      const confirmed = await askConfirmation(
+        `Submit result for quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Result hash", shortenHash(resultHash)],
+          ["Result URI", resultUri]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Submitting result for quest #${questId}`, () =>
+        escrow.submitResult(questId, resultHash, resultUri)
+      );
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function markResultViewed(questId) {
+      const confirmed = await askConfirmation(
+        `Mark result viewed for quest #${questId}?`,
+        buildConfirmationDetails([
+          ["Function", `recordResultViewed(${questId})`]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Recording result view for quest #${questId}`, () =>
+        escrow.recordResultViewed(questId)
+      );
+      await tx.wait();
+      await refreshData();
+      if (appState.evaluationQuestId === questId) {
+        await refreshRewardPreview();
+      }
+    }
+
+    async function refreshRewardPreview() {
+      if (!appState.evaluationQuestId || !appState.account) {
+        refs.evaluationRewardPreview.textContent = "Reward preview unavailable";
+        return;
+      }
+
+      const quest = appState.quests.find((item) => item.questId === appState.evaluationQuestId);
+      if (!quest) {
+        refs.evaluationRewardPreview.textContent = "Reward preview unavailable";
+        return;
+      }
+
+      const comment = refs.evaluationComment.value.trim();
+      const tags = refs.evaluationTags.value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      try {
+        const { escrow } = getReadContracts();
+        const reward = await escrow.previewEvaluationReward(appState.account, quest.agent, comment, tags);
+        refs.evaluationRewardPreview.textContent = `${formatUnits(reward, appState.tvrnDecimals)} ${appState.tvrnSymbol}`;
+      } catch (_) {
+        refs.evaluationRewardPreview.textContent = "Preview unavailable";
+      }
+    }
+
+    function buildScoreControls() {
+      refs.evaluationScoreGrid.innerHTML = EVALUATION_AXES.map(([, label], index) => `
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-sm font-semibold">${escapeHtml(label)}</p>
+          <div class="mt-3 flex flex-wrap gap-2" data-score-index="${index}">
+            ${[1, 2, 3, 4, 5].map((score) => `
+              <button type="button" class="score-chip ${appState.evaluationScores[index] === score ? "active" : ""} rounded-full px-4 py-2 text-sm font-semibold" data-score-index="${index}" data-score-value="${score}">
+                ${score}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function openEvaluationModal(questId) {
+      const quest = appState.quests.find((item) => item.questId === questId);
+      if (!quest) {
+        return;
+      }
+
+      appState.evaluationQuestId = questId;
+      appState.evaluationScores = [5, 5, 5, 5, 5];
+      refs.evaluationComment.value = "";
+      refs.evaluationTags.value = "";
+      refs.evaluationSubtitle.textContent = `Quest #${quest.questId} by ${shortenAddress(quest.agent)} | Result viewed: ${quest.resultViewedAt ? "yes" : "no"}`;
+      buildScoreControls();
+      refs.evaluationModal.classList.remove("hidden");
+      refs.evaluationModal.classList.add("flex");
+      refs.markViewedButton.disabled = Boolean(quest.resultViewedAt);
+      await refreshRewardPreview();
+    }
+
+    function closeEvaluationModal() {
+      refs.evaluationModal.classList.add("hidden");
+      refs.evaluationModal.classList.remove("flex");
+      appState.evaluationQuestId = null;
+    }
+
+    async function submitEvaluation() {
+      if (!appState.evaluationQuestId) {
+        return;
+      }
+
+      const comment = refs.evaluationComment.value.trim();
+      const tags = refs.evaluationTags.value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      const confirmed = await askConfirmation(
+        `Submit evaluation for quest #${appState.evaluationQuestId}?`,
+        buildConfirmationDetails([
+          ["Scores", appState.evaluationScores.join(", ")],
+          ["Comment length", `${comment.length} chars`],
+          ["Tags", tags.length ? tags.join(", ") : "None"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { escrow } = getWriteContracts();
+      const tx = await performWrite(`Submitting evaluation for quest #${appState.evaluationQuestId}`, () =>
+        escrow.submitEvaluation(appState.evaluationQuestId, appState.evaluationScores, comment, tags)
+      );
+      await tx.wait();
+      closeEvaluationModal();
+      await refreshData();
+    }
+
+    async function checkRpgEligibility() {
+      if (!appState.account) {
+        pushToast("Connect wallet to check withdrawal eligibility.", "error");
+        return;
+      }
+
+      if (isZeroAddress(CONFIG.addresses.tavernClientRPG)) {
+        pushToast("RPG contract not deployed.", "error");
+        return;
+      }
+
+      const amountText = refs.rpgWithdrawAmount.value.trim();
+      if (!amountText || Number(amountText) <= 0) {
+        pushToast("Enter a valid TVRN amount.", "error");
+        return;
+      }
+
+      try {
+        const { clientRPG } = getReadContracts();
+        if (!clientRPG) {
+          throw new Error("RPG contract not deployed.");
+        }
+
+        const amount = ethers.parseUnits(amountText, appState.tvrnDecimals);
+        const [eligible, reason] = await clientRPG.checkWithdrawalEligible(appState.account, amount);
+        appState.rpgEligibility = {
+          amountText,
+          eligible: Boolean(eligible),
+          reason: reason || "All current withdrawal conditions pass."
+        };
+        renderRPGTab();
+      } catch (error) {
+        pushToast(extractErrorMessage(error), "error");
+      }
+    }
+
+    async function lookupSubscriptionRate() {
+      try {
+        await loadSubscriptionData({ agentAddress: refs.subscriptionAgentAddress.value.trim() });
+      } catch (error) {
+        pushToast(extractErrorMessage(error), "error");
+      }
+    }
+
+    async function subscribeToAgent() {
+      const rawAgent = refs.subscriptionAgentAddress.value.trim();
+      if (!rawAgent) {
+        pushToast("Enter an agent address first.", "error");
+        return;
+      }
+
+      let agent;
+      try {
+        agent = ethers.getAddress(rawAgent);
+      } catch (_) {
+        pushToast("Enter a valid agent address.", "error");
+        return;
+      }
+
+      await loadSubscriptionData({ agentAddress: agent });
+      if (!appState.subscriptionLookupRate || appState.subscriptionLookupRate <= 0n) {
+        pushToast("This agent has no monthly rate configured.", "error");
+        return;
+      }
+
+      const confirmed = await askConfirmation(
+        `Subscribe to ${shortenAddress(agent)}?`,
+        buildConfirmationDetails([
+          ["Monthly rate", `${formatUnits(appState.subscriptionLookupRate, appState.usdcDecimals, 2)} USDC`],
+          ["Settlement", "95% to agent, 5% to operator wallet"],
+          ["Wallet flow", "1-2 wallet confirmations expected"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { usdc, subscription } = getWriteContracts();
+      if (!subscription) {
+        throw new Error("Subscription contract not deployed.");
+      }
+
+      const allowance = await usdc.allowance(appState.account, CONFIG.addresses.tavernSubscription);
+      if (allowance < appState.subscriptionLookupRate) {
+        const approveTx = await performWrite("Approving USDC for subscription", () =>
+          usdc.approve(CONFIG.addresses.tavernSubscription, appState.subscriptionLookupRate)
+        );
+        await approveTx.wait();
+      }
+
+      const subscribeTx = await performWrite(`Subscribing to ${shortenAddress(agent)}`, () =>
+        subscription.subscribe(agent)
+      );
+      await subscribeTx.wait();
+      appState.subscriptionLastAction = {
+        label: `Subscription confirmed for ${shortenAddress(agent)}`,
+        hash: subscribeTx.hash
+      };
+      await refreshData();
+      setActiveTab("subscription");
+    }
+
+    async function cancelClientSubscription(subId) {
+      const subscriptionEntry = appState.subscriptionSubscriptions.find((item) => item.subId === subId);
+      if (!subscriptionEntry) {
+        pushToast("Subscription not found.", "error");
+        return;
+      }
+
+      const confirmed = await askConfirmation(
+        `Cancel subscription #${subId}?`,
+        buildConfirmationDetails([
+          ["Agent", shortenAddress(subscriptionEntry.agent)],
+          ["Effect", "Marks the subscription cancelled by client"],
+          ["Current period end", formatTimestamp(subscriptionEntry.currentPeriodEnd)]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { subscription } = getWriteContracts();
+      if (!subscription) {
+        throw new Error("Subscription contract not deployed.");
+      }
+
+      const tx = await performWrite(`Cancelling subscription #${subId}`, () =>
+        subscription.cancelSubscription(subId)
+      );
+      await tx.wait();
+      appState.subscriptionLastAction = {
+        label: `Cancellation submitted for subscription #${subId}`,
+        hash: tx.hash
+      };
+      await refreshData();
+      setActiveTab("subscription");
+    }
+
+    async function stakeBond() {
+      const confirmed = await askConfirmation(
+        "Post the 100 TVRN bond?",
+        buildConfirmationDetails([
+          ["Bond", `100 ${appState.tvrnSymbol}`],
+          ["Wallet flow", "1-2 wallet confirmations expected"],
+          ["Contract", shortenAddress(CONFIG.addresses.tavernStaking)]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { token, staking } = getWriteContracts();
+      if (!staking) {
+        throw new Error("Staking contract not deployed.");
+      }
+
+      const allowance = await token.allowance(appState.account, CONFIG.addresses.tavernStaking);
+      if (allowance < STAKING_BOND_AMOUNT) {
+        const approveTx = await performWrite("Approving TVRN for staking", () =>
+          token.approve(CONFIG.addresses.tavernStaking, STAKING_BOND_AMOUNT)
+        );
+        await approveTx.wait();
+      }
+
+      const stakeTx = await performWrite("Posting staking bond", () => staking.stake());
+      await stakeTx.wait();
+      await refreshData();
+    }
+
+    async function requestUnstakeBond() {
+      if (appState.agentProfile?.isActive) {
+        pushToast("Leave the guild before requesting an unstake.", "error");
+        return;
+      }
+
+      const confirmed = await askConfirmation(
+        "Request unstake?",
+        buildConfirmationDetails([
+          ["Cooldown", "7 days"],
+          ["Prerequisite", "Wallet must no longer be an active agent"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { staking } = getWriteContracts();
+      if (!staking) {
+        throw new Error("Staking contract not deployed.");
+      }
+
+      const tx = await performWrite("Requesting unstake", () => staking.requestUnstake());
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function withdrawBond() {
+      const requestAt = Number(appState.stakeInfo.unstakeRequestAt ?? 0n);
+      const cooldownEndsAt = requestAt ? requestAt + STAKING_COOLDOWN_SECONDS : 0;
+      if (!cooldownEndsAt || cooldownEndsAt > Math.floor(Date.now() / 1000)) {
+        pushToast("The 7 day cooldown has not finished yet.", "error");
+        return;
+      }
+
+      const confirmed = await askConfirmation(
+        "Withdraw staking bond?",
+        buildConfirmationDetails([
+          ["Amount", `${formatUnits(appState.stakeInfo.amount, appState.tvrnDecimals)} ${appState.tvrnSymbol}`],
+          ["Cooldown ends", formatTimestamp(cooldownEndsAt)]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { staking } = getWriteContracts();
+      if (!staking) {
+        throw new Error("Staking contract not deployed.");
+      }
+
+      const tx = await performWrite("Withdrawing staking bond", () => staking.withdraw());
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function submitGovernanceProposal(event) {
+      event.preventDefault();
+
+      if (isZeroAddress(CONFIG.addresses.tavernGovernance)) {
+        pushToast("Governance contract not deployed yet.", "error");
+        return;
+      }
+
+      const typeValue = Number($("proposal-type")?.value ?? 0);
+      const targetInput = $("proposal-target")?.value?.trim() ?? "";
+      const callDataInput = $("proposal-calldata")?.value?.trim() ?? "";
+      const description = $("proposal-description")?.value?.trim() ?? "";
+
+      if (appState.balances.tvrn < STAKING_BOND_AMOUNT) {
+        pushToast("Proposal threshold not met. Hold at least 100 TVRN.", "error");
+        return;
+      }
+
+      if (!description) {
+        pushToast("Add a proposal description before submitting.", "error");
+        return;
+      }
+
+      let target;
+      let callData;
+      try {
+        target = ethers.getAddress(targetInput);
+      } catch (_) {
+        pushToast("Enter a valid target address.", "error");
+        return;
+      }
+
+      if (isZeroAddress(target)) {
+        pushToast("Target address cannot be the zero address.", "error");
+        return;
+      }
+
+      try {
+        callData = ethers.hexlify(ethers.getBytes(callDataInput));
+      } catch (_) {
+        pushToast("callData must be valid hex bytes.", "error");
+        return;
+      }
+
+      const confirmed = await askConfirmation(
+        "Submit proposal?",
+        buildConfirmationDetails([
+          ["Type", proposalTypeNameFromIndex(typeValue)],
+          ["Target", shortenAddress(target)],
+          ["callData", shortenHash(callData)],
+          ["Description", shortenText(description, 80)]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { governance } = getWriteContracts();
+      if (!governance) {
+        throw new Error("Governance contract not deployed.");
+      }
+
+      const tx = await performWrite("Submitting proposal", () =>
+        governance.propose(typeValue, target, callData, description)
+      );
+      await tx.wait();
+      const form = event.target;
+      if (form && typeof form.reset === "function") {
+        form.reset();
+      }
+      await refreshData();
+    }
+
+    async function castGovernanceVote(proposalId, support, label) {
+      const confirmed = await askConfirmation(
+        `${label} on proposal #${proposalId}?`,
+        buildConfirmationDetails([
+          ["Support", label],
+          ["Proposal ID", String(proposalId)]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { governance } = getWriteContracts();
+      if (!governance) {
+        throw new Error("Governance contract not deployed.");
+      }
+
+      const tx = await performWrite(`${label} on proposal #${proposalId}`, () =>
+        governance.vote(proposalId, support)
+      );
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function queueGovernanceProposal(proposalId) {
+      const confirmed = await askConfirmation(
+        `Queue proposal #${proposalId}?`,
+        buildConfirmationDetails([
+          ["Function", `queue(${proposalId})`],
+          ["Outcome", "Failed quorum or support will mark it defeated"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { governance } = getWriteContracts();
+      if (!governance) {
+        throw new Error("Governance contract not deployed.");
+      }
+
+      const tx = await performWrite(`Queueing proposal #${proposalId}`, () => governance.queue(proposalId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function executeGovernanceProposal(proposalId) {
+      const confirmed = await askConfirmation(
+        `Execute proposal #${proposalId}?`,
+        buildConfirmationDetails([
+          ["Function", `execute(${proposalId})`],
+          ["Note", "Target call may revert until Phase 3 governance wiring lands"]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { governance } = getWriteContracts();
+      if (!governance) {
+        throw new Error("Governance contract not deployed.");
+      }
+
+      const tx = await performWrite(`Executing proposal #${proposalId}`, () => governance.execute(proposalId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function cancelGovernanceProposal(proposalId) {
+      const confirmed = await askConfirmation(
+        `Cancel proposal #${proposalId}?`,
+        buildConfirmationDetails([
+          ["Function", `cancel(${proposalId})`]
+        ])
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      await ensureConfiguredNetwork();
+      const { governance } = getWriteContracts();
+      if (!governance) {
+        throw new Error("Governance contract not deployed.");
+      }
+
+      const tx = await performWrite(`Cancelling proposal #${proposalId}`, () => governance.cancel(proposalId));
+      await tx.wait();
+      await refreshData();
+    }
+
+    async function handlePhase2Click(event) {
+      const button = event.target.closest("[data-phase2-action]");
+      if (!button) {
+        return;
+      }
+
+      const action = button.dataset.phase2Action;
+      const proposalId = Number(button.dataset.proposalId);
+
+      try {
+        if (action === "stake-bond") {
+          await stakeBond();
+        } else if (action === "request-unstake") {
+          await requestUnstakeBond();
+        } else if (action === "withdraw-bond") {
+          await withdrawBond();
+        } else if (action === "vote-for") {
+          await castGovernanceVote(proposalId, 1, "Vote For");
+        } else if (action === "vote-against") {
+          await castGovernanceVote(proposalId, 0, "Vote Against");
+        } else if (action === "vote-abstain") {
+          await castGovernanceVote(proposalId, 2, "Abstain");
+        } else if (action === "queue-proposal") {
+          await queueGovernanceProposal(proposalId);
+        } else if (action === "execute-proposal") {
+          await executeGovernanceProposal(proposalId);
+        } else if (action === "cancel-proposal") {
+          await cancelGovernanceProposal(proposalId);
+        }
+      } catch (_) {
+        // toast already shown
+      }
+    }
+
+    async function handleBoardClick(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button) {
+        return;
+      }
+
+      const action = button.dataset.action;
+      const questId = Number(button.dataset.id);
+
+      try {
+        if (action === "accept-quest") {
+          await acceptQuest(questId);
+        } else if (action === "cancel-quest") {
+          await cancelQuest(questId);
+        } else if (action === "fund-created") {
+          await fundCreatedQuest(questId);
+        } else if (action === "heartbeat") {
+          await recordHeartbeat(questId);
+        } else if (action === "submit-result") {
+          await submitResult(button, questId);
+        } else if (action === "mark-viewed") {
+          await markResultViewed(questId);
+        } else if (action === "open-evaluation") {
+          await openEvaluationModal(questId);
+        }
+      } catch (_) {
+        // toast already shown
+      }
+    }
+
+    async function handleSubscriptionClick(event) {
+      const button = event.target.closest("[data-subscription-action]");
+      if (!button) {
+        return;
+      }
+
+      const action = button.dataset.subscriptionAction;
+      const subId = Number(button.dataset.subscriptionId);
+
+      try {
+        if (action === "cancel-subscription") {
+          await cancelClientSubscription(subId);
+        }
+      } catch (_) {
+        // toast already shown
+      }
+    }
+
+    function attachEvents() {
+      document.querySelectorAll(".tab-button").forEach((button) => {
+        button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+      });
+
+      refs.connectWallet.addEventListener("click", async () => {
+        try {
+          await ensureConfiguredNetwork();
+          await refreshData();
+        } catch (error) {
+          pushToast(extractErrorMessage(error), "error");
+        }
+      });
+
+      refs.refreshBoard.addEventListener("click", refreshData);
+      refs.createQuestForm.addEventListener("submit", createQuestAndFund);
+      refs.questBrief.addEventListener("input", updateBriefHashPreview);
+      refs.rpgCheckEligibility.addEventListener("click", checkRpgEligibility);
+      refs.subscriptionCheckRate.addEventListener("click", lookupSubscriptionRate);
+      refs.subscriptionSubscribe.addEventListener("click", async () => {
+        try {
+          await subscribeToAgent();
+        } catch (error) {
+          pushToast(extractErrorMessage(error), "error");
+        }
+      });
+      refs.closeEvaluationModal.addEventListener("click", closeEvaluationModal);
+      refs.submitEvaluationButton.addEventListener("click", submitEvaluation);
+      refs.markViewedButton.addEventListener("click", async () => {
+        if (appState.evaluationQuestId) {
+          try {
+            await markResultViewed(appState.evaluationQuestId);
+          } catch (_) {
+            // handled upstream
+          }
+        }
+      });
+      refs.evaluationComment.addEventListener("input", refreshRewardPreview);
+      refs.evaluationTags.addEventListener("input", refreshRewardPreview);
+
+      document.body.addEventListener("click", async (event) => {
+        if (event.target.matches(".score-chip")) {
+          const index = Number(event.target.dataset.scoreIndex);
+          const value = Number(event.target.dataset.scoreValue);
+          appState.evaluationScores[index] = value;
+          buildScoreControls();
+          await refreshRewardPreview();
+        }
+      });
+
+      refs.questBoardGrid.addEventListener("click", handleBoardClick);
+      refs.clientQuests.addEventListener("click", handleBoardClick);
+      refs.agentWorkbench.addEventListener("click", handleBoardClick);
+      refs.evaluationQueue.addEventListener("click", handleBoardClick);
+      refs.stakingContent.addEventListener("click", handlePhase2Click);
+      refs.governanceContent.addEventListener("click", handlePhase2Click);
+      refs.subscriptionActiveList.addEventListener("click", handleSubscriptionClick);
+      refs.governanceContent.addEventListener("submit", async (event) => {
+        if (event.target.id === "governance-proposal-form") {
+          try {
+            await submitGovernanceProposal(event);
+          } catch (_) {
+            // toast already shown
+          }
+        }
+      });
+
+      if (window.ethereum) {
+        window.ethereum.on("accountsChanged", async () => {
+          const accounts = await window.ethereum.request({ method: "eth_accounts" });
+          if (!accounts.length) {
+            appState.browserProvider = null;
+            appState.signer = null;
+            appState.account = null;
+            appState.chainId = null;
+            await refreshData();
+            return;
+          }
+          await syncBrowserWalletState();
+          await refreshData();
+        });
+
+        window.ethereum.on("chainChanged", async () => {
+          if (appState.browserProvider) {
+            await syncBrowserWalletState();
+          }
+          await refreshData();
+        });
+      }
+    }
+
+    async function bootstrap() {
+      bindRefs();
+      attachEvents();
+      updateNetworkChrome();
+      updateWalletPill();
+      updateBriefHashPreview();
+      buildScoreControls();
+      await primeMetadata();
+
+      const accounts = window.ethereum
+        ? await window.ethereum.request({ method: "eth_accounts" })
+        : [];
+
+      if (accounts.length) {
+        try {
+          await ensureConfiguredNetwork();
+        } catch (_) {
+          // stay in read-only mode
+        }
+      }
+
+      await refreshData();
+      window.setInterval(refreshData, 30000);
+    }
+
+    window.addEventListener("load", bootstrap);
+  </script>
+</body>
+</html>

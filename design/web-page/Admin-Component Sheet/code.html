@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claw Tavern Admin - Component Sheet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201c12",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .mono-text {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d8a93133;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Nav Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/20 bg-background-light dark:bg-background-dark/95 backdrop-blur-sm px-6 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<span class="material-symbols-outlined text-3xl">castle</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight font-display">Claw Tavern Admin</h2>
+</div>
+<label class="flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden border border-primary/20">
+<div class="text-primary/60 flex items-center justify-center pl-4 bg-background-light dark:bg-background-dark/50">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-background-light dark:bg-background-dark/50 text-slate-900 dark:text-slate-100 placeholder:text-primary/30 text-base font-normal focus:ring-0" placeholder="Search Ledgers..."/>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-2">
+<button class="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/20 text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="relative group">
+<button class="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/20 text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<!-- Simple Dropdown Mock -->
+<div class="absolute right-0 top-full mt-2 w-48 bg-background-dark border border-primary/20 rounded-lg shadow-2xl hidden group-hover:block overflow-hidden">
+<a class="block px-4 py-2 hover:bg-primary/10 text-sm border-b border-primary/10" href="#">Profile Settings</a>
+<a class="block px-4 py-2 hover:bg-primary/10 text-sm border-b border-primary/10" href="#">Security</a>
+<a class="block px-4 py-2 hover:bg-red-500/10 text-red-400 text-sm" href="#">System Purge</a>
+</div>
+</div>
+</div>
+<div class="h-10 w-10 rounded-full border-2 border-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Admin avatar of a hooded rogue" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcNQwDRxutUKvMjE0UqBIroOQD72U6b9AJUU0DYZO1IQ9scKj6CLflK1YlaaOWlirXrNPngQwHMwn_t_zP0j4JAJnBBYQY2Tf5ioKirJ_rT1mhX7lJxivbAjLaZsUI-0Zhd0og6HSL1nCyhiSdA_gsKxp5IQcNpz4kLPzzMi4FxpfkscA0JVC2uAUxXkLuayCTWQh65ux7xncJh3DGIiu5Vn9g4OnGhv3nsctsdog1dHtk9TYHOzY3mzs-JaWoo5GbfGxR4ZUDOLA"/>
+</div>
+</div>
+</header>
+<main class="flex-1 p-8 space-y-12 max-w-7xl mx-auto w-full">
+<!-- Section: Metric Cards -->
+<section>
+<h3 class="text-2xl font-bold mb-6 font-display border-l-4 border-primary pl-4">Resource Status</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="rounded-xl border border-primary/20 bg-background-light dark:bg-background-dark/40 p-6 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<span class="text-primary/60 text-sm font-medium uppercase tracking-widest">Total Gold</span>
+<span class="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-xs mono-text font-bold">+12.4%</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold mono-text text-slate-100">84,290</span>
+<span class="text-primary text-sm font-bold">g</span>
+</div>
+<div class="h-12 w-full">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<path d="M0 35 Q 20 10, 40 25 T 80 5 T 100 20" fill="none" stroke="#d8a931" stroke-width="2"></path>
+<path d="M0 35 Q 20 10, 40 25 T 80 5 T 100 20 V 40 H 0 Z" fill="url(#grad1)" opacity="0.1"></path>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#d8a931;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#d8a931;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="rounded-xl border border-primary/20 bg-background-light dark:bg-background-dark/40 p-6 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<span class="text-primary/60 text-sm font-medium uppercase tracking-widest">Ale Supply</span>
+<span class="text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-xs mono-text font-bold">-4.2%</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold mono-text text-slate-100">142</span>
+<span class="text-primary/60 text-sm font-medium uppercase">Barrels</span>
+</div>
+<div class="h-12 w-full opacity-30">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<path d="M0 10 L 20 15 L 40 30 L 60 25 L 80 35 L 100 32" fill="none" stroke="#ef4444" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="rounded-xl border border-primary/20 bg-background-light dark:bg-background-dark/40 p-6 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<span class="text-primary/60 text-sm font-medium uppercase tracking-widest">Active Mercs</span>
+<span class="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded text-xs mono-text font-bold">+2</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold mono-text text-slate-100">28</span>
+<span class="material-symbols-outlined text-primary text-xl">person</span>
+</div>
+<div class="h-12 w-full flex items-end gap-1">
+<div class="bg-primary/40 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[55%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[80%] rounded-t-sm"></div>
+<div class="bg-primary w-full h-[95%] rounded-t-sm"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="rounded-xl border border-primary/20 bg-background-light dark:bg-background-dark/40 p-6 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<span class="text-primary/60 text-sm font-medium uppercase tracking-widest">Infamy Rank</span>
+<span class="text-slate-400 bg-slate-400/10 px-2 py-0.5 rounded text-xs mono-text font-bold">Stable</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-bold font-display text-slate-100 italic">Shadow</span>
+</div>
+<div class="h-12 w-full flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-primary/20">skull</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Form Elements & Status -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+<section>
+<h3 class="text-2xl font-bold mb-6 font-display border-l-4 border-primary pl-4">Draft New Bounty</h3>
+<div class="bg-background-light dark:bg-background-dark/40 border border-primary/20 rounded-xl p-8 space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-primary/60">Target Name</label>
+<input class="w-full bg-background-dark/60 border border-primary/20 rounded-lg p-3 text-slate-100 focus:ring-1 focus:ring-primary focus:border-primary transition-all font-mono" placeholder="e.g. Malakor the Cursed" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-primary/60">Class Restriction</label>
+<select class="w-full bg-background-dark/60 border border-primary/20 rounded-lg p-3 text-slate-100 focus:ring-1 focus:ring-primary font-mono text-sm">
+<option>Any</option>
+<option>Paladin Only</option>
+<option>Rogue Preferred</option>
+<option>Sorcerer Required</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-widest text-primary/60">Urgency</label>
+<div class="flex items-center gap-4 h-11 px-4 bg-background-dark/60 border border-primary/20 rounded-lg">
+<span class="text-sm text-slate-400">High Priority</span>
+<button class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary/20 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-primary shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<button class="flex-1 bg-primary hover:bg-primary/80 text-background-dark font-bold py-3 rounded-lg transition-all uppercase tracking-widest text-sm">Seal &amp; Post</button>
+<button class="px-6 py-3 border border-primary/20 text-primary font-bold rounded-lg hover:bg-primary/10 transition-all uppercase tracking-widest text-sm">Discard</button>
+</div>
+</div>
+</section>
+<section>
+<h3 class="text-2xl font-bold mb-6 font-display border-l-4 border-primary pl-4">Indicators &amp; Badges</h3>
+<div class="bg-background-light dark:bg-background-dark/40 border border-primary/20 rounded-xl p-8 flex flex-col gap-8">
+<div class="space-y-4">
+<p class="text-sm text-primary/60 italic">Status Pills</p>
+<div class="flex flex-wrap gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold mono-text border border-emerald-500/20">
+<span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                ACTIVE_QUEST
+                            </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mono-text border border-primary/20">
+<span class="size-1.5 rounded-full bg-primary"></span>
+                                PENDING_PAYMENT
+                            </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-xs font-bold mono-text border border-red-500/20">
+<span class="size-1.5 rounded-full bg-red-500"></span>
+                                BOUNTY_FAILED
+                            </span>
+</div>
+</div>
+<div class="space-y-4">
+<p class="text-sm text-primary/60 italic">Rarity Badges</p>
+<div class="flex flex-wrap gap-3">
+<span class="px-2 py-0.5 rounded border border-slate-500 text-slate-400 text-[10px] font-bold uppercase tracking-tighter">Common</span>
+<span class="px-2 py-0.5 rounded border border-blue-500 text-blue-400 text-[10px] font-bold uppercase tracking-tighter shadow-[0_0_10px_rgba(59,130,246,0.2)]">Rare</span>
+<span class="px-2 py-0.5 rounded border border-purple-500 text-purple-400 text-[10px] font-bold uppercase tracking-tighter shadow-[0_0_10px_rgba(168,85,247,0.3)]">Epic</span>
+<span class="px-2 py-0.5 rounded border border-primary text-primary text-[10px] font-bold uppercase tracking-tighter shadow-[0_0_15px_rgba(216,169,49,0.4)]">Legendary</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Section: Data Table -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h3 class="text-2xl font-bold font-display border-l-4 border-primary pl-4">Mercenary Ledger</h3>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-primary/10 border border-primary/20 text-primary text-sm font-bold rounded-lg hover:bg-primary/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Sort by Power
+                    </button>
+<button class="px-4 py-2 bg-primary/10 border border-primary/20 text-primary text-sm font-bold rounded-lg hover:bg-primary/20 transition-all">
+                        Export Parchment
+                    </button>
+</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark/40 border border-primary/20 rounded-xl overflow-hidden shadow-2xl">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-primary/10 text-primary uppercase text-[10px] tracking-widest font-bold mono-text">
+<th class="px-6 py-4 border-b border-primary/20">Adventurer</th>
+<th class="px-6 py-4 border-b border-primary/20">Class</th>
+<th class="px-6 py-4 border-b border-primary/20">Success Rate</th>
+<th class="px-6 py-4 border-b border-primary/20">Level</th>
+<th class="px-6 py-4 border-b border-primary/20">Daily Wage</th>
+<th class="px-6 py-4 border-b border-primary/20 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="mono-text text-sm divide-y divide-primary/5">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded border border-primary/20 overflow-hidden bg-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-sm">person</span>
+</div>
+<span class="font-bold text-slate-100 group-hover:text-primary transition-colors italic">Thrain Ironfoot</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">Berserker</td>
+<td class="px-6 py-4">
+<div class="w-full bg-background-dark h-1.5 rounded-full overflow-hidden border border-primary/10">
+<div class="bg-emerald-500 h-full w-[92%] shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-100">Lv. 42</td>
+<td class="px-6 py-4 text-primary font-bold">450g</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-slate-100 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded border border-primary/20 overflow-hidden bg-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-sm">person</span>
+</div>
+<span class="font-bold text-slate-100 group-hover:text-primary transition-colors italic">Elowen Swift</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">Night-Blade</td>
+<td class="px-6 py-4">
+<div class="w-full bg-background-dark h-1.5 rounded-full overflow-hidden border border-primary/10">
+<div class="bg-emerald-500 h-full w-[78%] shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-100">Lv. 38</td>
+<td class="px-6 py-4 text-primary font-bold">1,200g</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-slate-100 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group border-primary/20">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded border border-primary/20 overflow-hidden bg-background-dark flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-sm">person</span>
+</div>
+<span class="font-bold text-slate-100 group-hover:text-primary transition-colors italic">Morgath Vile</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-400">Necromancer</td>
+<td class="px-6 py-4">
+<div class="w-full bg-background-dark h-1.5 rounded-full overflow-hidden border border-primary/10">
+<div class="bg-red-500 h-full w-[45%] shadow-[0_0_8px_rgba(239,68,68,0.4)]"></div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-100">Lv. 60</td>
+<td class="px-6 py-4 text-primary font-bold">2,500g</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary hover:text-slate-100 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Section: Modals (Static Examples) -->
+<section class="pb-24">
+<h3 class="text-2xl font-bold mb-6 font-display border-l-4 border-primary pl-4">Ritual Confirmations (Modals)</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Success Modal -->
+<div class="bg-background-dark/80 border border-emerald-500/30 rounded-xl p-6 shadow-[0_0_40px_rgba(16,185,129,0.1)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl text-emerald-500">verified</span>
+</div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="size-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<h4 class="text-xl font-bold font-display text-slate-100 italic">Bounty Claimed</h4>
+<p class="text-sm text-slate-400 leading-relaxed">The target has been neutralized and the reward has been added to the tavern ledger.</p>
+<button class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded transition-all uppercase text-xs tracking-widest mt-2">Dismiss</button>
+</div>
+</div>
+<!-- Warning Modal -->
+<div class="bg-background-dark/80 border border-primary/30 rounded-xl p-6 shadow-[0_0_40px_rgba(216,169,49,0.1)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl text-primary">warning</span>
+</div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">priority_high</span>
+</div>
+<h4 class="text-xl font-bold font-display text-slate-100 italic">Seal Broken?</h4>
+<p class="text-sm text-slate-400 leading-relaxed">You are about to unseal the cursed ledger. This action cannot be undone without a cleanse ritual.</p>
+<div class="flex gap-3 mt-2">
+<button class="flex-1 bg-primary text-background-dark font-bold py-2 rounded text-xs tracking-widest">PROCEED</button>
+<button class="flex-1 border border-primary/20 text-primary font-bold py-2 rounded text-xs tracking-widest hover:bg-primary/5">HALT</button>
+</div>
+</div>
+</div>
+<!-- Danger Modal -->
+<div class="bg-background-dark/80 border border-red-500/30 rounded-xl p-6 shadow-[0_0_40px_rgba(239,68,68,0.1)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl text-red-500">dangerous</span>
+</div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="size-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+<span class="material-symbols-outlined">skull</span>
+</div>
+<h4 class="text-xl font-bold font-display text-slate-100 italic">Banish Mercenary?</h4>
+<p class="text-sm text-slate-400 leading-relaxed">Banishing Thrain Ironfoot will remove him from the district forever. No refund on contracts.</p>
+<button class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded transition-all uppercase text-xs tracking-widest mt-2">Banish Forever</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Status Bar -->
+<footer class="fixed bottom-0 left-0 right-0 bg-background-dark/95 border-t border-primary/20 px-6 py-2 flex justify-between items-center text-[10px] mono-text uppercase tracking-[0.2em] text-primary/40 backdrop-blur-sm">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                System: Connected to Astral Node 4
+            </div>
+<div class="flex items-center gap-2">
+<span class="size-1.5 rounded-full bg-primary shadow-[0_0_5px_#d8a931]"></span>
+                District: Dungeon - Sector 7
+            </div>
+</div>
+<div class="flex items-center gap-4">
+<span>Uptime: 247:12:04</span>
+<span class="material-symbols-outlined text-xs">sync</span>
+</div>
+</footer>
+</div>
+</body></html>

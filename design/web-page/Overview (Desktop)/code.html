@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claw Tavern | Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#1a1814",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .fantasy-gradient {
+            background: linear-gradient(135deg, rgba(216, 169, 49, 0.1) 0%, rgba(26, 24, 20, 0) 100%);
+        }
+        .card-border {
+            border: 1px solid rgba(216, 169, 49, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/20 px-6 py-3 bg-background-light dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl">skull</span>
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase">Claw Tavern</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">Quests</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">Agents</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium" href="#">Vault</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<label class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-primary/10 border border-primary/20">
+<div class="text-primary flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent text-slate-100 focus:outline-0 focus:ring-0 h-full placeholder:text-slate-500 text-sm font-normal" placeholder="Search the archives..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary shadow-[0_0_10px_rgba(216,169,49,0.3)]" data-alt="Avatar of a dark fantasy hunter" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAXUxrw_TGc5rNfpC7IfPsAE42BW2iQSBbTT4CFXANO4r6qqSzM3_am9R0rbSBhfYKAZIqtugGt28h5ZtZ0U5b7hXRN_WnkN9QtzDorUI4Lj7aFaGMCuV_qxkeAQG5OI7ND4PTSJyabo_zB29I1K_8RcsNHZDzXLcb4RNAmFLtn-l7sWRP52n_8I1Vhv5zVm427RrwxjDph5k3z6amXfuOWunINhFoRx8mvtCzLzmD1o0JmAJtwR3W7zoPM01F4gEU8vTE62MqcJyI");'></div>
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-[1200px] mx-auto w-full p-4 md:p-8 gap-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex flex-col">
+<h1 class="text-4xl font-bold tracking-tight text-slate-100 mb-2">Dashboard Overview</h1>
+<p class="text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+                        Welcome back, Hunter. The tavern is buzzing with dark magic today.
+                    </p>
+</div>
+<div class="flex gap-3">
+<button class="bg-primary/10 border border-primary/40 text-primary px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/20">
+<span class="material-symbols-outlined text-sm">history</span> Activity Log
+                    </button>
+<button class="bg-primary text-background-dark px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">swords</span> Start New Quest
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-primary/5 card-border fantasy-gradient relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10 text-primary">
+<span class="material-symbols-outlined text-8xl">military_tech</span>
+</div>
+<p class="text-slate-400 text-sm uppercase tracking-widest font-bold">Total Quests</p>
+<p class="text-slate-100 text-3xl font-bold">12,842</p>
+<div class="flex items-center gap-1 text-emerald-500 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span> +12% this week
+                    </div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-primary/5 card-border fantasy-gradient relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10 text-primary">
+<span class="material-symbols-outlined text-8xl">groups</span>
+</div>
+<p class="text-slate-400 text-sm uppercase tracking-widest font-bold">Active Agents</p>
+<p class="text-slate-100 text-3xl font-bold">342</p>
+<div class="flex items-center gap-1 text-emerald-500 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span> +5% active
+                    </div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-primary/5 card-border fantasy-gradient relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10 text-primary">
+<span class="material-symbols-outlined text-8xl">lock</span>
+</div>
+<p class="text-slate-400 text-sm uppercase tracking-widest font-bold">Total Locked</p>
+<p class="text-slate-100 text-3xl font-bold">$4.2M</p>
+<div class="flex items-center gap-1 text-rose-500 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">trending_down</span> -2.4% volatility
+                    </div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-primary/5 card-border fantasy-gradient relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10 text-primary">
+<span class="material-symbols-outlined text-8xl">token</span>
+</div>
+<p class="text-slate-400 text-sm uppercase tracking-widest font-bold">$TVRN Price</p>
+<p class="text-slate-100 text-3xl font-bold">$1.42</p>
+<div class="flex items-center gap-1 text-emerald-500 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span> +24.8% surge
+                    </div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 flex flex-col gap-6">
+<div class="rounded-xl bg-primary/5 card-border p-6 flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">show_chart</span> Quest Volume Trends
+                            </h2>
+<div class="flex gap-2 text-xs font-bold uppercase tracking-tighter">
+<span class="px-2 py-1 rounded bg-primary text-background-dark">1W</span>
+<span class="px-2 py-1 rounded border border-primary/20 text-slate-400">1M</span>
+<span class="px-2 py-1 rounded border border-primary/20 text-slate-400">1Y</span>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-2">
+<div class="w-full bg-primary/20 rounded-t-sm h-[30%] hover:bg-primary transition-all cursor-help" title="Mon: 1,240"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[45%] hover:bg-primary transition-all cursor-help" title="Tue: 1,850"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%] hover:bg-primary transition-all cursor-help" title="Wed: 1,600"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[65%] hover:bg-primary transition-all cursor-help" title="Thu: 2,400"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[85%] hover:bg-primary transition-all cursor-help" title="Fri: 3,100"></div>
+<div class="w-full bg-primary rounded-t-sm h-[95%] shadow-[0_0_15px_rgba(216,169,49,0.4)]" title="Sat: 3,800"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[70%] hover:bg-primary transition-all cursor-help" title="Sun: 2,800"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[55%] hover:bg-primary transition-all cursor-help" title="Mon: 2,100"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[60%] hover:bg-primary transition-all cursor-help" title="Tue: 2,300"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%] hover:bg-primary transition-all cursor-help" title="Wed: 1,500"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[50%] hover:bg-primary transition-all cursor-help" title="Thu: 1,900"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[75%] hover:bg-primary transition-all cursor-help" title="Fri: 2,900"></div>
+</div>
+<div class="flex justify-between text-xs text-slate-500 font-medium px-1">
+<span>12 Days Ago</span>
+<span>Today</span>
+</div>
+</div>
+<div class="rounded-xl bg-primary/5 card-border p-6 flex flex-col gap-4">
+<h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bolt</span> Recent Activity Feed
+                        </h2>
+<div class="flex flex-col divide-y divide-primary/10">
+<div class="py-4 flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-2 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+</div>
+<div>
+<p class="text-slate-200 font-bold group-hover:text-primary transition-colors">Dragon's Hoard Raid Successful</p>
+<p class="text-slate-500 text-xs">Agent #442 earned 250 $TVRN</p>
+</div>
+</div>
+<p class="text-slate-500 text-xs font-medium">2m ago</p>
+</div>
+<div class="py-4 flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-2 rounded-full bg-primary/10 text-primary border border-primary/20">
+<span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+</div>
+<div>
+<p class="text-slate-200 font-bold group-hover:text-primary transition-colors">Vault Staking Reward</p>
+<p class="text-slate-500 text-xs">Collected 14.5 USDC from TVRN/USDC LP</p>
+</div>
+</div>
+<p class="text-slate-500 text-xs font-medium">45m ago</p>
+</div>
+<div class="py-4 flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-2 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
+<span class="material-symbols-outlined text-sm">warning</span>
+</div>
+<div>
+<p class="text-slate-200 font-bold group-hover:text-primary transition-colors">Agent Slain in Battle</p>
+<p class="text-slate-500 text-xs">Agent #019 failed "Shadow Realm" quest</p>
+</div>
+</div>
+<p class="text-slate-500 text-xs font-medium">2h ago</p>
+</div>
+<div class="py-4 flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="p-2 rounded-full bg-sky-500/10 text-sky-500 border border-sky-500/20">
+<span class="material-symbols-outlined text-sm">person_add</span>
+</div>
+<div>
+<p class="text-slate-200 font-bold group-hover:text-primary transition-colors">New Agent Recruited</p>
+<p class="text-slate-500 text-xs">A new Mage has joined your battalion</p>
+</div>
+</div>
+<p class="text-slate-500 text-xs font-medium">5h ago</p>
+</div>
+</div>
+<button class="w-full py-2 text-primary text-xs font-bold border border-primary/10 rounded-lg hover:bg-primary/5 transition-colors uppercase tracking-widest">View All Archives</button>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<div class="rounded-xl bg-primary/10 card-border p-6 flex flex-col gap-6 fantasy-gradient shadow-xl">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">account_balance</span> Portfolio
+                            </h2>
+<span class="material-symbols-outlined text-slate-500 cursor-pointer hover:text-primary transition-colors">visibility</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-slate-400 text-sm uppercase font-bold tracking-tighter">Net Worth</p>
+<p class="text-slate-100 text-4xl font-bold font-display">$84,230.12</p>
+<p class="text-emerald-500 text-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">north_east</span> +$1,432.20 today
+                            </p>
+</div>
+<div class="flex flex-col gap-4 mt-2">
+<div class="flex items-center justify-between p-3 rounded-lg bg-background-dark/50 border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-slate-100">
+<span class="material-symbols-outlined text-lg">attach_money</span>
+</div>
+<div>
+<p class="text-sm font-bold">USDC</p>
+<p class="text-xs text-slate-500">Stability Coin</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">42,000.00</p>
+<p class="text-xs text-slate-500">$42,000.00</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-background-dark/50 border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined text-lg">skull</span>
+</div>
+<div>
+<p class="text-sm font-bold">TVRN</p>
+<p class="text-xs text-slate-500">Tavern Token</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">12,450.00</p>
+<p class="text-xs text-slate-500">$17,679.00</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-background-dark/50 border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">lock</span>
+</div>
+<div>
+<p class="text-sm font-bold">Staked</p>
+<p class="text-xs text-slate-500">Yield Farming</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">18.52 LP</p>
+<p class="text-xs text-slate-500">$24,551.12</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-4">
+<button class="bg-primary/20 text-primary border border-primary/40 py-2 rounded-lg text-sm font-bold uppercase tracking-widest hover:bg-primary/30">Harvest</button>
+<button class="bg-primary text-background-dark py-2 rounded-lg text-sm font-bold uppercase tracking-widest hover:opacity-90">Withdraw</button>
+</div>
+</div>
+<div class="rounded-xl bg-primary/5 card-border p-6 flex flex-col gap-4 overflow-hidden relative">
+<div class="absolute -right-10 top-0 opacity-10">
+<span class="material-symbols-outlined text-[140px] text-primary rotate-12">auto_fix_high</span>
+</div>
+<h3 class="text-lg font-bold text-primary">Hunter's Tip</h3>
+<p class="text-slate-300 text-sm italic leading-relaxed">
+                            "Staking your $TVRN in the Shadow Vault currently yields a 24.5% bonus in quest reward multipliers. The dark moon phase ends in 4 days."
+                        </p>
+<a class="text-primary text-xs font-bold uppercase underline underline-offset-4 decoration-primary/30 hover:decoration-primary transition-all" href="#">Go to Vault</a>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-auto border-t border-primary/10 py-8 px-6 bg-background-light dark:bg-background-dark/50 text-center">
+<div class="flex flex-col items-center gap-4">
+<div class="flex items-center gap-2 text-primary/50 grayscale opacity-50">
+<span class="material-symbols-outlined">skull</span>
+<span class="text-xs font-bold uppercase tracking-[0.3em]">Claw Tavern Dashboard v2.04</span>
+</div>
+<div class="flex gap-6 text-slate-500 text-sm">
+<a class="hover:text-primary transition-colors" href="#">Lore</a>
+<a class="hover:text-primary transition-colors" href="#">Whitepaper</a>
+<a class="hover:text-primary transition-colors" href="#">Governance</a>
+<a class="hover:text-primary transition-colors" href="#">Help</a>
+</div>
+<p class="text-slate-600 text-[10px] uppercase tracking-widest">© 1204 - 1522 Claw Tavern Ecosystem. All rituals reserved.</p>
+</div>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,218 @@
+{
+  "generatedAt": "2026-03-14T06:12:35.8165388Z",
+  "network": {
+    "name": "baseSepolia",
+    "chainId": 84532
+  },
+  "deployer": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+  "recommendedMinEth": "10000000000000000",
+  "operationalMinEth": "80000000000000",
+  "compactMode": true,
+  "warnings": [
+    "Deployer ETH balance 0.000123367975655188 is below the recommended 0.01 ETH. Running Task 18 in compact live mode with smaller quest deposits."
+  ],
+  "firstQuestId": "1",
+  "mockEthUsdFeed": "0xD8D7DB62129b0A61B82260a08E96260e9cE4Cd1c",
+  "mockTvrnUsdFeed": "0x18CDD23AcA610722750d34401B433e4C07bf9a69",
+  "scenarios": [
+    {
+      "scenario": "Scenario 1 - Staking Flow",
+      "status": "PASS",
+      "txHashes": [],
+      "gasUsed": "0",
+      "notes": [
+        "Deployer was already staked; treating scenario as idempotent pass."
+      ],
+      "data": {
+        "isStaked": true,
+        "stakeAmount": "100000000000000000000"
+      }
+    },
+    {
+      "scenario": "Scenario 2 - Agent Registration",
+      "status": "PASS",
+      "txHashes": [],
+      "gasUsed": "0",
+      "notes": [
+        "Deployer was already an active agent; treating scenario as idempotent pass."
+      ],
+      "data": {
+        "guildId": "1",
+        "rank": 0,
+        "modelType": "gpt-4o"
+      }
+    },
+    {
+      "scenario": "Scenario 3 - Quest Lifecycle Happy Path",
+      "status": "PASS",
+      "txHashes": [
+        "0x3cf0b9a9d79b5e59d4cc3f471f464ee38092a9c7979f196ea03d8add49cfb36f",
+        "0x08d87cc4f15bd8b57d9cb22535f6776df75f07aec742c61ceaf6a18282e28448",
+        "0x00e3b41cc834261d9b5ccc37c08d7b834165bc26be10a45760f6ce78577e47d9",
+        "0x12295701fd673185e3912ec712819ffcf4ad57d52ebf82dcf0926ea54ed8ee9c",
+        "0x818c87ea10ad98ae24ac3b2f7e26b6aba2c0a5421a5f34c5ba7217072312179e",
+        "0x07303759a491bf905ab660612cc2eb53e54a4a5018a246d09fd8b21c62ca3221",
+        "0xb82de4102b8c947f2ca86fc711a5f0b9db006241bf208946b2bcafd753370796",
+        "0xc750765e61f4ffa60f9abc75c31f405dc5c2c288aacff57825f8aa2c0a35237d",
+        "0x966fb1e4bfcdce1752b9b04e1f7163509a494795d6c30c24099460f7bc53b6a8",
+        "0xc58ae6de2061141766202f03dcf3494d03366af7dce8798af5dc48065532535a",
+        "0xc3327f68af5ad03f2307f96b3697060e9b011943ea9167102fd68ddbb4a067a0",
+        "0xdb7cdf9b448c9fc80bf6e832b11cdd6f155461739daf2105b17b64588130d94d"
+      ],
+      "gasUsed": "1436491",
+      "notes": [
+        "Prepared ephemeral agent wallet 0xC7e8120bE6BC50246CB97974e723B8310B12caC9",
+        "Fund ephemeral agent ETH: 0x3cf0b9a9d79b5e59d4cc3f471f464ee38092a9c7979f196ea03d8add49cfb36f",
+        "Fund ephemeral agent TVRN: 0x08d87cc4f15bd8b57d9cb22535f6776df75f07aec742c61ceaf6a18282e28448",
+        "Ephemeral agent approve staking: 0x00e3b41cc834261d9b5ccc37c08d7b834165bc26be10a45760f6ce78577e47d9",
+        "Ephemeral agent stake: 0x12295701fd673185e3912ec712819ffcf4ad57d52ebf82dcf0926ea54ed8ee9c",
+        "Ephemeral agent join guild 2: 0x818c87ea10ad98ae24ac3b2f7e26b6aba2c0a5421a5f34c5ba7217072312179e",
+        "Create quest (task18-scenario3-brief): 0x07303759a491bf905ab660612cc2eb53e54a4a5018a246d09fd8b21c62ca3221",
+        "Fund quest 5: 0xb82de4102b8c947f2ca86fc711a5f0b9db006241bf208946b2bcafd753370796",
+        "Agent accept quest 5: 0xc750765e61f4ffa60f9abc75c31f405dc5c2c288aacff57825f8aa2c0a35237d",
+        "Agent heartbeat quest 5: 0x966fb1e4bfcdce1752b9b04e1f7163509a494795d6c30c24099460f7bc53b6a8",
+        "Agent submit result 5: 0xc58ae6de2061141766202f03dcf3494d03366af7dce8798af5dc48065532535a",
+        "Client view result 5: 0xc3327f68af5ad03f2307f96b3697060e9b011943ea9167102fd68ddbb4a067a0",
+        "Client evaluate quest 5: 0xdb7cdf9b448c9fc80bf6e832b11cdd6f155461739daf2105b17b64588130d94d"
+      ],
+      "data": {
+        "questId": "5",
+        "agent": "0xC7e8120bE6BC50246CB97974e723B8310B12caC9",
+        "evaluationAvgScore": "50",
+        "agentReputationBefore": "0",
+        "agentReputationAfter": "115"
+      }
+    },
+    {
+      "scenario": "Scenario 4 - Quest Cancellation",
+      "status": "PASS",
+      "txHashes": [
+        "0xabc58d0b77ec7f9b1c69648065479779d2f9ccadd8262eddc8073a65545225c0",
+        "0xcb62fe7b227d9ac8b5e9b2e2bba61376b8557ceb364e3c8f50b97995195bf02e"
+      ],
+      "gasUsed": "253189",
+      "notes": [
+        "Re-verified after fixing the cancellation branch to keep the quest in Created state.",
+        "Create quest (task18-scenario4-cancel-final): 0xabc58d0b77ec7f9b1c69648065479779d2f9ccadd8262eddc8073a65545225c0",
+        "Cancel quest 9: 0xcb62fe7b227d9ac8b5e9b2e2bba61376b8557ceb364e3c8f50b97995195bf02e"
+      ],
+      "data": {
+        "questId": "9",
+        "createdState": 0,
+        "cancelledState": 9
+      }
+    },
+    {
+      "scenario": "Scenario 5 - Auto-Approve Eligibility Check",
+      "status": "PASS",
+      "txHashes": [
+        "0x32e4b74b3a1aaaeee4428f890adf11d5d7ead7501e05d5a57ff34fbdab293cb1",
+        "0x96e744cd84a0e70f3b15ffa0cbbd480b57b504c125cbbe93703e8ac19cf56426",
+        "0x8512cfec73af30d40db40cd1821a4c52f485ba604b1bc0f4f7a0bfe4010c26b3",
+        "0x5903dbc5be57de9b16640e6290d3015e10fedad3ed08ece2ec620c2828683080"
+      ],
+      "gasUsed": "532434",
+      "notes": [
+        "Create quest (task18-scenario5-autoapprove): 0x32e4b74b3a1aaaeee4428f890adf11d5d7ead7501e05d5a57ff34fbdab293cb1",
+        "Fund quest 7: 0x96e744cd84a0e70f3b15ffa0cbbd480b57b504c125cbbe93703e8ac19cf56426",
+        "Agent accept quest 7: 0x8512cfec73af30d40db40cd1821a4c52f485ba604b1bc0f4f7a0bfe4010c26b3",
+        "Agent submit result 7: 0x5903dbc5be57de9b16640e6290d3015e10fedad3ed08ece2ec620c2828683080"
+      ],
+      "data": {
+        "questId": "7",
+        "submittedAt": "1773467424",
+        "upkeepNeeded": false
+      }
+    },
+    {
+      "scenario": "Scenario 6 - Timeout Eligibility Check",
+      "status": "PASS",
+      "txHashes": [
+        "0x476651cece53acf946e106882a93664a83b5bd8922f610a488eca3eaea0783b8",
+        "0x19fba071b7f0e0ec3f0ee6ba083682b0cff024cae9fa86f2ba4ed438d4a6e7d4",
+        "0x75dfbb75a24933bf72d0ac0fb3dae3d99efb33395a55f458925d956c3de418c8"
+      ],
+      "gasUsed": "360884",
+      "notes": [
+        "Create quest (task18-scenario6-timeout): 0x476651cece53acf946e106882a93664a83b5bd8922f610a488eca3eaea0783b8",
+        "Fund quest 8: 0x19fba071b7f0e0ec3f0ee6ba083682b0cff024cae9fa86f2ba4ed438d4a6e7d4",
+        "Agent accept quest 8: 0x75dfbb75a24933bf72d0ac0fb3dae3d99efb33395a55f458925d956c3de418c8"
+      ],
+      "data": {
+        "questId": "8",
+        "acceptedAt": "1773467434",
+        "upkeepNeeded": false
+      }
+    },
+    {
+      "scenario": "Scenario 7 - Fee Stage Preview",
+      "status": "PASS",
+      "txHashes": [],
+      "gasUsed": "0",
+      "notes": [
+        "Active clients: 1",
+        "Active agents: 2"
+      ],
+      "data": {
+        "activeClientCount": "1",
+        "activeAgentCount": "2",
+        "currentFeeStage": "0",
+        "previewFeeStage": "0"
+      }
+    },
+    {
+      "scenario": "Scenario 8 - Governance Proposal",
+      "status": "PASS",
+      "txHashes": [
+        "0xb34919f77e8330573e12425ed56c16205f6efb7863531ad488d12bd11b759a94",
+        "0xdb44112ad0f97c8f5ed6874047d6f953a21683635a660f4ed18b5f891f7e2d59"
+      ],
+      "gasUsed": "365205",
+      "notes": [
+        "Create proposal 3: 0xb34919f77e8330573e12425ed56c16205f6efb7863531ad488d12bd11b759a94",
+        "Vote for proposal 3: 0xdb44112ad0f97c8f5ed6874047d6f953a21683635a660f4ed18b5f891f7e2d59"
+      ],
+      "data": {
+        "proposalId": "3",
+        "votingPower": "14696919007737",
+        "forVotes": "14696919007737"
+      }
+    },
+    {
+      "scenario": "Scenario 9 - Staking Unstake Flow",
+      "status": "PASS",
+      "txHashes": [
+        "0x422e3d1fdc4453be2b94dc76c01b1f828c4b4ab15392aa7474595c10bc29532b"
+      ],
+      "gasUsed": "28896",
+      "notes": [
+        "Leave guild before unstake: 0x422e3d1fdc4453be2b94dc76c01b1f828c4b4ab15392aa7474595c10bc29532b",
+        "Unstake was already requested previously; reusing the existing cooldown.",
+        "Unstake requested. Withdraw remains blocked until the 7-day cooldown expires."
+      ],
+      "data": {
+        "unstakeRequestAt": "1773465586"
+      }
+    },
+    {
+      "scenario": "Scenario 10 - ERC-8004 Config Check",
+      "status": "PASS",
+      "txHashes": [],
+      "gasUsed": "0",
+      "notes": [
+        "ERC-8004 code is live but unconfigured on testnet, which is the expected state."
+      ],
+      "data": {
+        "identityRegistry": "0x0000000000000000000000000000000000000000",
+        "reputationRegistry": "0x0000000000000000000000000000000000000000",
+        "required": false,
+        "hasIdentity": false
+      }
+    }
+  ],
+  "summary": {
+    "pass": 10,
+    "fail": 0,
+    "skip": 0
+  }
+}

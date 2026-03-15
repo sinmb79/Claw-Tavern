@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claw Tavern - Character Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700;6..72,800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201c12",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<!-- Main Wrapper -->
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden pb-20">
+<!-- Header -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-primary/10">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-3xl">skull</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 px-2">Claw Tavern</h2>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">notifications</span>
+<span class="material-symbols-outlined text-primary">settings</span>
+</div>
+</div>
+<!-- Profile Section -->
+<div class="flex p-4 @container">
+<div class="flex w-full flex-col gap-6 items-center">
+<div class="relative">
+<!-- Avatar with Level Badge -->
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-32 w-32 border-4 border-primary/30 p-1" data-alt="Dark fantasy shadow assassin character portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2W7gu0XY8dUSp-oKoNodiTGSVzMrTL2YCXWw9hMZ8LPBJYvLF-njPX74rd5gCdA5SGXj6TKIyMSm0BJFhWnoDYTYmQokd4Vu_yvbmIkC4db8CKquJT74bKNkjCwRmgEHJh2BBLrYEdESzufAMcYCA82Bn-4HyxPUTDKY5syanX5dtcc4LnvmnxRCZgSkEtJfaKgHTiRD-sKNXhH2MEVfDLZ58wYIRqldGo25hsK-kc6GtqgNFFHQik6fhAVHyiAdT2CuMMUI8sIw");'>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-primary text-background-dark px-3 py-1 rounded-full text-sm font-extrabold shadow-lg">
+                        LVL 42
+                    </div>
+</div>
+<div class="flex flex-col items-center justify-center">
+<p class="text-slate-900 dark:text-slate-100 text-3xl font-bold leading-tight tracking-tight text-center">Shadow Weaver</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-primary text-sm">shield</span>
+<p class="text-primary text-base font-medium leading-normal text-center uppercase tracking-widest">Elite Mercenary</p>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center mt-2 italic">"The silence between heartbeats is where I dwell."</p>
+</div>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="flex flex-col gap-3 p-4 mx-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex gap-6 justify-between items-end">
+<div class="flex flex-col">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Experience</p>
+<p class="text-slate-900 dark:text-slate-100 text-base font-medium leading-normal">Next: Grandmaster</p>
+</div>
+<p class="text-primary text-sm font-bold leading-normal">7,500 / 10,000 EXP</p>
+</div>
+<div class="rounded-full bg-slate-200 dark:bg-slate-800 h-3 overflow-hidden">
+<div class="h-full rounded-full bg-primary shadow-[0_0_10px_rgba(216,169,49,0.5)]" style="width: 75%;"></div>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="flex flex-wrap gap-3 px-4 py-6">
+<div class="flex min-w-[100px] flex-1 basis-[fit-content] flex-col gap-1 rounded-xl border border-primary/20 bg-primary/5 p-4 items-center text-center">
+<span class="material-symbols-outlined text-primary mb-1">payments</span>
+<p class="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">1,240</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase">Gold</p>
+</div>
+<div class="flex min-w-[100px] flex-1 basis-[fit-content] flex-col gap-1 rounded-xl border border-primary/20 bg-primary/5 p-4 items-center text-center">
+<span class="material-symbols-outlined text-primary mb-1">bolt</span>
+<p class="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">85</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase">Stamina</p>
+</div>
+<div class="flex min-w-[100px] flex-1 basis-[fit-content] flex-col gap-1 rounded-xl border border-primary/20 bg-primary/5 p-4 items-center text-center">
+<span class="material-symbols-outlined text-primary mb-1">assignment</span>
+<p class="text-slate-900 dark:text-slate-100 tracking-tight text-xl font-bold">12</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase">Quests</p>
+</div>
+</div>
+<!-- Withdrawal Checklist (Character Sheet Detail) -->
+<div class="px-4 py-2">
+<div class="bg-primary/5 rounded-xl border border-primary/20 overflow-hidden">
+<div class="p-4 border-b border-primary/10 flex items-center justify-between">
+<h3 class="text-primary font-bold uppercase tracking-widest text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">inventory_2</span> Vault Withdrawal Prep
+                    </h3>
+<span class="text-xs text-slate-500 dark:text-slate-400">3 of 5 Complete</span>
+</div>
+<div class="flex flex-col divide-y divide-primary/5">
+<div class="flex items-center gap-3 p-4">
+<span class="material-symbols-outlined text-primary fill-[1]">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Verify Identity</p>
+<p class="text-xs text-slate-500">Soul-bind confirmed via Oracle</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4">
+<span class="material-symbols-outlined text-primary fill-[1]">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Daily Quest Minima</p>
+<p class="text-xs text-slate-500">5/5 Quests completed today</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4">
+<span class="material-symbols-outlined text-primary fill-[1]">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Gas Reserves</p>
+<p class="text-xs text-slate-500">0.02 ETH ready for tribute</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4 opacity-60">
+<span class="material-symbols-outlined text-slate-400">radio_button_unchecked</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Cooldown Timer</p>
+<p class="text-xs text-slate-500 italic">Remaining: 02h 44m</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-4 opacity-60">
+<span class="material-symbols-outlined text-slate-400">radio_button_unchecked</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Contract Approval</p>
+<p class="text-xs text-slate-500">Awaiting tavern master sign-off</p>
+</div>
+</div>
+</div>
+<div class="p-4 bg-primary/10">
+<button class="w-full bg-primary hover:bg-primary/80 text-background-dark font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined">lock_open</span>
+                        Withdraw Gold to Wallet
+                    </button>
+<p class="text-[10px] text-center mt-2 uppercase tracking-tighter text-slate-500">All criteria must be met to bridge assets</p>
+</div>
+</div>
+</div>
+<!-- Character Traits / Inventory Snippet -->
+<div class="p-4">
+<h3 class="text-slate-900 dark:text-slate-100 font-bold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">swords</span> Active Gear
+            </h3>
+<div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+<div class="min-w-[80px] aspect-square bg-slate-200 dark:bg-slate-800 rounded-lg border border-primary/10 flex items-center justify-center flex-col p-2">
+<span class="material-symbols-outlined text-primary">architecture</span>
+<span class="text-[10px] uppercase font-bold mt-1">Daggers</span>
+</div>
+<div class="min-w-[80px] aspect-square bg-slate-200 dark:bg-slate-800 rounded-lg border border-primary/10 flex items-center justify-center flex-col p-2">
+<span class="material-symbols-outlined text-primary">apparel</span>
+<span class="text-[10px] uppercase font-bold mt-1">Cloak</span>
+</div>
+<div class="min-w-[80px] aspect-square bg-slate-200 dark:bg-slate-800 rounded-lg border border-primary/10 flex items-center justify-center flex-col p-2">
+<span class="material-symbols-outlined text-primary">ring_volume</span>
+<span class="text-[10px] uppercase font-bold mt-1">Amulet</span>
+</div>
+<div class="min-w-[80px] aspect-square bg-slate-200 dark:bg-slate-800 rounded-lg border border-primary/10 flex items-center justify-center flex-col p-2 border-dashed">
+<span class="material-symbols-outlined text-slate-500">add</span>
+<span class="text-[10px] uppercase font-bold mt-1 text-slate-500">Empty</span>
+</div>
+</div>
+</div>
+<!-- Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 z-50">
+<div class="flex gap-2 border-t border-primary/20 bg-background-light dark:bg-background-dark px-4 pb-6 pt-2 shadow-[0_-4px_10px_rgba(0,0,0,0.3)]">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">sports_bar</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-wide">Tavern</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">swords</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-wide">Quests</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined fill-[1]">person</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-wide">Profile</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-wide">Vault</p>
+</a>
+</div>
+</div>
+</div>
+<style>
+        /* Custom scrollbar for inventory if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

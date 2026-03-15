@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-03-14T20:44:19.103Z",
+  "network": {
+    "name": "baseSepolia",
+    "chainId": 84532
+  },
+  "chainlink": {
+    "automationRegistry": "0x91D4a4C3D448c7f3CB477332B1c7D420a5810aC3",
+    "automationRegistrar": "0xf28D56F3A707E25B71Ce529a21AF388751E1CF2A",
+    "automationForwarder": "0xed742896c4c892467199F4B0FB1C43d52EcC164d",
+    "forwarders": [
+      "0xed742896c4c892467199F4B0FB1C43d52EcC164d"
+    ],
+    "linkToken": "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+    "registrarVersion": "AutomationRegistrar 2.3.0",
+    "minLinkJuels": "100000000000000000",
+    "notes": [
+      "tavernAutomationRouter is deployed, so a single native conditional upkeep now targets the router contract directly.",
+      "Router mode centralizes timeout, auto-approve, fee-stage, and quota-rebalance automation behind one checkUpkeep/performUpkeep target.",
+      "In router mode, the Chainlink forwarder receives KEEPER_ROLE on TavernAutomationRouter while TavernRegistry and TavernEscrow stay gated behind the router contract.",
+      "register-automation.ts now checks both on-chain upkeep activity and target alignment before skipping, grants KEEPER_ROLE to current forwarders, and writes a backup manifest before overwrite."
+    ]
+  },
+  "roleGrantMode": "executed",
+  "permissions": [
+    {
+      "contract": "TavernAutomationRouter",
+      "grantee": "0xed742896c4c892467199F4B0FB1C43d52EcC164d",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "status": "granted",
+      "txHash": "0x7781d353b5ea76dce888eaf2b1a2aeb0d6711794390dc0b2a20446c113abe57c"
+    }
+  ],
+  "upkeeps": [
+    {
+      "checkData": "0x",
+      "forwarder": "0xed742896c4c892467199F4B0FB1C43d52EcC164d",
+      "fundingAmountJuels": "100000000000000000",
+      "gasLimit": 1000000,
+      "name": "tavernAutomationRouter",
+      "note": "Single native Automation upkeep routed through TavernAutomationRouter.",
+      "offchainConfig": "0x7b22636865636b496e74657276616c4d696e75746573223a352c226d6f6465223a226e6174697665526f75746572222c227461736b73223a2274696d656f75742c6175746f417070726f76652c66656553746167652c71756f7461227d",
+      "registrationMode": "direct-target",
+      "registrationTxHash": "0x27fd109297a67fa37aa304c365031d1c50def64a51ea3fa88d70251e8e04ec78",
+      "schedule": {
+        "checkIntervalMinutes": 5,
+        "mode": "nativeRouter"
+      },
+      "selector": "0x4585e33b",
+      "signature": "performUpkeep(bytes)",
+      "status": "registered",
+      "target": "0xdb952B27918FF61de93EF890874C78E8483fd326",
+      "trigger": "conditionalTrigger",
+      "triggerConfig": "0x",
+      "upkeepId": "29356970218497936775909547491929768462759822092028842783692463252651518543141"
+    }
+  ],
+  "nextSteps": [
+    "Run npm run verify:automation to confirm current upkeeps, forwarders, and KEEPER_ROLE holders still match on-chain.",
+    "Use npm run cleanup:automation first in dry-run mode before any role revocation, then npm run cleanup:automation:execute only if stale holders are detected.",
+    "Replace the TVRN/USD placeholder feed before running compensation flows on live testnet quests."
+  ]
+}

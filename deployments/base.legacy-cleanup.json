@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-03-15T00:22:07.192Z",
+  "mode": "dry-run",
+  "network": {
+    "name": "base",
+    "chainId": 8453
+  },
+  "deployer": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+  "expectedForwarders": [
+    "0xE50e6736c16B2f10e726004693BaC29e90eAeF44"
+  ],
+  "scannedCandidates": [
+    "0xE50e6736c16B2f10e726004693BaC29e90eAeF44",
+    "0xf4bAb6A129164aBa9B113cB96BA4266dF49f8743",
+    "0xE28Adc50c7551CFf69FCF32D45d037e5F6554264",
+    "0xf95232Ae6a716862799C90239028fb590C9bB307",
+    "0xA4aB0F9095FD4907E3E9252487c5A9e915B1f5bA",
+    "0xBA00fAbEF5A229e9da1Bcd54B5f4067852C4Dc9A"
+  ],
+  "allowedKeeperRoleHolders": [
+    "0xf95232Ae6a716862799C90239028fb590C9bB307",
+    "0xA4aB0F9095FD4907E3E9252487c5A9e915B1f5bA",
+    "0xBA00fAbEF5A229e9da1Bcd54B5f4067852C4Dc9A"
+  ],
+  "currentHolders": {
+    "tavernRegistry": [
+      "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "0xBA00fAbEF5A229e9da1Bcd54B5f4067852C4Dc9A"
+    ],
+    "tavernEscrow": [
+      "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "0xBA00fAbEF5A229e9da1Bcd54B5f4067852C4Dc9A"
+    ]
+  },
+  "staleCandidates": {
+    "tavernRegistry": [],
+    "tavernEscrow": []
+  },
+  "roleRevocations": [],
+  "nextStep": "No stale KEEPER_ROLE holders were detected."
+}

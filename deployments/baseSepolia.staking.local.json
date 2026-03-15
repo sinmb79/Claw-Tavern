@@ -1,0 +1,44 @@
+{
+  "addresses": {
+    "tavernToken": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "tavernRegistry": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "tavernStaking": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+  },
+  "constructorArgs": {
+    "tavernToken": {
+      "initialTeam": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    },
+    "tavernRegistry": {
+      "guildToken": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    },
+    "tavernStaking": {
+      "tavernToken": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "registry": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+    }
+  },
+  "generatedAt": "2026-03-13T22:55:45.028Z",
+  "network": {
+    "name": "hardhat",
+    "chainId": 31337,
+    "rpcUrl": "hardhat://in-memory"
+  },
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "rolesGranted": [
+    {
+      "contract": "TavernToken",
+      "role": "0x3c11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a848",
+      "grantee": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0x1ffdd5b48d6a7ef0cbb35f3674e6e51439baff858fcfff45072df11ff2635363",
+      "status": "granted"
+    }
+  ],
+  "notes": [
+    "Task 11 adds TavernStaking with a 100 TVRN bond, 7-day unstake cooldown, and 50% slash burn.",
+    "Local validation manifest: deploy/03_deploy_staking.ts deployed a temporary TavernToken and TavernRegistry before wiring TavernStaking."
+  ],
+  "localValidation": {
+    "mode": "local-hardhat",
+    "tavernToken": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "tavernRegistry": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+  }
+}

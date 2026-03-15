@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "accent-wine": "#5e1a1a",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#1a160f",
+                        "card-dark": "#2a241a",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .rpg-border {
+            border: 2px solid #d8a931;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .glass-panel {
+            background: rgba(42, 36, 26, 0.8);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Navigation Bar -->
+<header class="flex items-center justify-between border-b border-primary/20 bg-background-dark/95 px-6 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-primary flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(216,169,49,0.3)]">
+<span class="material-symbols-outlined text-background-dark text-3xl font-bold">playing_cards</span>
+</div>
+<div>
+<h2 class="text-xl font-bold tracking-tight text-primary">CLAW TAVERN</h2>
+<p class="text-[10px] uppercase tracking-[0.2em] text-primary/60">Treasury Oversight</p>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-400 hover:text-primary transition-colors text-sm font-medium uppercase tracking-widest" href="#">Quests</a>
+<a class="text-slate-400 hover:text-primary transition-colors text-sm font-medium uppercase tracking-widest" href="#">Inventory</a>
+<a class="text-slate-400 hover:text-primary transition-colors text-sm font-medium uppercase tracking-widest" href="#">Tavern</a>
+<a class="text-primary border-b-2 border-primary pb-1 text-sm font-medium uppercase tracking-widest" href="#">Token</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-background-dark font-bold text-sm shadow-[0_0_10px_rgba(216,169,49,0.4)] hover:brightness-110">
+<span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+<span>0x7...4F2c</span>
+</button>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full p-6 md:p-10">
+<!-- Page Title & Main Stats -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
+<div class="space-y-2">
+<span class="text-primary uppercase tracking-[0.3em] text-xs font-bold">Economic Oversight</span>
+<h1 class="text-5xl font-black italic text-slate-100">$TVRN Tokenomics</h1>
+<p class="text-slate-400 max-w-md">The lifeblood of the tavern. Manage liquidity pools, monitor minting cycles, and track the value of your fantasy assets.</p>
+</div>
+<div class="flex gap-4 w-full md:w-auto">
+<div class="flex-1 md:w-48 p-4 rounded-xl bg-card-dark border border-primary/20 bg-gradient-to-br from-card-dark to-accent-wine/20">
+<p class="text-slate-400 text-xs uppercase font-bold tracking-tighter">Current Price</p>
+<p class="text-2xl font-bold text-primary">0.00042 ETH</p>
+<div class="flex items-center gap-1 text-emerald-400 text-xs mt-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+12.5% (24h)</span>
+</div>
+</div>
+<div class="flex-1 md:w-48 p-4 rounded-xl bg-card-dark border border-primary/20 bg-gradient-to-br from-card-dark to-accent-wine/20">
+<p class="text-slate-400 text-xs uppercase font-bold tracking-tighter">Total Supply</p>
+<p class="text-2xl font-bold text-primary">10.0M TVRN</p>
+<div class="flex items-center gap-1 text-slate-500 text-xs mt-1">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span>42% Locked</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Distribution Chart Section -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="p-6 rounded-xl bg-card-dark border border-primary/10 h-full">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">pie_chart</span>
+                            Supply Breakdown
+                        </h3>
+<!-- Visual Donut Chart Mockup -->
+<div class="relative size-48 mx-auto mb-8">
+<svg class="size-full -rotate-90" viewbox="0 0 36 36">
+<circle class="stroke-slate-800" cx="18" cy="18" fill="none" r="16" stroke-width="4"></circle>
+<circle class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="40, 100" stroke-width="4"></circle>
+<circle class="stroke-accent-wine" cx="18" cy="18" fill="none" r="16" stroke-dasharray="25, 100" stroke-dashoffset="-40" stroke-width="4"></circle>
+<circle class="stroke-amber-700" cx="18" cy="18" fill="none" r="16" stroke-dasharray="20, 100" stroke-dashoffset="-65" stroke-width="4"></circle>
+<circle class="stroke-slate-600" cx="18" cy="18" fill="none" r="16" stroke-dasharray="15, 100" stroke-dashoffset="-85" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-black text-slate-100">10M</span>
+<span class="text-[10px] uppercase text-slate-400 tracking-widest">Total</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-primary"></div>
+<span class="text-sm text-slate-300">Quest Rewards</span>
+</div>
+<span class="text-sm font-bold">40%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-accent-wine"></div>
+<span class="text-sm text-slate-300">Staking / Attendance</span>
+</div>
+<span class="text-sm font-bold">25%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-amber-700"></div>
+<span class="text-sm text-slate-300">Development Pool</span>
+</div>
+<span class="text-sm font-bold">20%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-slate-600"></div>
+<span class="text-sm text-slate-300">Burned</span>
+</div>
+<span class="text-sm font-bold">15%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pool Balances -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Quest Pool -->
+<div class="p-5 rounded-xl bg-card-dark border border-primary/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">swords</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-primary font-bold mb-1">Quest Reserves</p>
+<h4 class="text-3xl font-black text-slate-100">4,000,000</h4>
+<p class="text-sm text-slate-400 mt-2">Allocated for dungeon clear rewards</p>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+</div>
+<!-- Attendance Pool -->
+<div class="p-5 rounded-xl bg-card-dark border border-primary/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">calendar_month</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-primary font-bold mb-1">Staking Pool</p>
+<h4 class="text-3xl font-black text-slate-100">2,500,000</h4>
+<p class="text-sm text-slate-400 mt-2">Loyal patron rewards &amp; dividends</p>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[42%]"></div>
+</div>
+</div>
+<!-- Client Pool -->
+<div class="p-5 rounded-xl bg-card-dark border border-primary/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">groups</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-primary font-bold mb-1">Client Treasury</p>
+<h4 class="text-3xl font-black text-slate-100">1,250,000</h4>
+<p class="text-sm text-slate-400 mt-2">External contracts &amp; partnerships</p>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[88%]"></div>
+</div>
+</div>
+<!-- Operations Pool -->
+<div class="p-5 rounded-xl bg-card-dark border border-primary/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">settings_account_box</span>
+</div>
+<p class="text-xs uppercase tracking-widest text-primary font-bold mb-1">Maintenance</p>
+<h4 class="text-3xl font-black text-slate-100">750,000</h4>
+<p class="text-sm text-slate-400 mt-2">Dungeon upkeep &amp; hosting costs</p>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[20%]"></div>
+</div>
+</div>
+</div>
+<!-- History Table -->
+<div class="p-6 rounded-xl bg-card-dark border border-primary/10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+                                Mint / Burn Ledger
+                            </h3>
+<button class="text-xs text-primary font-bold hover:underline">Download Parchment</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-slate-500 text-[10px] uppercase tracking-widest border-b border-primary/10">
+<th class="pb-3 px-2">Action</th>
+<th class="pb-3 px-2">Amount</th>
+<th class="pb-3 px-2">Reason</th>
+<th class="pb-3 px-2">Timestamp</th>
+<th class="pb-3 px-2 text-right">Receipt</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-primary/5 hover:bg-white/5 transition-colors">
+<td class="py-4 px-2">
+<span class="flex items-center gap-2 text-emerald-500 font-bold italic">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                                                Minted
+                                            </span>
+</td>
+<td class="py-4 px-2 font-bold">+50,000 TVRN</td>
+<td class="py-4 px-2 text-slate-400 italic">"The Dragon's Hoard" Quest Reward</td>
+<td class="py-4 px-2 text-slate-400">2h ago</td>
+<td class="py-4 px-2 text-right">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">receipt_long</span>
+</td>
+</tr>
+<tr class="border-b border-primary/5 hover:bg-white/5 transition-colors">
+<td class="py-4 px-2">
+<span class="flex items-center gap-2 text-red-500 font-bold italic">
+<span class="material-symbols-outlined text-lg">local_fire_department</span>
+                                                Burned
+                                            </span>
+</td>
+<td class="py-4 px-2 font-bold">-12,400 TVRN</td>
+<td class="py-4 px-2 text-slate-400 italic">Ale &amp; Stew Consumption Tax</td>
+<td class="py-4 px-2 text-slate-400">5h ago</td>
+<td class="py-4 px-2 text-right">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">receipt_long</span>
+</td>
+</tr>
+<tr class="border-b border-primary/5 hover:bg-white/5 transition-colors">
+<td class="py-4 px-2">
+<span class="flex items-center gap-2 text-emerald-500 font-bold italic">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                                                Minted
+                                            </span>
+</td>
+<td class="py-4 px-2 font-bold">+120,000 TVRN</td>
+<td class="py-4 px-2 text-slate-400 italic">New Patron Influx (Tier 3)</td>
+<td class="py-4 px-2 text-slate-400">1d ago</td>
+<td class="py-4 px-2 text-right">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">receipt_long</span>
+</td>
+</tr>
+<tr class="border-b border-primary/5 hover:bg-white/5 transition-colors">
+<td class="py-4 px-2">
+<span class="flex items-center gap-2 text-red-500 font-bold italic">
+<span class="material-symbols-outlined text-lg">local_fire_department</span>
+                                                Burned
+                                            </span>
+</td>
+<td class="py-4 px-2 font-bold">-5,000 TVRN</td>
+<td class="py-4 px-2 text-slate-400 italic">Equipment Repairs (Operation)</td>
+<td class="py-4 px-2 text-slate-400">2d ago</td>
+<td class="py-4 px-2 text-right">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">receipt_long</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- RPG Elements Decorations -->
+<div class="mt-12 flex justify-center opacity-30">
+<div class="h-px w-24 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+<span class="material-symbols-outlined mx-4 text-primary">skull</span>
+<div class="h-px w-24 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+</div>
+</main>
+<!-- Sidebar Floating (Mobile View Hidden) -->
+<aside class="fixed left-0 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4 p-4 glass-panel border border-primary/20 rounded-r-2xl shadow-2xl">
+<button class="p-3 text-slate-400 hover:text-primary transition-all rounded-lg group relative">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="absolute left-full ml-2 px-2 py-1 bg-background-dark text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none border border-primary/20 rounded">Overview</span>
+</button>
+<button class="p-3 text-slate-400 hover:text-primary transition-all rounded-lg group relative">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="absolute left-full ml-2 px-2 py-1 bg-background-dark text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none border border-primary/20 rounded">Treasury</span>
+</button>
+<button class="p-3 text-primary bg-primary/10 transition-all rounded-lg group relative border border-primary/30">
+<span class="material-symbols-outlined">token</span>
+<span class="absolute left-full ml-2 px-2 py-1 bg-background-dark text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none border border-primary/20 rounded">Tokenomics</span>
+</button>
+<button class="p-3 text-slate-400 hover:text-primary transition-all rounded-lg group relative">
+<span class="material-symbols-outlined">settings</span>
+<span class="absolute left-full ml-2 px-2 py-1 bg-background-dark text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none border border-primary/20 rounded">Vault Settings</span>
+</button>
+</aside>
+<!-- Footer -->
+<footer class="mt-auto py-8 border-t border-primary/10 text-center bg-background-dark/50">
+<p class="text-slate-500 text-sm italic">"May your cup never be empty, and your gold never lose its luster."</p>
+<div class="flex justify-center gap-6 mt-4">
+<a class="text-primary/40 hover:text-primary transition-colors text-xs uppercase tracking-widest" href="#">Whitepaper</a>
+<a class="text-primary/40 hover:text-primary transition-colors text-xs uppercase tracking-widest" href="#">Etherscan</a>
+<a class="text-primary/40 hover:text-primary transition-colors text-xs uppercase tracking-widest" href="#">Community Tavern</a>
+</div>
+</footer>
+</div>
+</body></html>

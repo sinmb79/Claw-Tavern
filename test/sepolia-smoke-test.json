@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-03-14T20:49:02.040Z",
+  "network": {
+    "name": "baseSepolia",
+    "chainId": 84532
+  },
+  "deployer": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+  "addresses": {
+    "tavernToken": "0x519Dc2CE51B9311d48Bc103977899dD9eDCc65F1",
+    "tavernRegistry": "0x3bCD8e4203135a90b2BF78BE9FED147eCdD37bC0",
+    "tavernEscrow": "0xFf447bA554aE12698d90977e2980d93EdDf0Ec77",
+    "tavernStaking": "0x5e4544E956fD6bE8253991eEe6fc959cE4AbB6FC",
+    "tavernGovernance": "0x749677AF26b2D67D65Bc1d4d85aE90cB191810a0",
+    "tavernAutomationRouter": "0xdb952B27918FF61de93EF890874C78E8483fd326",
+    "adminPriceFeed": "0xF0b816A17e50e0a576F0Bb5e53559C48B969B435",
+    "mockUsdc": null
+  },
+  "questId": "4",
+  "txHashes": [
+    "0x8ed4170548f0bc39186d7f9ee2ccdbcc901be73bece18ab8013b79eb5202a664",
+    "0xd8cd8566163f93b106f886fcad911005edcd3eefda38055b4197201df0ac6d33",
+    "0xc9b0965c78a0dde95c8dded33ac027cefebbfdb7a9c0a03f8736ba098df8eb8b",
+    "0x83ca8ee6b9ff67cc901fefba18df8c8ddf90af8ef71899a94e611db88f4e58ae",
+    "0x07be3e80311dab3be104b1dc9f49ff6f280b28b0507a464934a52ce3e1057d85",
+    "0x1f27912623867312019bd293c63e6d5f4ddfa0e666a8f40ac40d25b74d617f9c",
+    "0x58accdff5006247635bb4210715cb299370d3eb344002e50c1d8a0bd9d7fa9c8",
+    "0xa9742a13615c0f4cf9bebd2966fb463763d49273150685d38302579cdf692227",
+    "0x0e1810fce536b5d666a9a22572956a812aad4d8b14d85b1e7b4922056941bfc0",
+    "0x8b33a744ffef2151b97e84ea761905ba0b3676c84b68e61cab6d43911fa20811",
+    "0x96336c34ea7f63b56cecd04965a551004a9466cef14017e552ab9ab874627e25",
+    "0x0c5f5c76eaec73aaeac510daf183f4e22e0951c55ebdcc40b0b98dc8d4e46c36",
+    "0x12877db47e013c869b0e0a5eed9571b1a8217905279ea8aebaf4a13815632970",
+    "0x4f72f744211721bc92c255ff2da31ba878c8870a6c50cc1e8293880ca8e2050a",
+    "0x97c822fdc577d81e1a2e4f5fcef0e69ef7d80dd2ae18cf4e7038912caefedfbc",
+    "0xf0833b326ac8e2fb83d13886b87cffe87ed55b7d12d54274d9dfaf2f14b9b171",
+    "0x7576a6957df6959134d76aeb61f3c061dde01aed2e6b4cbb74a19718db1336ed",
+    "0xfdc74b706922884280091d7680dc819f7f8805ad5c745f66b7e91fcbef9c97ab",
+    "0x257a99ed2f934a461c0c7419cae681dabae352631c45dfc5541a1f8eba268de6",
+    "0x5358e3eaa6d12ecf9e064fe3e9c6f8ebd4a44cfeffd94a5157192f80a4a5eacf",
+    "0x8645618c110f278ce255804836c5f3351c32a4abe94cf4d19824c6e9dced9fd5"
+  ],
+  "checks": [
+    {
+      "name": "Token bootstrap state",
+      "status": "PASS",
+      "details": {
+        "totalSupply": "744783000000000000000",
+        "maxSupply": "2100000000000000000000000000",
+        "questPoolRemaining": "1049999999217000000000000000",
+        "attendancePoolRemaining": "210000000000000000000000000",
+        "clientPoolRemaining": "167999256000000000000000000",
+        "operationPoolRemaining": "672000000000000000000000000",
+        "pristineFreshState": false
+      }
+    },
+    {
+      "name": "AdminPriceFeed bootstrap state",
+      "status": "PASS",
+      "details": {
+        "latestAnswer": "1000000",
+        "latestUpdatedAt": "1773521170",
+        "routerIsRefresher": true
+      }
+    },
+    {
+      "name": "Ephemeral agent bootstrap",
+      "status": "PASS",
+      "details": {
+        "agentAddress": "0x9bDb65c736cf0bd42538Ce70D9586269AcFA8E08",
+        "tokenBalanceAfterRewards": "130000000000000000000"
+      }
+    },
+    {
+      "name": "Quest create / fund / accept / submit",
+      "status": "PASS",
+      "details": {
+        "questId": "4",
+        "planningAgent": "0xb9936a529BE7fd30e2A1d71C60F92e97b8b684A5",
+        "verificationAgent": "0xbb95387Ed7e02a913E7B58a8348e724F37Ff24dC"
+      }
+    },
+    {
+      "name": "Max quest deposit enforcement",
+      "status": "PASS",
+      "details": {
+        "maxQuestDeposit": "100000000000000000000"
+      }
+    },
+    {
+      "name": "Settlement pause enforcement",
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "ETH/USD feed freshness",
+      "status": "PASS",
+      "details": {
+        "refreshed": false,
+        "price": "300000000000",
+        "updatedAt": "1773521220"
+      }
+    },
+    {
+      "name": "Positive settlement distribution",
+      "status": "PASS",
+      "details": {
+        "questId": "4",
+        "feeAmount": "0",
+        "expectedAgentCurrencyPayout": "6090000000000",
+        "expectedPlanningPayout": "500000000000",
+        "expectedVerificationPayout": "500000000000",
+        "expectedAgentTvrn": "783000000000000000",
+        "expectedServiceIncrease": "2910000000000"
+      }
+    },
+    {
+      "name": "Governance role gate",
+      "status": "PASS",
+      "details": {}
+    },
+    {
+      "name": "Router price refresh task",
+      "status": "PASS",
+      "details": {
+        "upkeepNeeded": true,
+        "taskType": "5",
+        "beforeUpdatedAt": "1773521170",
+        "afterUpdatedAt": "1773521170"
+      }
+    }
+  ],
+  "pass": true
+}

@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-03-15T02:25:24.947Z",
+  "network": {
+    "name": "baseSepolia",
+    "chainId": 84532,
+    "rpcUrl": "https://sepolia.base.org"
+  },
+  "deployer": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+  "addresses": {
+    "adminPriceFeed": "0x1E072c705Cb306BA3Dd03A5f952ecd0c82416F80",
+    "mockUsdc": null,
+    "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+    "tavernRegistry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
+    "tavernEscrow": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+    "tavernStaking": "0x77235E24b49936cE3D6b195E6a1c4c68F686D82A",
+    "tavernGovernance": "0x8c653FFe2EaD67a7147D86e9a0c9617F31b95f3C",
+    "tavernAutomationRouter": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+    "tavernClientRPG": "0x877183b139981A4e7Dd593f6223C56e28032fc7D",
+    "tavernSubscription": "0xEDc2D80075F26399f3af2d61800bdf95DCC90AaA"
+  },
+  "constructorArgs": {
+    "adminPriceFeed": {
+      "initialPrice": 1000000
+    },
+    "tavernToken": null,
+    "tavernRegistry": {
+      "guildToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed"
+    },
+    "tavernEscrow": {
+      "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+      "registry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
+      "ethUsdFeed": "0xD8D7DB62129b0A61B82260a08E96260e9cE4Cd1c",
+      "tvrnUsdFeed": "0x1E072c705Cb306BA3Dd03A5f952ecd0c82416F80"
+    },
+    "tavernStaking": {
+      "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+      "registry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B"
+    },
+    "tavernGovernance": {
+      "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+      "registry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B"
+    },
+    "tavernAutomationRouter": {
+      "escrow": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "registry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
+      "priceFeed": "0x1E072c705Cb306BA3Dd03A5f952ecd0c82416F80"
+    },
+    "tavernClientRPG": {
+      "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+      "escrow": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D"
+    },
+    "tavernSubscription": {
+      "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "operatorWallet": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "registry": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B"
+    }
+  },
+  "optionalRoleTargets": {
+    "arbiterAddress": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+    "keeperAddress": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+    "operatorWallet": "0xf95232Ae6a716862799C90239028fb590C9bB307"
+  },
+  "rolesGranted": [
+    {
+      "contract": "TavernToken",
+      "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+      "grantee": "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
+      "txHash": "0x26c3ba3595c9f53c64542db324211577f24a0878a4a77dd33c0754c75301f2ef",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernToken",
+      "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+      "grantee": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "txHash": "0x2b1dd805c49e187cf6eb7b55cb24a3cdb0d0fddce343f8ce7ef025197e5b6c02",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernToken",
+      "role": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+      "grantee": "0x877183b139981A4e7Dd593f6223C56e28032fc7D",
+      "txHash": "0x190e12256b23ac08ddc0281bd3c565f8f6d1f25df883a5a5ae2375dd9663062f",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernToken",
+      "role": "0x2fdac322ee704ce09f0773f7f3f92eb98d5e7c836ee9c056cccd5f61041e5e3f",
+      "grantee": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "txHash": "0x3d6171bafdaa8e1d52b87b0c5157ee2210b1cf5df7992746945fbecd3ec6353a",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernToken",
+      "role": "0x3c11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a848",
+      "grantee": "0x77235E24b49936cE3D6b195E6a1c4c68F686D82A",
+      "txHash": "0xd5344c62725f9bd052b7bd2d21fabc08eeeeb0b57ecf8046db7814a5f23225b7",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernToken",
+      "role": "0x71840dc4906352362b0cdaf79870196c8e42acafade72d5d5a6d59291253ceb1",
+      "grantee": "0x8c653FFe2EaD67a7147D86e9a0c9617F31b95f3C",
+      "txHash": "0xb5b2b7554c917a3682b55f7150aa25ff1afb8fd43846737074f46e8d66bb4f85",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernRegistry",
+      "role": "0xbb08418a67729a078f87bbc8d02a770929bb68f5bfdf134ae2ead6ed38e2f4ae",
+      "grantee": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "txHash": "0x258ce1ffbfff89503922bf5ddac453f207f4faafecc33b6e3d49d4fd8acab319",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernRegistry",
+      "role": "0xbb08418a67729a078f87bbc8d02a770929bb68f5bfdf134ae2ead6ed38e2f4ae",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": "0x5967a09d1e4be269792edb00bbb124097cf761b128ee975d65628bf408cbe5b5",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernRegistry",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+      "txHash": "0xf7e81d21d0052402e9ba46d0dd1b83da6a56b81f9ac79fd1bd65e6782fb13962",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernRegistry",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": null,
+      "status": "already-granted"
+    },
+    {
+      "contract": "TavernEscrow",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+      "txHash": "0xc2b3c5fe62af4e8b4de605c0578e55af99509a529f1446ebab070616118ae905",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernEscrow",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": null,
+      "status": "already-granted"
+    },
+    {
+      "contract": "TavernEscrow",
+      "role": "0x71840dc4906352362b0cdaf79870196c8e42acafade72d5d5a6d59291253ceb1",
+      "grantee": "0x8c653FFe2EaD67a7147D86e9a0c9617F31b95f3C",
+      "txHash": "0xc9edb018c9998d7e90d751f03622bb6b2671be57c84300e25fc08f286ce79c43",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernStaking",
+      "role": "0x12b42e8a160f6064dc959c6f251e3af0750ad213dbecf573b4710d67d6c28e39",
+      "grantee": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "txHash": "0x3f76c3fdfcd09e125c4a20dfa03ce01540bb21c4285c79fb09f5516a16ef166c",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernStaking",
+      "role": "0x12b42e8a160f6064dc959c6f251e3af0750ad213dbecf573b4710d67d6c28e39",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": null,
+      "status": "already-granted"
+    },
+    {
+      "contract": "TavernAutomationRouter",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": null,
+      "status": "already-granted"
+    },
+    {
+      "contract": "TavernAutomationRouter",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "txHash": null,
+      "status": "already-granted"
+    },
+    {
+      "contract": "TavernClientRPG",
+      "role": "0x2fdac322ee704ce09f0773f7f3f92eb98d5e7c836ee9c056cccd5f61041e5e3f",
+      "grantee": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+      "txHash": "0x46a003aebc268cd5c780ce49af7133ba139ddbcd1226f9f08c19fec8ef8706da",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernClientRPG",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+      "txHash": "0xc9fce449698ac4c6db81623530139862660dda9a6bc995771d92c4a9a6a268a7",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernClientRPG",
+      "role": "0xb7c19c4897e038440c53ecfaa804a0f8d20573cb698f85962cd7515a77441064",
+      "grantee": "0xEDc2D80075F26399f3af2d61800bdf95DCC90AaA",
+      "txHash": "0x6eb7f0af28dc017bc1fbc0bcfe394790a12d0920b7fd0880e2dcac0c560b1f50",
+      "status": "granted"
+    },
+    {
+      "contract": "TavernSubscription",
+      "role": "0xfc8737ab85eb45125971625a9ebdb75cc78e01d5c1fa80c4c6e5203f47bc4fab",
+      "grantee": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+      "txHash": "0x832f545458e76a2c2dd2a27038c36f4d68dc4617a18e8d7a5b56f56fcb0b764c",
+      "status": "granted"
+    },
+    {
+      "contract": "AdminPriceFeed",
+      "role": "REFRESHER",
+      "grantee": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+      "txHash": "0x0bba07534530b299433f2d81cd96f73efeed8e9684edd43bbf1dd8fb6fa006b5",
+      "status": "granted"
+    }
+  ],
+  "notes": [
+    "Task 29 replaces the old incremental Phase 2 plan with a full 9-contract Base Sepolia redeploy.",
+    "Task 29 wires TavernClientRPG and TavernSubscription into the same live set as TavernEscrow and TavernAutomationRouter.",
+    "Task 28-A immediate settlement is live in this deploy path: TavernSubscription sends 95% to the agent and 5% to operatorWallet in subscribe().",
+    "Old Sepolia automation upkeeps must be cancelled and replaced because the new router address supersedes the Task 25 router.",
+    "Task 29 operator wallet on Base Sepolia: 0xf95232Ae6a716862799C90239028fb590C9bB307."
+  ],
+  "legacyAddresses": [
+    {
+      "label": "Task 25 live Sepolia set",
+      "adminPriceFeed": "0xF0b816A17e50e0a576F0Bb5e53559C48B969B435",
+      "tavernToken": "0x519Dc2CE51B9311d48Bc103977899dD9eDCc65F1",
+      "tavernRegistry": "0x3bCD8e4203135a90b2BF78BE9FED147eCdD37bC0",
+      "tavernEscrow": "0xFf447bA554aE12698d90977e2980d93EdDf0Ec77",
+      "tavernStaking": "0x5e4544E956fD6bE8253991eEe6fc959cE4AbB6FC",
+      "tavernGovernance": "0x749677AF26b2D67D65Bc1d4d85aE90cB191810a0",
+      "tavernAutomationRouter": "0xdb952B27918FF61de93EF890874C78E8483fd326",
+      "tavernClientRPG": null,
+      "tavernSubscription": null,
+      "supersededAt": "2026-03-15T02:25:24.947Z",
+      "note": "Superseded by Task 29 full 9-contract Base Sepolia redeploy."
+    }
+  ],
+  "task29FullRedeploy": {
+    "executedAt": "2026-03-15T02:25:24.947Z",
+    "mode": "full-9-contract",
+    "transactionHashes": {
+      "adminPriceFeedDeploy": "0xaeefeb27026625e41bade6f063f694d5f2cd1bc82c5f54be1843262077138728",
+      "tavernTokenDeploy": "0x291977d040b9c2dd7b25b47a75eeaafd4811285057a5ccc83c75b1fa4a8c815c",
+      "tavernRegistryDeploy": "0x5204a89069a0db32013b76d7405a49e02dcce2d6e9221eff958f7ebe0cce2ef9",
+      "tavernEscrowDeploy": "0x487f057df6f8c5e412fcfdddf243393d375d51e6526d41b92cb78235830d59c3",
+      "tavernStakingDeploy": "0xe1a879fddbe2e6547654835388d0197a5a5f696e45647bbd4f416298b181c94e",
+      "tavernGovernanceDeploy": "0xfd69165a9fe0eb2d884e2546f669e45871fc293cadf686715736e247b8476502",
+      "tavernAutomationRouterDeploy": "0x02a3172595fbcd2029fd5688db7e186e66a8a0615643debeb0bc70dfb5ac306a",
+      "tavernClientRPGDeploy": "0x73f8f1a3b9183187eda73e33553fa494299e95c071f004e8faaa1a399bfab710",
+      "tavernSubscriptionDeploy": "0x2a7e77dde8be6d8e368104f33a6f6259721419687187f17a328f3ed59f61ddbb",
+      "stakingContractSet": "0x50c9aec27c74495d27c804abd2dc8524bd5c76af49587eaf13ef6000a1d2e65a",
+      "adminPriceFeedRefresherSet": "0x0bba07534530b299433f2d81cd96f73efeed8e9684edd43bbf1dd8fb6fa006b5",
+      "escrowSetClientRPG": "0x6ea15d41a5b694bd90aa61d4b705d389c059afa11abdd488c17ecdf4bf7d52da",
+      "routerSetClientRPG": "0xeef8a11588f4e4a2da60f93df5f0ac4077ddd6c9ba305eb2e8eee06e16e3ea18",
+      "subscriptionSetClientRPG": "0x328966a755bf0f3eee974964d217a0e2ba9662cd8c0aa229284dbed3adfb4329",
+      "routerSetSubscription": "0x624d158f5c9b0839f04f5af5c8fd45b021136a5f73547520c7cbdb9241088831"
+    },
+    "verification": {
+      "adminPriceFeed": true,
+      "tavernToken": true,
+      "tavernRegistry": true,
+      "tavernEscrow": true,
+      "tavernStaking": true,
+      "tavernGovernance": true,
+      "tavernAutomationRouter": true,
+      "tavernClientRPG": true,
+      "tavernSubscription": true
+    },
+    "smokeTestPath": "test/phase2-smoke-baseSepolia.json",
+    "automationManifestPath": "C:\\Users\\sinmb\\claw-tavern\\deployments\\baseSepolia.automation.json",
+    "nextStep": "Cancel the old Sepolia upkeep, register a new router upkeep, grant the new forwarder KEEPER_ROLE on TavernAutomationRouter, then run phase2-readonly-smoke.ts."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-03-15T02:27:14.178Z",
+  "network": {
+    "name": "baseSepolia",
+    "displayName": "Base Sepolia",
+    "chainId": 84532
+  },
+  "registryAddress": "0x91D4a4C3D448c7f3CB477332B1c7D420a5810aC3",
+  "registrarVersion": "AutomationRegistry 2.3.0",
+  "cancellationDelayBlocks": 50,
+  "signer": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+  "waitForWithdraw": false,
+  "records": [
+    {
+      "name": "tavernAutomationRouter",
+      "upkeepId": "29356970218497936775909547491929768462759822092028842783692463252651518543141",
+      "manifestTarget": "0xdb952B27918FF61de93EF890874C78E8483fd326",
+      "onchainTarget": "0xdb952B27918FF61de93EF890874C78E8483fd326",
+      "admin": "0xf95232Ae6a716862799C90239028fb590C9bB307",
+      "balanceJuels": "88030150248906080",
+      "status": "pending-withdraw",
+      "cancelTxHash": "0x94828ce43cbf2fd8012186f48fe0fabdc1afa7b0efafd6dd9318e8aee67542aa",
+      "withdrawTxHash": null,
+      "withdrawReadyBlock": "4294967295",
+      "note": "Cancelled upkeep. Withdraw becomes available at block 4294967295."
+    }
+  ]
+}

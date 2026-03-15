@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claw Tavern - Season Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201c12",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-primary/20 px-6 py-4 lg:px-10 bg-background-light dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8 flex items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-primary">castle</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold tracking-tight">Claw Tavern Admin</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Nodes</a>
+<a class="text-primary text-sm font-medium border-b-2 border-primary pb-1" href="#">Seasons</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Ledger</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-primary/5 border border-primary/20 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none w-64" placeholder="Search archive..."/>
+</div>
+<button class="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary/30 p-0.5">
+<div class="w-full h-full rounded-full bg-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Tavern master avatar illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHxlTGkuX1I158UUZDL1mkjWOVG7Hp4PU-4qkyCuyBFJP6aMguk5M_8BM8lwIPeRFccgQ9DUW_8Z1OSV0k9fUzWDjwxmxvA6kOzX_5_5AcamNmWLpyS-1bSFJys6JlUk9WwKxNGQ04lk-jSQcxeSqs5EWpZqiT-UGMGDrZulvZMTjwPBZVjWtfSsALhof1ylCDR0V26MmXYWiCNIXFE8U_YjOzyOme6NVg74mQiUvYK3zHzB4j4REN4FdYf6IHpIigoVAokOZbEM0"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 p-6 lg:p-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Season Status & Controls -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Header -->
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100">Season Control</h1>
+<p class="text-slate-500 dark:text-slate-400 max-w-2xl">Oversee the passage of time within the Claw Tavern. Manage cycles, distribute rewards, and initiate the ritual of renewal.</p>
+</div>
+<!-- Current Season Progress Card -->
+<div class="bg-primary/5 border border-primary/20 rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-9xl">hourglass_empty</span>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-end">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-xs">Current Active Cycle</span>
+<h2 class="text-3xl font-bold mt-1">Season 4: The Gilded Claw</h2>
+</div>
+<div class="text-right">
+<span class="text-4xl font-bold text-primary">42d</span>
+<p class="text-xs text-slate-400 uppercase tracking-tighter">Remaining</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-medium">
+<span>Temporal Progression</span>
+<span>65% Complete</span>
+</div>
+<div class="h-4 bg-primary/10 rounded-full border border-primary/10 overflow-hidden p-0.5">
+<div class="h-full bg-primary rounded-full shadow-[0_0_15px_rgba(216,169,49,0.5)]" style="width: 65%;"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-background-dark/30 rounded-lg p-4 border border-primary/10">
+<p class="text-slate-400 text-xs uppercase">EXP Distributed</p>
+<p class="text-xl font-bold">1,240,500</p>
+</div>
+<div class="bg-background-dark/30 rounded-lg p-4 border border-primary/10">
+<p class="text-slate-400 text-xs uppercase">Active Nodes</p>
+<p class="text-xl font-bold">842</p>
+</div>
+<div class="bg-background-dark/30 rounded-lg p-4 border border-primary/10">
+<p class="text-slate-400 text-xs uppercase">Reward Pool</p>
+<p class="text-xl font-bold text-primary">50,000 GP</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Level Distribution Chart Placeholder -->
+<div class="bg-background-light dark:bg-background-dark border border-primary/20 rounded-xl p-6">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bar_chart</span>
+                                Level Distribution
+                            </h3>
+<button class="text-xs text-primary font-bold uppercase tracking-widest hover:underline">Download Report</button>
+</div>
+<div class="flex items-end gap-2 h-48 w-full px-4">
+<!-- Visualizing bar chart -->
+<div class="flex-1 bg-primary/10 hover:bg-primary/20 rounded-t transition-all group relative" style="height: 15%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 1-10</div>
+</div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/30 rounded-t transition-all group relative" style="height: 35%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 11-20</div>
+</div>
+<div class="flex-1 bg-primary/40 hover:bg-primary/50 rounded-t transition-all group relative" style="height: 75%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 21-30</div>
+</div>
+<div class="flex-1 bg-primary/60 hover:bg-primary/70 rounded-t transition-all group relative" style="height: 100%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 31-40</div>
+</div>
+<div class="flex-1 bg-primary/40 hover:bg-primary/50 rounded-t transition-all group relative" style="height: 60%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 41-50</div>
+</div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/30 rounded-t transition-all group relative" style="height: 25%">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded hidden group-hover:block">Lv 50+</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] uppercase font-bold text-slate-500 tracking-widest px-4">
+<span>Copper</span>
+<span>Bronze</span>
+<span>Silver</span>
+<span>Gold</span>
+<span>Platinum</span>
+<span>Diamond</span>
+</div>
+</div>
+<!-- History Table -->
+<div class="flex flex-col gap-4">
+<h3 class="text-xl font-bold">Chronicle of Past Seasons</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-primary/10 text-slate-400 text-xs uppercase tracking-widest">
+<th class="py-4 px-4 font-normal">Season</th>
+<th class="py-4 px-4 font-normal">Duration</th>
+<th class="py-4 px-4 font-normal text-right">EXP Sum</th>
+<th class="py-4 px-4 font-normal text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+<td class="py-4 px-4 font-bold">Season 3: Whispers of the Void</td>
+<td class="py-4 px-4 text-slate-400">90 Days</td>
+<td class="py-4 px-4 text-right">2.8M</td>
+<td class="py-4 px-4 text-right text-slate-400 italic">Archived</td>
+</tr>
+<tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+<td class="py-4 px-4 font-bold">Season 2: The Crimson Moon</td>
+<td class="py-4 px-4 text-slate-400">120 Days</td>
+<td class="py-4 px-4 text-right">4.1M</td>
+<td class="py-4 px-4 text-right text-slate-400 italic">Archived</td>
+</tr>
+<tr class="border-b border-primary/5 hover:bg-primary/5 transition-colors">
+<td class="py-4 px-4 font-bold">Season 1: Foundation Ritual</td>
+<td class="py-4 px-4 text-slate-400">180 Days</td>
+<td class="py-4 px-4 text-right">1.5M</td>
+<td class="py-4 px-4 text-right text-slate-400 italic">Archived</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column: Reset Controls & Warnings -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-background-dark border-2 border-primary/20 rounded-xl p-6 shadow-2xl">
+<div class="flex items-center gap-3 text-primary mb-4">
+<span class="material-symbols-outlined font-bold">history_toggle_off</span>
+<h3 class="text-xl font-bold">Season Reset</h3>
+</div>
+<p class="text-sm text-slate-400 mb-6 leading-relaxed">
+                            Reseting the season will clear current progression, finalize the leaderboard, and distribute final rewards. 
+                            <strong>This action is permanent and cannot be undone.</strong>
+</p>
+<div class="space-y-4">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-primary/10 text-primary border border-primary/30 font-bold hover:bg-primary/20 transition-all uppercase tracking-widest text-xs">
+<span class="material-symbols-outlined text-sm">visibility</span>
+                                Preview Final Standings
+                            </button>
+<div class="pt-4 border-t border-primary/10">
+<p class="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-2">Danger Zone</p>
+<button class="w-full flex items-center justify-center gap-2 py-4 px-4 rounded-lg bg-red-900/40 hover:bg-red-800/60 text-red-100 border-2 border-red-900/80 font-bold transition-all uppercase tracking-widest text-sm group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">bolt</span>
+                                    Trigger Manual Reset
+                                </button>
+<p class="text-[10px] text-center text-slate-500 mt-3 italic">
+                                    Requires 3/5 Multi-sig Signatures to activate.
+                                </p>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 rounded-xl border border-primary/20 p-6">
+<h4 class="text-sm font-bold text-primary uppercase tracking-widest mb-4">Upcoming Automation</h4>
+<div class="flex items-start gap-4 mb-4">
+<div class="bg-primary/10 p-2 rounded">
+<span class="material-symbols-outlined text-primary">event_repeat</span>
+</div>
+<div>
+<p class="text-sm font-bold">Scheduled Reset</p>
+<p class="text-xs text-slate-400">Nov 14, 2024 at 00:00 UTC</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-primary/10 p-2 rounded">
+<span class="material-symbols-outlined text-primary">mail</span>
+</div>
+<div>
+<p class="text-sm font-bold">Notification Pulse</p>
+<p class="text-xs text-slate-400">Send reminder 7 days prior</p>
+</div>
+</div>
+<button class="w-full mt-6 text-xs text-primary font-bold hover:underline">Edit Automation Settings</button>
+</div>
+<div class="bg-background-dark/50 border border-primary/10 rounded-xl p-6">
+<h4 class="text-sm font-bold uppercase tracking-widest mb-4">Quick Links</h4>
+<ul class="space-y-3">
+<li><a class="text-sm text-slate-400 hover:text-primary flex items-center justify-between" href="#">Reward Logic Documentation <span class="material-symbols-outlined text-xs">open_in_new</span></a></li>
+<li><a class="text-sm text-slate-400 hover:text-primary flex items-center justify-between" href="#">Leaderboard Snapshot API <span class="material-symbols-outlined text-xs">open_in_new</span></a></li>
+<li><a class="text-sm text-slate-400 hover:text-primary flex items-center justify-between" href="#">Historical Archive <span class="material-symbols-outlined text-xs">open_in_new</span></a></li>
+</ul>
+</div>
+</div>
+</main>
+<footer class="border-t border-primary/10 p-6 text-center text-slate-500 text-xs">
+                © 2024 Claw Tavern Consortium. The ritual must complete.
+            </footer>
+</div>
+</div>
+</body></html>

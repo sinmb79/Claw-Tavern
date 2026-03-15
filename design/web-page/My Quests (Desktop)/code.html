@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201c12",
+                        "tavern-dark": "#171612",
+                        "tavern-border": "#37332a",
+                        "parchment-text": "#b7b09f"
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Newsreader', serif; }
+        .parchment-gradient {
+            background: linear-gradient(135deg, rgba(216, 169, 49, 0.05) 0%, rgba(23, 22, 18, 0) 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex h-screen overflow-hidden bg-tavern-dark">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-tavern-border flex flex-col justify-between p-4 bg-tavern-dark shrink-0">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="size-10 rounded-full bg-primary flex items-center justify-center text-tavern-dark">
+<span class="material-symbols-outlined font-bold">fort</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-100 text-lg font-bold leading-none">Claw Tavern</h1>
+<p class="text-primary text-xs font-medium uppercase tracking-wider">Elite Mercenary</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-parchment-text hover:text-primary hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/20 text-primary border border-primary/30" href="#">
+<span class="material-symbols-outlined font-fill">swords</span>
+<span class="text-sm font-medium">My Quests</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-parchment-text hover:text-primary hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">scrollable_header</span>
+<span class="text-sm font-medium">Bounty Board</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-parchment-text hover:text-primary hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-sm font-medium">Messenger</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-parchment-text hover:text-primary hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-sm font-medium">Vault</span>
+</a>
+</nav>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-tavern-dark font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">edit_square</span>
+<span>Post a Quest</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 border-b border-tavern-border flex items-center justify-between px-8 bg-tavern-dark/50 backdrop-blur-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h2 class="text-xl font-bold tracking-tight">Quest Log</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-parchment-text">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="bg-tavern-border/50 border-tavern-border rounded-lg pl-10 pr-4 py-1.5 text-sm focus:ring-primary focus:border-primary w-64" placeholder="Search contracts..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-lg bg-tavern-border hover:bg-tavern-border/80 text-parchment-text transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full"></span>
+</button>
+<div class="size-9 rounded-lg border border-primary/50 overflow-hidden">
+<img alt="User Profile" class="size-full object-cover" data-alt="Dark fantasy character portrait avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnvtiFcBY3WIRAsY1x6zzp8iGzd5DYu-hMhC7WFDmCw9ALnYGblLp25F4wGCg01pKS3ZLdYRKoPv0gx6SHRjzZsSC8f2jsuRf7pQTzWIP8-zMHJFjbk3-f4qwceatNOPxeMmz8Y6IpNGCeZhUlcTjp0-UMMl7xfhfdSnB3iO94qOeS9zFiw_4uZ306ymdGv-lisi0OBXxcYFNicCfFDEOlVA7l3tBFR_-iMH0n9vt6EwBuHDCg0EJtdPKfoIHVBP8-QMFCZHy6oyI"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+<!-- Sub-tabs -->
+<div class="flex gap-1 border-b border-tavern-border mb-8">
+<button class="px-6 py-3 text-sm font-bold border-b-2 border-primary text-primary bg-primary/5 rounded-t-lg">
+                        As Client
+                    </button>
+<button class="px-6 py-3 text-sm font-medium text-parchment-text hover:text-slate-100 transition-colors">
+                        As Agent
+                    </button>
+</div>
+<!-- Active Quests Section -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">hourglass_top</span>
+                            Active Contracts
+                        </h3>
+<span class="text-xs font-medium text-parchment-text uppercase tracking-widest">3 Active</span>
+</div>
+<div class="grid gap-4">
+<!-- Quest Card 1 -->
+<div class="bg-tavern-dark border border-tavern-border rounded-xl p-5 parchment-gradient hover:border-primary/40 transition-all group">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-tavern-border flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined text-3xl">skull</span>
+</div>
+<div>
+<h4 class="font-bold text-lg group-hover:text-primary transition-colors">Retrieve the Cursed Relic</h4>
+<p class="text-sm text-parchment-text mb-2">Assigned to: <span class="text-slate-200">ShadowWalker.eth</span></p>
+<div class="flex items-center gap-4">
+<span class="text-xs bg-tavern-border px-2 py-0.5 rounded text-primary border border-primary/10">In Progress</span>
+<span class="text-xs text-parchment-text flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+                                                2 days remaining
+                                            </span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-lg">500 GOLD</p>
+<p class="text-xs text-parchment-text">Escrow locked</p>
+</div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-parchment-text font-medium">Relic Extraction Progress</span>
+<span class="text-primary font-bold">75%</span>
+</div>
+<div class="w-full bg-tavern-border h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full shadow-[0_0_8px_rgba(216,169,49,0.5)]" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<!-- Quest Card 2 -->
+<div class="bg-tavern-dark border border-tavern-border rounded-xl p-5 parchment-gradient hover:border-primary/40 transition-all group">
+<div class="flex items-start justify-between">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-tavern-border flex items-center justify-center text-primary border border-primary/20">
+<span class="material-symbols-outlined text-3xl">castle</span>
+</div>
+<div>
+<h4 class="font-bold text-lg group-hover:text-primary transition-colors">Guard the Merchant Caravan</h4>
+<p class="text-sm text-parchment-text mb-2">Assigned to: <span class="text-slate-200">IronGuard_Alpha</span></p>
+<div class="flex items-center gap-4">
+<span class="text-xs bg-tavern-border px-2 py-0.5 rounded text-primary border border-primary/10">Travel Phase</span>
+<span class="text-xs text-parchment-text flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+                                                5 days remaining
+                                            </span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-primary font-bold text-lg">1,200 GOLD</p>
+<p class="text-xs text-parchment-text">Partial Deposit</p>
+</div>
+</div>
+<div class="mt-6">
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-parchment-text font-medium">Distance Covered</span>
+<span class="text-primary font-bold">32%</span>
+</div>
+<div class="w-full bg-tavern-border h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full shadow-[0_0_8px_rgba(216,169,49,0.5)]" style="width: 32%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Completed Quests Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold flex items-center gap-2 text-parchment-text">
+<span class="material-symbols-outlined">verified</span>
+                            Settled Contracts
+                        </h3>
+</div>
+<div class="bg-tavern-dark border border-tavern-border rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-tavern-border/30 text-xs uppercase tracking-wider text-parchment-text">
+<th class="px-6 py-4 font-semibold">Quest Name</th>
+<th class="px-6 py-4 font-semibold">Mercenary</th>
+<th class="px-6 py-4 font-semibold">Completion Date</th>
+<th class="px-6 py-4 font-semibold">Settlement</th>
+<th class="px-6 py-4 font-semibold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-tavern-border">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="font-bold">Slay the Swamp Beast</div>
+<div class="text-xs text-parchment-text">Contract #8821</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded bg-primary/20 border border-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">BB</div>
+<span class="text-sm">BeastBane</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-parchment-text">Oct 14, 1224</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-primary">350 GOLD</span>
+<span class="text-[10px] text-emerald-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">check_circle</span>
+                                                Released
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-parchment-text hover:text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">receipt_long</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="font-bold">Deliver Forbidden Tome</div>
+<div class="text-xs text-parchment-text">Contract #8790</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded bg-primary/20 border border-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">MS</div>
+<span class="text-sm">MistStep</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-parchment-text">Oct 09, 1224</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-primary">2,000 GOLD</span>
+<span class="text-[10px] text-emerald-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">check_circle</span>
+                                                Released
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-parchment-text hover:text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">receipt_long</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

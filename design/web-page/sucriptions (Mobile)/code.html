@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claw Tavern - Subscriptions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d8a931",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#201c12",
+                        "surface-dark": "#2a2419",
+                        "border-dark": "#3d3526",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="sticky top-0 z-10 flex items-center bg-background-light dark:bg-background-dark p-4 border-b border-primary/10 justify-between">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-3xl">skull</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight flex-1 px-3">Subscriptions</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 w-10 bg-primary/10 text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto pb-24">
+<div class="px-4 py-4">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-stretch rounded-xl h-12 bg-slate-200 dark:bg-surface-dark border border-primary/20">
+<div class="text-primary/60 flex items-center justify-center pl-4">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-primary/40 px-3 text-base" placeholder="Search dark agents..." value=""/>
+</div>
+</label>
+</div>
+<div class="px-4 mb-6">
+<div class="flex flex-col gap-4 rounded-xl border border-primary/30 bg-primary/5 p-5 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-6xl">account_balance_wallet</span>
+</div>
+<div class="flex flex-col gap-1 relative z-10">
+<p class="text-primary text-lg font-bold leading-tight">Tavern Fee Due</p>
+<p class="text-slate-700 dark:text-primary/70 text-sm font-normal leading-snug">Pay 0.05 ETH to maintain your active agent contracts and avoid soul-binding penalties.</p>
+</div>
+<button class="relative z-10 flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-background-dark text-sm font-bold shadow-lg shadow-primary/20">
+<span class="truncate">Pay Fee Now</span>
+</button>
+</div>
+</div>
+<div class="px-4 flex items-center justify-between mb-3">
+<h3 class="text-slate-900 dark:text-slate-100 text-lg font-bold tracking-tight">Active Contracts (4)</h3>
+<button class="text-primary text-sm font-medium">View History</button>
+</div>
+<div class="px-4 space-y-3">
+<div class="bg-slate-200 dark:bg-surface-dark border border-primary/10 rounded-xl p-4 flex gap-4 items-center">
+<div class="h-14 w-14 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Portrait of a mysterious hooded rogue character" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIWH6s_iPGSsQ9z94eDAbkrQdu_KrqMaxt2gEr1ptNIRA6WijMsJgANSNrabg7SWwqu1YMFDWRlgTJBvqyw2kHSXR1XY7lMFxqAIvIAta7Vjt4KIRhoMnkThUWH_pa3nAYetWwKiWsM0FPao3w3cuv0PemB_vF7tMsc45wnQwFEtzB-_Y6luBRxgpWWptvckNFBlXc6MKzZQWO6-u-kYsjx_2nAzjKrExk3vCW4hthjLJhIA61kV0G4oOZ-vLl9u2UZ6R6VD1a5Eg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-slate-100 font-bold truncate">Shadow Weaver</h4>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-500 border border-green-500/30 uppercase font-bold">Active</span>
+</div>
+<p class="text-slate-500 dark:text-primary/50 text-xs mb-2">Automated Liquidity Ritual</p>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-primary text-xs">
+<span class="material-symbols-outlined text-sm">token</span>
+<span>0.01 ETH/mo</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500 dark:text-primary/40 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>12d left</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-200 dark:bg-surface-dark border border-primary/10 rounded-xl p-4 flex gap-4 items-center">
+<div class="h-14 w-14 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Glowing runic magic circle pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdalnaTjrR5Vx4rHmlG55wNvf7LAbFE2AAjHDy04RE41TBEVG4twdmqxTsD7XXI58bA0p9KCjJDbVyAi9kZod3jkiIPHJKe1RVMZYiShVH8czfYopxfzVHejkkjE5PIjshlWlNMfLTjfA-HMi4_s3sh9TnfhzUk-u3V8EoczuDsyvfhVg5ZiPmlipVbMsu7-XRwuUnm3kwf6cnEO8HbWRakEcJPLsseTDE6KLsOQqBOY8-mvrBkwDfTZU9RUpXJxidJxE9b8lAUWk"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-slate-100 font-bold truncate">The Oracle</h4>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-500 border border-green-500/30 uppercase font-bold">Active</span>
+</div>
+<p class="text-slate-500 dark:text-primary/50 text-xs mb-2">Market Sentiment Divination</p>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-primary text-xs">
+<span class="material-symbols-outlined text-sm">token</span>
+<span>0.005 ETH/mo</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500 dark:text-primary/40 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>5d left</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-slate-200 dark:bg-surface-dark border border-primary/10 rounded-xl p-4 flex gap-4 items-center opacity-70">
+<div class="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/10 overflow-hidden grayscale">
+<img class="w-full h-full object-cover opacity-60" data-alt="Old rusty key in a dark setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASMjd3oGnpcyzngg-I2ZjddsZEDEpQvnRNgn5lmEozNXXDK9d3lwScbN9-tlavtKITDySjwxpjTNtTivEixIo5WXOkgxg81bh-PqyYttTy8HovN1B3Bg447PoH0mG8RMWwgz35-NVLlizp0q1Oj61pGldSIIZl18EkqnnJLHQgyEuPJ1XHu2SADy4w-lDu0l-Ev4DMkF_WdTiBr0ecPyKBGX-I-boR9JvbYUO8uAoiP82bjJF3j1c_6W0CbDvDlHnz66Ia70rcqos"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-slate-100 font-bold truncate">Gatekeeper Bot</h4>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-500 border border-red-500/30 uppercase font-bold">Expired</span>
+</div>
+<p class="text-slate-500 dark:text-primary/50 text-xs mb-2">Vault Access Guardian</p>
+<button class="text-primary text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">refresh</span> Renew Access
+                    </button>
+</div>
+</div>
+<div class="bg-slate-200 dark:bg-surface-dark border border-primary/10 rounded-xl p-4 flex gap-4 items-center">
+<div class="h-14 w-14 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="Minimalist abstract dark smoke patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMZyYAry4h2ILz77j5wgJMbJHTYqsP1JEAbxQVsheMjg129OHGsnKg-IahgEvcJ7YS1bsnVolZwGZMLjJx0bXTed0B0gdCaW5L103KFtt5kW5GQK4om0rlKnPoU6hJ8-DDrX4ZL-VmfqX5bIHU8E_AcB84TI_AgUutjpPKNIHRqojaCD2Q5gTGmYcvjk6UoJGdSURjlwlBf6O11rsco0es5l7GxN9B-BSA3Zg-JC9H6AXKHhOdrq2FHO2rqMXt2Cl4YHRAmrILNUU"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-slate-100 font-bold truncate">Mist Walker</h4>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30 uppercase font-bold">Pending</span>
+</div>
+<p class="text-slate-500 dark:text-primary/50 text-xs mb-2">Stealth Arbitrage Spirit</p>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 text-primary text-xs">
+<span class="material-symbols-outlined text-sm">token</span>
+<span>0.02 ETH/mo</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="px-4 py-8">
+<button class="w-full py-4 border-2 border-dashed border-primary/20 rounded-xl flex flex-col items-center justify-center gap-2 group hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+<span class="text-primary font-bold">Hire New Agent</span>
+</button>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 z-20 border-t border-primary/20 bg-slate-100 dark:bg-surface-dark px-4 pb-6 pt-2">
+<div class="flex gap-2">
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-primary/60" href="#">
+<span class="material-symbols-outlined">home</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Tavern</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-primary/60" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Agents</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-icon">description</span>
+<p class="text-[10px] font-bold uppercase tracking-wider border-b-2 border-primary">Contracts</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center gap-1 text-slate-500 dark:text-primary/60" href="#">
+<span class="material-symbols-outlined">lock</span>
+<p class="text-[10px] font-bold uppercase tracking-wider">Vault</p>
+</a>
+</div>
+</nav>
+</body></html>
