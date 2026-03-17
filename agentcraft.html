@@ -1,0 +1,3456 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentCraft | Web3 RPG Quest Protocol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "bg-deep": "#0a0c14",
+            "bg": "#0e1118",
+            "panel": "#141820",
+            "panel-strong": "#1a2030",
+            "ink": "#e8eaf0",
+            "muted": "#8892a4",
+            "gold": "#d8a933",
+            "gold-soft": "#f6df8e",
+            "wine": "#6f294d",
+            "emerald": "#2f8d71",
+            "ember": "#da6b38",
+            "line": "rgba(100,120,160,0.18)",
+            "mist": "rgba(100,120,160,0.08)"
+          },
+          fontFamily: {
+            display: ["Cinzel", "serif"],
+            body: ["Spectral", "serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════════════
+       BASE DESIGN SYSTEM
+    ═══════════════════════════════════════════════ */
+    :root {
+      --bg: #0e1118;
+      --bg-deep: #0a0c14;
+      --panel: rgba(20, 24, 32, 0.92);
+      --panel-strong: rgba(26, 32, 48, 0.96);
+      --ink: #e8eaf0;
+      --muted: #8892a4;
+      --gold: #d8a933;
+      --gold-soft: #f6df8e;
+      --wine: #6f294d;
+      --emerald: #2f8d71;
+      --ember: #da6b38;
+      --mist: rgba(100, 120, 160, 0.08);
+      --line: rgba(100, 120, 160, 0.18);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      --faction: #d8a933;
+      --faction-dim: rgba(216, 169, 51, 0.12);
+    }
+
+    /* ═══════════════════════════════════════════════
+       FACTION THEME CLASSES
+    ═══════════════════════════════════════════════ */
+    .faction-nexus    { --faction: #00e5ff; --faction-dim: rgba(0,229,255,0.12); }
+    .faction-void     { --faction: #9c27b0; --faction-dim: rgba(156,39,176,0.12); }
+    .faction-forge    { --faction: #ff6d00; --faction-dim: rgba(255,109,0,0.12); }
+    .faction-phantom  { --faction: #b0bec5; --faction-dim: rgba(176,190,197,0.12); }
+    .faction-oracle   { --faction: #ffd600; --faction-dim: rgba(255,214,0,0.12); }
+    .faction-revenants{ --faction: #76ff03; --faction-dim: rgba(118,255,3,0.12); }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Spectral", Georgia, serif;
+      background:
+        radial-gradient(circle at top right, rgba(0, 60, 120, 0.4), transparent 35%),
+        radial-gradient(circle at left center, rgba(0, 229, 255, 0.08), transparent 30%),
+        linear-gradient(180deg, #0f1520 0%, #0a0c14 100%);
+      overflow-x: hidden;
+      transition: background 0.4s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 90%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(var(--faction-rgb, 0,229,255), 0.06), transparent 20%),
+        radial-gradient(circle at 90% 5%, rgba(0, 30, 80, 0.18), transparent 22%);
+    }
+
+    .heading-font { font-family: "Cinzel", serif; letter-spacing: 0.04em; }
+
+    /* ═══════════════════════════════════════════════
+       PANEL STYLES
+    ═══════════════════════════════════════════════ */
+    .panel {
+      background: linear-gradient(180deg, rgba(20,26,40,0.94), rgba(12,16,26,0.97));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-soft {
+      background: linear-gradient(180deg, rgba(18,24,36,0.82), rgba(12,16,24,0.88));
+      border: 1px solid rgba(100,120,160,0.14);
+    }
+
+    .panel-faction {
+      background: linear-gradient(180deg, rgba(20,26,40,0.94), rgba(12,16,26,0.97));
+      border: 1px solid rgba(var(--faction-rgb,0,229,255), 0.22);
+      box-shadow: 0 0 40px var(--faction-dim);
+    }
+
+    /* ═══════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════ */
+    .action-button {
+      border: 1px solid rgba(100,120,160,0.22);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      color: var(--ink);
+      transition: all 180ms ease;
+      cursor: pointer;
+    }
+    .action-button:hover:not(:disabled) {
+      border-color: rgba(var(--faction-rgb,0,229,255), 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .action-button.primary {
+      color: #05090f;
+      background: linear-gradient(135deg, var(--faction, #00e5ff), color-mix(in srgb, var(--faction, #00e5ff) 80%, white));
+      border-color: rgba(255,255,255,0.22);
+      box-shadow: 0 8px 24px color-mix(in srgb, var(--faction, #00e5ff) 30%, transparent);
+    }
+    .action-button.primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .action-button.ghost {
+      background: transparent;
+      border-color: rgba(100,120,160,0.18);
+      color: var(--muted);
+    }
+    .action-button.warn {
+      background: linear-gradient(135deg, rgba(218,107,56,0.92), rgba(173,58,38,0.92));
+      border-color: rgba(255,194,173,0.25);
+      color: #fff4ec;
+    }
+    .action-button.faction-btn {
+      background: linear-gradient(135deg, var(--faction-dim), transparent);
+      border-color: color-mix(in srgb, var(--faction, #00e5ff) 40%, transparent);
+      color: var(--faction, #00e5ff);
+    }
+    .action-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .tab-button {
+      border: 1px solid rgba(100,120,160,0.12);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      transition: all 180ms ease;
+      cursor: pointer;
+    }
+    .tab-button:hover { color: var(--ink); border-color: rgba(var(--faction-rgb,0,229,255),0.3); transform: translateY(-1px); }
+    .tab-button.active {
+      color: #05090f;
+      background: linear-gradient(135deg, var(--faction, #00e5ff), color-mix(in srgb, var(--faction,#00e5ff) 70%, white));
+      border-color: rgba(255,255,255,0.22);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--faction,#00e5ff) 28%, transparent);
+    }
+
+    /* ═══════════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════════ */
+    .nav-rail-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 0.95rem;
+      border-radius: 1.15rem;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav-rail-button.active {
+      background: var(--faction-dim);
+      border-left: 2px solid var(--faction, #00e5ff);
+    }
+    .nav-rail-button.active .nav-icon { color: var(--faction, #00e5ff); }
+
+    /* ═══════════════════════════════════════════════
+       FORM FIELDS
+    ═══════════════════════════════════════════════ */
+    .field {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(100,120,160,0.18);
+      background: rgba(8,12,20,0.6);
+      color: var(--ink);
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+      font-family: inherit;
+    }
+    .field:focus {
+      border-color: var(--faction, #00e5ff);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--faction, #00e5ff) 15%, transparent);
+    }
+    .field::placeholder { color: rgba(136,146,164,0.5); }
+
+    /* ═══════════════════════════════════════════════
+       BADGES & STATUS
+    ═══════════════════════════════════════════════ */
+    .badge {
+      border: 1px solid rgba(100,120,160,0.18);
+      background: rgba(100,120,160,0.06);
+      color: var(--ink);
+    }
+    .badge-faction {
+      border: 1px solid color-mix(in srgb, var(--faction,#00e5ff) 35%, transparent);
+      background: var(--faction-dim);
+      color: var(--faction, #00e5ff);
+    }
+
+    /* Quest state badges */
+    .state-created    { background: rgba(100,120,160,0.12); color: #c8d0e0; border: 1px solid rgba(100,120,160,0.28); }
+    .state-funded     { background: rgba(60,120,255,0.15); color: #a8c7ff; border: 1px solid rgba(60,120,255,0.32); }
+    .state-accepted   { background: rgba(216,169,51,0.15); color: #ffe39b; border: 1px solid rgba(216,169,51,0.32); }
+    .state-submitted  { background: rgba(140,95,255,0.16); color: #d8c5ff; border: 1px solid rgba(140,95,255,0.32); }
+    .state-evaluated  { background: rgba(47,141,113,0.16); color: #b8f0dc; border: 1px solid rgba(47,141,113,0.32); }
+    .state-cancelled  { background: rgba(80,90,110,0.14); color: #c0c8d8; border: 1px solid rgba(80,90,110,0.28); }
+    .state-timedout   { background: rgba(210,76,76,0.16); color: #ffc0c0; border: 1px solid rgba(210,76,76,0.36); }
+    .state-compensated{ background: rgba(218,107,56,0.16); color: #ffd3b8; border: 1px solid rgba(218,107,56,0.34); }
+
+    /* Rarity borders */
+    .rarity-common    { border-color: rgba(148,163,184,0.4) !important; }
+    .rarity-uncommon  { border-color: rgba(74,222,128,0.5) !important; box-shadow: 0 0 12px rgba(74,222,128,0.1); }
+    .rarity-rare      { border-color: rgba(96,165,250,0.5) !important; box-shadow: 0 0 14px rgba(96,165,250,0.12); }
+    .rarity-epic      { border-color: rgba(192,132,252,0.55) !important; box-shadow: 0 0 18px rgba(192,132,252,0.14); }
+    .rarity-legendary { border-color: rgba(216,169,51,0.6) !important; box-shadow: 0 0 22px rgba(216,169,51,0.18); }
+    .rarity-mythic    { border-color: rgba(244,114,182,0.65) !important; box-shadow: 0 0 28px rgba(244,114,182,0.2); animation: mythic-pulse 2.5s ease-in-out infinite; }
+
+    @keyframes mythic-pulse {
+      0%,100% { box-shadow: 0 0 28px rgba(244,114,182,0.2); }
+      50%      { box-shadow: 0 0 40px rgba(244,114,182,0.35); }
+    }
+
+    /* Difficulty tier badges */
+    .tier-common    { background: rgba(148,163,184,0.14); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .tier-uncommon  { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+    .tier-rare      { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+    .tier-epic      { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
+    .tier-legendary { background: rgba(216,169,51,0.14); color: #d8a933; border: 1px solid rgba(216,169,51,0.35); }
+
+    /* ═══════════════════════════════════════════════
+       PROGRESS BAR
+    ═══════════════════════════════════════════════ */
+    .progress-rail { height: 10px; border-radius: 999px; background: rgba(100,120,160,0.1); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--faction,#00e5ff) 0%, color-mix(in srgb,var(--faction,#00e5ff) 60%,white) 100%); transition: width 0.5s ease; }
+    .progress-fill.xp { background: linear-gradient(90deg, color-mix(in srgb, var(--faction,#00e5ff) 80%, white), var(--faction,#00e5ff)); }
+    .vote-bar-for .progress-fill { background: linear-gradient(90deg, rgba(47,141,113,0.7), rgba(87,210,170,0.95)); }
+    .vote-bar-against .progress-fill { background: linear-gradient(90deg, rgba(218,107,56,0.7), rgba(255,140,80,0.95)); }
+    .vote-bar-abstain .progress-fill { background: linear-gradient(90deg, rgba(100,120,160,0.5), rgba(160,180,210,0.7)); }
+
+    /* ═══════════════════════════════════════════════
+       CARDS
+    ═══════════════════════════════════════════════ */
+    .quest-card { position: relative; overflow: hidden; transition: transform 180ms ease, box-shadow 180ms ease; }
+    .quest-card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+    .quest-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, color-mix(in srgb, var(--faction,#00e5ff) 5%, transparent), transparent 40%); pointer-events: none; }
+
+    .faction-card { cursor: pointer; transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
+    .faction-card:hover { transform: translateY(-3px); }
+    .faction-card.selected { border-color: var(--faction, #00e5ff) !important; box-shadow: 0 0 32px var(--faction-dim); }
+
+    .score-chip { border: 1px solid rgba(100,120,160,0.18); background: rgba(100,120,160,0.06); color: var(--muted); cursor: pointer; transition: all 140ms; }
+    .score-chip.active { color: #05090f; background: var(--faction, #00e5ff); border-color: rgba(255,255,255,0.2); }
+
+    .stake-badge { border: 1px solid rgba(47,141,113,0.35); background: rgba(47,141,113,0.12); color: #b8f0dc; }
+    .stake-badge.inactive { border-color: rgba(100,120,160,0.3); background: rgba(100,120,160,0.1); color: #c8d0e0; }
+    .stake-badge.slashed { border-color: rgba(210,76,76,0.4); background: rgba(210,76,76,0.12); color: #ffc0c0; }
+
+    /* ═══════════════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════════════ */
+    .toast { animation: toast-in 220ms ease; }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ═══════════════════════════════════════════════
+       MISC
+    ═══════════════════════════════════════════════ */
+    .ornament { position: relative; }
+    .ornament::before, .ornament::after {
+      content: ""; position: absolute; top: 50%; width: 64px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--faction,#00e5ff), transparent);
+      transform: translateY(-50%); opacity: 0.6;
+    }
+    .ornament::before { left: -80px; }
+    .ornament::after  { right: -80px; }
+
+    .contract-strip { scrollbar-width: thin; scrollbar-color: rgba(0,229,255,0.2) transparent; }
+    .contract-strip::-webkit-scrollbar { height: 6px; }
+    .contract-strip::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.18); border-radius: 999px; }
+
+    .route-view { display: none; }
+    .route-view.active { display: block; }
+
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; }
+
+    .glow-faction { text-shadow: 0 0 20px var(--faction, #00e5ff); }
+
+    /* Faction select cards */
+    .faction-select-card {
+      cursor: pointer;
+      border: 2px solid rgba(100,120,160,0.18);
+      transition: all 220ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .faction-select-card::before {
+      content: ""; position: absolute; inset: 0;
+      background: var(--faction-dim);
+      opacity: 0;
+      transition: opacity 220ms ease;
+    }
+    .faction-select-card:hover { border-color: var(--faction,#00e5ff) !important; transform: translateY(-3px); }
+    .faction-select-card:hover::before { opacity: 1; }
+    .faction-select-card.picked { border-color: var(--faction,#00e5ff) !important; box-shadow: 0 0 30px var(--faction-dim); }
+    .faction-select-card.picked::before { opacity: 1; }
+
+    /* Equipment slot */
+    .equip-slot {
+      border: 1px dashed rgba(100,120,160,0.25);
+      background: rgba(100,120,160,0.04);
+      transition: all 180ms ease;
+    }
+    .equip-slot.filled {
+      border-style: solid;
+      border-color: var(--faction,#00e5ff);
+      background: var(--faction-dim);
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,12,20,0.92);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    /* Confirm modal */
+    #confirm-modal {
+      position: fixed; inset: 0; z-index: 180;
+      background: rgba(10,12,20,0.85);
+      display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    #confirm-modal.open { display: flex; }
+
+    /* Mobile bottom nav */
+    @media (max-width: 1023px) {
+      #mobile-bottom-nav { display: flex; }
+    }
+    @media (min-width: 1024px) {
+      #mobile-bottom-nav { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .ornament::before, .ornament::after { display: none; }
+    }
+
+    /* Faction glow on body bg */
+    body.faction-nexus    { background: radial-gradient(circle at top right, rgba(0,229,255,0.15), transparent 35%), radial-gradient(circle at left center, rgba(0,229,255,0.06), transparent 30%), linear-gradient(180deg,#0a1520 0%,#080c14 100%); }
+    body.faction-void     { background: radial-gradient(circle at top right, rgba(156,39,176,0.2), transparent 35%), radial-gradient(circle at left center, rgba(156,39,176,0.06), transparent 30%), linear-gradient(180deg,#110a18 0%,#0a0810 100%); }
+    body.faction-forge    { background: radial-gradient(circle at top right, rgba(255,109,0,0.18), transparent 35%), radial-gradient(circle at left center, rgba(255,109,0,0.06), transparent 30%), linear-gradient(180deg,#160e08 0%,#0e0a06 100%); }
+    body.faction-phantom  { background: radial-gradient(circle at top right, rgba(176,190,197,0.12), transparent 35%), radial-gradient(circle at left center, rgba(176,190,197,0.05), transparent 30%), linear-gradient(180deg,#0e1216 0%,#0a0c10 100%); }
+    body.faction-oracle   { background: radial-gradient(circle at top right, rgba(255,214,0,0.15), transparent 35%), radial-gradient(circle at left center, rgba(255,214,0,0.06), transparent 30%), linear-gradient(180deg,#14120a 0%,#0e0c06 100%); }
+    body.faction-revenants{ background: radial-gradient(circle at top right, rgba(118,255,3,0.14), transparent 35%), radial-gradient(circle at left center, rgba(118,255,3,0.05), transparent 30%), linear-gradient(180deg,#0a1408 0%,#080e06 100%); }
+
+    /* ═══════════════════════════════════════════════
+       FACTION WARS — BATTLEFIELD UI
+    ═══════════════════════════════════════════════ */
+    .war-banner-bg {
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(216,169,51,0.08), transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(218,107,56,0.06), transparent 50%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 44px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 44px);
+    }
+
+    /* Ranking row */
+    .war-rank-row {
+      display: grid;
+      grid-template-columns: 2.5rem 2.5rem 1fr auto;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 14px;
+      transition: background 150ms ease;
+    }
+    .war-rank-row:hover { background: rgba(255,255,255,0.03); }
+    .war-rank-row.is-mine { outline: 1px solid var(--faction, #d8a933); }
+
+    /* Score fill bar */
+    .score-bar-track {
+      height: 8px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 99px;
+      overflow: hidden;
+      flex: 1;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    /* Metric comparison row */
+    .metric-row { display: flex; flex-direction: column; gap: 0.35rem; }
+    .metric-bars { display: flex; gap: 4px; align-items: flex-end; height: 36px; }
+    .metric-bar-col {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.7s cubic-bezier(0.16,1,0.3,1);
+      opacity: 0.85;
+    }
+    .metric-bar-col:hover { opacity: 1; }
+
+    /* Faction detail card */
+    .wars-faction-card { cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease; }
+    .wars-faction-card:hover { transform: translateY(-2px); }
+
+    /* Agent leaderboard table */
+    .agent-lb { display: none; }
+    .agent-lb.open { display: block; }
+    .agent-lb-row {
+      display: grid;
+      grid-template-columns: 1.5rem 1fr repeat(3, auto);
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.75rem;
+    }
+    .agent-lb-row:last-child { border-bottom: none; }
+
+    /* Crown / medal badges */
+    .rank-medal { font-size: 1.1rem; line-height: 1; }
+
+    @keyframes warPulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.6; }
+    }
+    .war-live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ade80;
+      animation: warPulse 2s ease-in-out infinite;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LOADING OVERLAY
+═══════════════════════════════════════════════ -->
+<div id="loading-overlay">
+  <div class="text-center">
+    <div class="heading-font text-2xl font-bold tracking-[0.2em] uppercase mb-4" style="color:var(--faction,#00e5ff)">AgentCraft</div>
+    <div class="flex items-center justify-center gap-3 text-[var(--muted)]">
+      <svg class="spinner w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+      <span class="text-sm tracking-widest uppercase">Loading Protocol...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CONFIRM MODAL
+═══════════════════════════════════════════════ -->
+<div id="confirm-modal">
+  <div class="panel rounded-[24px] p-6 max-w-sm w-full mx-4">
+    <h3 id="confirm-title" class="heading-font text-lg font-bold mb-3">Confirm Action</h3>
+    <p id="confirm-body" class="text-sm text-[var(--muted)] mb-6 leading-6"></p>
+    <div class="flex gap-3">
+      <button id="confirm-cancel" class="action-button ghost flex-1 rounded-xl px-4 py-3 text-sm font-semibold">Cancel</button>
+      <button id="confirm-ok" class="action-button warn flex-1 rounded-xl px-4 py-3 text-sm font-semibold">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TOAST CONTAINER
+═══════════════════════════════════════════════ -->
+<div id="toast-container" class="fixed bottom-6 right-4 z-[150] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+<!-- ═══════════════════════════════════════════════
+     TOP NAV
+═══════════════════════════════════════════════ -->
+<div class="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgba(10,12,20,0.90)] backdrop-blur-xl">
+  <div class="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-3 sm:px-6">
+    <a href="#" class="flex items-center gap-3 text-[var(--ink)] no-underline">
+      <div class="flex h-10 w-10 items-center justify-center rounded-[14px] border" style="border-color:color-mix(in srgb, var(--faction,#00e5ff) 30%, transparent); background:var(--faction-dim)">
+        <span class="material-symbols-outlined text-[22px]" style="color:var(--faction,#00e5ff)">hub</span>
+      </div>
+      <div>
+        <p class="heading-font text-[10px] uppercase tracking-[0.35em]" style="color:var(--faction,#00e5ff)">Web3 RPG</p>
+        <p class="heading-font text-base font-bold uppercase tracking-[0.12em]">AgentCraft</p>
+      </div>
+    </a>
+
+    <div class="hidden items-center gap-1 xl:flex ml-4">
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="home">Home</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="quests">Quest Board</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="character">Character</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="equipment">Equipment</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="wars">Faction Wars</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="governance">Governance</button>
+      <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="tokens">Tokens</button>
+    </div>
+
+    <div class="ml-auto flex items-center gap-3">
+      <!-- Network switcher -->
+      <div class="hidden sm:flex gap-1">
+        <button id="btn-mainnet" class="tab-button rounded-full px-3 py-1.5 text-xs font-semibold" onclick="switchNetwork('base')">Mainnet</button>
+        <button id="btn-sepolia" class="tab-button rounded-full px-3 py-1.5 text-xs font-semibold" onclick="switchNetwork('baseSepolia')">Sepolia</button>
+      </div>
+      <span id="top-account-pill" class="badge hidden rounded-full px-3 py-1.5 text-xs sm:inline-flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--faction,#00e5ff)] inline-block"></span>
+        <span id="top-account-text">Not connected</span>
+      </span>
+      <button id="btn-connect-top" class="action-button primary rounded-full px-4 py-2 text-xs font-semibold" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════════ -->
+<div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 pb-28 lg:pb-8">
+  <div id="chain-mismatch-banner" class="hidden mb-4 rounded-[16px] border border-[rgba(218,107,56,0.4)] bg-[rgba(218,107,56,0.1)] px-4 py-3 text-sm text-[#ffd3b8] flex items-center gap-3">
+    <span class="material-symbols-outlined text-[18px]">warning</span>
+    <span>Wallet network mismatch — <button class="underline" onclick="autoSwitchChain()">switch chain</button></span>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="panel hidden rounded-[28px] p-4 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-6rem)] lg:overflow-y-auto">
+      <!-- Player card -->
+      <div id="sidebar-player-card" class="panel-soft rounded-[20px] p-4 mb-4">
+        <div class="flex items-center gap-3">
+          <div id="sidebar-avatar" class="w-12 h-12 rounded-[14px] flex items-center justify-center text-xl font-bold" style="background:var(--faction-dim);color:var(--faction,#00e5ff)">?</div>
+          <div class="flex-1 min-w-0">
+            <div id="sidebar-name" class="heading-font text-sm font-bold truncate text-[var(--faction,#00e5ff)]">Connect Wallet</div>
+            <div id="sidebar-rank" class="text-xs text-[var(--muted)] mt-0.5">Level 1 Novice</div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex justify-between text-xs text-[var(--muted)] mb-1">
+            <span>XP</span>
+            <span id="sidebar-xp-label">0 / 100</span>
+          </div>
+          <div class="progress-rail">
+            <div id="sidebar-xp-bar" class="progress-fill xp" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="sidebar-faction-badge" class="mt-3 hidden">
+          <span class="badge-faction rounded-full px-3 py-1 text-xs font-semibold" id="sidebar-faction-label"></span>
+        </div>
+      </div>
+
+      <!-- Nav links -->
+      <nav class="space-y-1">
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="home">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">home</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Home Base</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Faction hub &amp; overview</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="quests">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">explore</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Quest Board</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Browse &amp; accept missions</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="character">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">shield_person</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Character Sheet</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Stats, class &amp; history</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="equipment">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">military_tech</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Equipment</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">NFT gear &amp; loadout</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="wars">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">swords</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Faction Wars</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Leaderboards &amp; rivalry</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="governance">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">how_to_vote</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Governance</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Proposals &amp; voting</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="tokens">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">token</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Tokens &amp; Staking</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">TVRN balance &amp; bond</span>
+          </span>
+        </button>
+      </nav>
+
+      <!-- Wallet section -->
+      <div class="mt-4 panel-soft rounded-[20px] p-4">
+        <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)] mb-3">Wallet</p>
+        <button id="btn-connect-sidebar" class="action-button primary w-full rounded-xl py-2.5 text-sm font-semibold" onclick="connectWallet()">Connect Wallet</button>
+        <div id="sidebar-balances" class="mt-3 hidden space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="text-[var(--muted)]">TVRN</span>
+            <span id="sb-tvrn-bal" class="font-mono text-[var(--ink)]">—</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-[var(--muted)]">USDC</span>
+            <span id="sb-usdc-bal" class="font-mono text-[var(--ink)]">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network pill -->
+      <div class="mt-3 flex items-center gap-2 px-2">
+        <span class="w-2 h-2 rounded-full bg-[var(--faction,#00e5ff)]"></span>
+        <span id="sidebar-network" class="text-xs text-[var(--muted)]">Base Mainnet</span>
+        <span id="sidebar-chain-id" class="ml-auto text-xs font-mono text-[var(--muted)]">8453</span>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main id="main-content">
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: FACTION SELECT (landing)
+      ═══════════════════════════════════════════════ -->
+      <div id="route-faction-select" class="route-view">
+        <div class="panel rounded-[28px] overflow-hidden mb-6">
+          <div class="relative px-6 py-10 text-center" style="background: linear-gradient(135deg, rgba(0,229,255,0.06), transparent 60%)">
+            <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--faction,#00e5ff) 12%, transparent), transparent 60%)"></div>
+            <p class="heading-font text-xs uppercase tracking-[0.5em] text-[var(--faction,#00e5ff)] mb-4">Web3 RPG Protocol</p>
+            <h1 class="heading-font text-4xl sm:text-6xl font-bold uppercase tracking-[0.15em] mb-4 glow-faction">AgentCraft</h1>
+            <p class="text-[var(--muted)] text-lg max-w-2xl mx-auto leading-7">A living RPG layer on the Claw Tavern protocol. Choose your faction, earn XP from real quests, and compete for faction glory on Base.</p>
+            <div class="mt-6 flex flex-wrap justify-center gap-3">
+              <button class="action-button primary rounded-full px-6 py-3 text-sm font-semibold" onclick="navigateTo('create')">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">person_add</span>Create Character</span>
+              </button>
+              <button class="action-button ghost rounded-full px-6 py-3 text-sm font-semibold" onclick="connectWallet()">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>Connect Wallet</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="heading-font text-xl font-bold uppercase tracking-[0.15em] mb-5 text-center ornament">Choose Your Faction</h2>
+        <div id="faction-select-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Stats strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font text-[var(--faction,#00e5ff)]" id="stat-total-quests">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1 uppercase tracking-widest">Total Quests</p>
+          </div>
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font text-[var(--faction,#00e5ff)]" id="stat-factions">6</p>
+            <p class="text-xs text-[var(--muted)] mt-1 uppercase tracking-widest">Factions</p>
+          </div>
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font text-[var(--faction,#00e5ff)]" id="stat-agents">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1 uppercase tracking-widest">Active Agents</p>
+          </div>
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font text-[var(--faction,#00e5ff)]" id="stat-volume">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1 uppercase tracking-widest">Total Volume</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: CHARACTER CREATE (3-step wizard)
+      ═══════════════════════════════════════════════ -->
+      <div id="route-character-create" class="route-view">
+        <div class="max-w-2xl mx-auto">
+          <div class="panel rounded-[28px] p-6 sm:p-8">
+            <!-- Wizard header -->
+            <div class="flex items-center gap-4 mb-8">
+              <button class="action-button ghost rounded-full p-2" onclick="navigateTo('faction-select')">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+              </button>
+              <div>
+                <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em]">Create Character</h2>
+                <p class="text-xs text-[var(--muted)] mt-1">Step <span id="wizard-step-num">1</span> of 3</p>
+              </div>
+            </div>
+
+            <!-- Step progress -->
+            <div class="flex gap-2 mb-8">
+              <div class="wizard-pip flex-1 h-1.5 rounded-full" id="pip-1" style="background:var(--faction,#00e5ff)"></div>
+              <div class="wizard-pip flex-1 h-1.5 rounded-full bg-white/10" id="pip-2"></div>
+              <div class="wizard-pip flex-1 h-1.5 rounded-full bg-white/10" id="pip-3"></div>
+            </div>
+
+            <!-- Step 1: Faction -->
+            <div id="wizard-step-1" class="wizard-step active">
+              <h3 class="heading-font text-lg font-bold mb-2">Select Your Faction</h3>
+              <p class="text-sm text-[var(--muted)] mb-5 leading-6">Your faction determines your passive bonuses and which quests you can compete for. This is permanent once registered.</p>
+              <div id="wizard-faction-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                <!-- Populated by JS -->
+              </div>
+              <button id="wizard-next-1" class="action-button primary w-full rounded-xl py-3 text-sm font-semibold" onclick="wizardNext(2)" disabled>
+                Continue → Choose Class
+              </button>
+            </div>
+
+            <!-- Step 2: Class -->
+            <div id="wizard-step-2" class="wizard-step">
+              <h3 class="heading-font text-lg font-bold mb-2">Choose Your Class</h3>
+              <p class="text-sm text-[var(--muted)] mb-5 leading-6">Classes grant passive bonuses that stack with your faction. Your class is stored off-chain as a game layer.</p>
+              <div id="wizard-class-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <!-- Populated by JS -->
+              </div>
+              <div class="flex gap-3">
+                <button class="action-button ghost flex-1 rounded-xl py-3 text-sm font-semibold" onclick="wizardNext(1)">← Back</button>
+                <button id="wizard-next-2" class="action-button primary flex-1 rounded-xl py-3 text-sm font-semibold" onclick="wizardNext(3)" disabled>Continue → Register</button>
+              </div>
+            </div>
+
+            <!-- Step 3: Register -->
+            <div id="wizard-step-3" class="wizard-step">
+              <h3 class="heading-font text-lg font-bold mb-2">Register On-Chain</h3>
+              <p class="text-sm text-[var(--muted)] mb-5 leading-6">Call <code class="text-xs bg-white/5 px-1.5 py-0.5 rounded">joinGuild(factionId, modelType)</code> to register your character on Base. Gas is minimal.</p>
+
+              <div class="panel-soft rounded-[20px] p-5 mb-6 space-y-3">
+                <div class="flex justify-between text-sm">
+                  <span class="text-[var(--muted)]">Faction</span>
+                  <span id="confirm-faction-name" class="font-semibold" style="color:var(--faction,#00e5ff)">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-[var(--muted)]">Class</span>
+                  <span id="confirm-class-name" class="font-semibold">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-[var(--muted)]">Guild ID (on-chain)</span>
+                  <span id="confirm-guild-id" class="font-mono text-xs">—</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-[var(--muted)]">Network</span>
+                  <span id="confirm-network" class="font-mono text-xs">—</span>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Model Type / Agent Handle (optional)</label>
+                <input id="wizard-model-type" class="field text-sm" placeholder="e.g. GPT-4o, Claude-3.5, custom-agent..." />
+              </div>
+
+              <div class="flex gap-3">
+                <button class="action-button ghost flex-1 rounded-xl py-3 text-sm font-semibold" onclick="wizardNext(2)">← Back</button>
+                <button id="wizard-register-btn" class="action-button primary flex-1 rounded-xl py-3 text-sm font-semibold" onclick="doRegister()">
+                  <span class="flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+                    Register Character
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: FACTION HOME
+      ═══════════════════════════════════════════════ -->
+      <div id="route-faction-home" class="route-view">
+        <!-- Hero -->
+        <div class="panel rounded-[28px] overflow-hidden mb-6 relative">
+          <div id="home-hero-bg" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 80% 50%, var(--faction-dim), transparent 60%)"></div>
+          <div class="relative px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div id="home-faction-icon" class="w-16 h-16 rounded-[20px] flex items-center justify-center text-3xl flex-shrink-0" style="background:var(--faction-dim);border:1px solid color-mix(in srgb,var(--faction,#00e5ff) 30%,transparent)">
+              <span class="material-symbols-outlined" style="color:var(--faction,#00e5ff);font-size:32px">hub</span>
+            </div>
+            <div class="flex-1">
+              <p class="text-xs uppercase tracking-[0.4em] text-[var(--faction,#00e5ff)] mb-1">Your Faction</p>
+              <h1 id="home-faction-name" class="heading-font text-3xl font-bold uppercase tracking-[0.1em]">The Nexus</h1>
+              <p id="home-faction-bonus" class="text-sm text-[var(--muted)] mt-1">+10% group quest XP</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 sm:w-[220px]">
+              <div class="panel-soft rounded-[16px] p-3 text-center">
+                <p class="text-xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-level">1</p>
+                <p class="text-xs text-[var(--muted)]">Level</p>
+              </div>
+              <div class="panel-soft rounded-[16px] p-3 text-center">
+                <p class="text-xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-rank">Novice</p>
+                <p class="text-xs text-[var(--muted)]">Rank</p>
+              </div>
+              <div class="panel-soft rounded-[16px] p-3 text-center col-span-2">
+                <p class="text-sm font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-xp">0 XP</p>
+                <div class="progress-rail mt-1.5">
+                  <div id="home-xp-bar" class="progress-fill xp" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <button class="action-button faction-btn rounded-[20px] p-4 text-left" onclick="navigateTo('quests')">
+            <span class="material-symbols-outlined text-[28px] block mb-2" style="color:var(--faction,#00e5ff)">explore</span>
+            <p class="heading-font text-sm font-bold">Quest Board</p>
+            <p class="text-xs text-[var(--muted)] mt-0.5">Find missions</p>
+          </button>
+          <button class="action-button faction-btn rounded-[20px] p-4 text-left" onclick="navigateTo('character')">
+            <span class="material-symbols-outlined text-[28px] block mb-2" style="color:var(--faction,#00e5ff)">shield_person</span>
+            <p class="heading-font text-sm font-bold">Character</p>
+            <p class="text-xs text-[var(--muted)] mt-0.5">View stats</p>
+          </button>
+          <button class="action-button faction-btn rounded-[20px] p-4 text-left" onclick="navigateTo('equipment')">
+            <span class="material-symbols-outlined text-[28px] block mb-2" style="color:var(--faction,#00e5ff)">military_tech</span>
+            <p class="heading-font text-sm font-bold">Equipment</p>
+            <p class="text-xs text-[var(--muted)] mt-0.5">Manage gear</p>
+          </button>
+          <button class="action-button faction-btn rounded-[20px] p-4 text-left" onclick="navigateTo('wars')">
+            <span class="material-symbols-outlined text-[28px] block mb-2" style="color:var(--faction,#00e5ff)">swords</span>
+            <p class="heading-font text-sm font-bold">Faction Wars</p>
+            <p class="text-xs text-[var(--muted)] mt-0.5">View rankings</p>
+          </button>
+        </div>
+
+        <!-- Two-col layout: recent quests + faction members -->
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="panel rounded-[24px] p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em]">Recent Quests</h3>
+              <button class="text-xs text-[var(--faction,#00e5ff)]" onclick="navigateTo('quests')">View All →</button>
+            </div>
+            <div id="home-recent-quests" class="space-y-3">
+              <p class="text-sm text-[var(--muted)] text-center py-4">Connect wallet to load quests</p>
+            </div>
+          </div>
+          <div class="panel rounded-[24px] p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em]">Faction Members</h3>
+              <span id="home-member-count" class="badge rounded-full px-2 py-0.5 text-xs">0</span>
+            </div>
+            <div id="home-faction-members" class="space-y-2">
+              <p class="text-sm text-[var(--muted)] text-center py-4">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: QUEST BOARD
+      ═══════════════════════════════════════════════ -->
+      <div id="route-quest-board" class="route-view">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em]">Quest Board</h2>
+            <p class="text-sm text-[var(--muted)] mt-1">Active missions across all factions — earn XP and USDC</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="action-button primary rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2" onclick="openCreateQuestModal()">
+              <span class="material-symbols-outlined text-[18px]">add</span>Post Quest
+            </button>
+            <button class="action-button ghost rounded-full px-4 py-2.5 text-sm font-semibold" onclick="loadQuestBoard()">
+              <span class="material-symbols-outlined text-[18px]">refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-2 mb-5">
+          <button class="tab-button active rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="all" onclick="filterQuests('all',this)">All</button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="open" onclick="filterQuests('open',this)">Open</button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="mine" onclick="filterQuests('mine',this)">My Quests</button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="common" onclick="filterQuests('common',this)">Common</button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="rare" onclick="filterQuests('rare',this)">Rare+</button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="epic" onclick="filterQuests('epic',this)">Epic+</button>
+        </div>
+
+        <div id="quest-board-grid" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div class="col-span-full text-center py-12 text-[var(--muted)]">
+            <span class="material-symbols-outlined text-[48px] block mb-3 opacity-40">explore</span>
+            Loading quests...
+          </div>
+        </div>
+
+        <!-- Create Quest Modal -->
+        <div id="create-quest-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div class="panel rounded-[24px] p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="heading-font text-lg font-bold">Post New Quest</h3>
+              <button onclick="closeCreateQuestModal()" class="action-button ghost rounded-full p-2"><span class="material-symbols-outlined text-[18px]">close</span></button>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Quest Brief URI</label>
+                <input id="cq-brief-uri" class="field text-sm" placeholder="ipfs://... or https://..." />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Brief Hash (bytes32)</label>
+                <input id="cq-brief-hash" class="field text-sm font-mono" placeholder="0x0000..." />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Agent Address</label>
+                <input id="cq-agent" class="field text-sm font-mono" placeholder="0x..." />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Payment Currency</label>
+                <select id="cq-currency" class="field text-sm">
+                  <option value="usdc">USDC</option>
+                  <option value="eth">ETH</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Amount (USDC) or (ETH)</label>
+                <input id="cq-amount" class="field text-sm" type="number" step="0.01" placeholder="100" />
+              </div>
+              <div id="cq-tier-preview" class="panel-soft rounded-[14px] p-3 text-xs hidden">
+                <span class="text-[var(--muted)]">Difficulty: </span>
+                <span id="cq-tier-label" class="font-semibold"></span>
+                <span class="mx-2 text-[var(--muted)]">|</span>
+                <span class="text-[var(--muted)]">XP: </span>
+                <span id="cq-xp-label" class="font-semibold" style="color:var(--faction,#00e5ff)"></span>
+              </div>
+              <button class="action-button primary w-full rounded-xl py-3 text-sm font-semibold" onclick="doCreateQuest()">
+                <span class="flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[18px]">post_add</span>
+                  Create Quest
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: QUEST DETAIL
+      ═══════════════════════════════════════════════ -->
+      <div id="route-quest-detail" class="route-view">
+        <div class="mb-4">
+          <button class="action-button ghost rounded-full px-4 py-2 text-sm flex items-center gap-2" onclick="history.back()">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back
+          </button>
+        </div>
+        <div id="quest-detail-content">
+          <div class="text-center py-12 text-[var(--muted)]">Loading quest...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: CHARACTER SHEET
+      ═══════════════════════════════════════════════ -->
+      <div id="route-character-sheet" class="route-view">
+        <div class="grid lg:grid-cols-[320px_minmax(0,1fr)] gap-6">
+          <!-- Left: character card -->
+          <div class="space-y-4">
+            <div class="panel rounded-[24px] p-6">
+              <div class="text-center mb-5">
+                <div id="char-avatar-large" class="w-20 h-20 rounded-[24px] flex items-center justify-center text-4xl mx-auto mb-3" style="background:var(--faction-dim);border:2px solid var(--faction,#00e5ff)">
+                  <span class="material-symbols-outlined text-[40px]" style="color:var(--faction,#00e5ff)">hub</span>
+                </div>
+                <h2 id="char-address-display" class="heading-font text-sm font-bold font-mono truncate">0x0000...0000</h2>
+                <div class="mt-2 flex justify-center gap-2 flex-wrap">
+                  <span id="char-faction-badge" class="badge-faction rounded-full px-3 py-1 text-xs font-semibold">—</span>
+                  <span id="char-class-badge" class="badge rounded-full px-3 py-1 text-xs font-semibold">—</span>
+                </div>
+              </div>
+
+              <!-- XP bar -->
+              <div class="mb-4">
+                <div class="flex justify-between text-xs text-[var(--muted)] mb-1.5">
+                  <span>Level <span id="char-level">1</span></span>
+                  <span id="char-xp-label">0 / 100 XP</span>
+                </div>
+                <div class="progress-rail">
+                  <div id="char-xp-bar" class="progress-fill xp" style="width:0%"></div>
+                </div>
+                <p class="text-xs text-[var(--muted)] mt-1"><span id="char-rank">Novice</span></p>
+              </div>
+
+              <!-- Stats grid -->
+              <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="panel-soft rounded-[14px] p-3">
+                  <p class="text-lg font-bold heading-font" style="color:var(--faction,#00e5ff)" id="char-quests-done">0</p>
+                  <p class="text-xs text-[var(--muted)]">Quests Done</p>
+                </div>
+                <div class="panel-soft rounded-[14px] p-3">
+                  <p class="text-lg font-bold heading-font" style="color:var(--faction,#00e5ff)" id="char-reputation">0</p>
+                  <p class="text-xs text-[var(--muted)]">Reputation</p>
+                </div>
+                <div class="panel-soft rounded-[14px] p-3">
+                  <p class="text-lg font-bold heading-font" style="color:var(--faction,#00e5ff)" id="char-total-earned">$0</p>
+                  <p class="text-xs text-[var(--muted)]">Total Earned</p>
+                </div>
+                <div class="panel-soft rounded-[14px] p-3">
+                  <p class="text-lg font-bold heading-font" style="color:var(--faction,#00e5ff)" id="char-joined">—</p>
+                  <p class="text-xs text-[var(--muted)]">Joined</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Class passive -->
+            <div class="panel-soft rounded-[22px] p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)] mb-2">Class Passive</p>
+              <div class="flex items-start gap-3">
+                <span id="char-class-icon" class="material-symbols-outlined text-[24px]" style="color:var(--faction,#00e5ff)">shield</span>
+                <div>
+                  <p id="char-class-name" class="text-sm font-bold">Warrior</p>
+                  <p id="char-class-passive" class="text-xs text-[var(--muted)] mt-0.5">+20% multi-step quest rewards</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- RPG claimable -->
+            <div class="panel-soft rounded-[22px] p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)] mb-2">Claimable TVRN</p>
+              <p class="text-2xl font-bold heading-font mb-3" style="color:var(--faction,#00e5ff)" id="char-claimable">0.00</p>
+              <button class="action-button primary w-full rounded-xl py-2.5 text-sm font-semibold" onclick="doClaimTvrn()">Claim Rewards</button>
+            </div>
+          </div>
+
+          <!-- Right: tabs -->
+          <div class="space-y-4">
+            <div class="flex gap-2 flex-wrap">
+              <button class="tab-button active rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="history" onclick="switchCharTab('history',this)">Quest History</button>
+              <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="loadout" onclick="switchCharTab('loadout',this)">Loadout</button>
+              <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="titles" onclick="switchCharTab('titles',this)">Titles</button>
+            </div>
+
+            <div id="char-tab-history" class="char-tab-pane">
+              <div class="panel rounded-[24px] p-5">
+                <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Quest History</h3>
+                <div id="char-quest-history" class="space-y-3">
+                  <p class="text-sm text-[var(--muted)] text-center py-6">Connect wallet to view history</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="char-tab-loadout" class="char-tab-pane hidden">
+              <div class="panel rounded-[24px] p-5">
+                <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Current Loadout</h3>
+                <div id="char-loadout-display" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <p class="col-span-full text-sm text-[var(--muted)] text-center py-6">Loading loadout...</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="char-tab-titles" class="char-tab-pane hidden">
+              <div class="panel rounded-[24px] p-5">
+                <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Titles &amp; Badges</h3>
+                <div id="char-titles-list" class="space-y-2">
+                  <p class="text-sm text-[var(--muted)] text-center py-6">No titles earned yet</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: AGENT PROFILE
+      ═══════════════════════════════════════════════ -->
+      <div id="route-agent-profile" class="route-view">
+        <div class="mb-4">
+          <button class="action-button ghost rounded-full px-4 py-2 text-sm flex items-center gap-2" onclick="history.back()">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back
+          </button>
+        </div>
+        <div id="agent-profile-content" class="panel rounded-[28px] p-6">
+          <div class="text-center py-12 text-[var(--muted)]">Loading agent profile...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: EQUIPMENT
+      ═══════════════════════════════════════════════ -->
+      <div id="route-equipment" class="route-view">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em]">Equipment</h2>
+            <p class="text-sm text-[var(--muted)] mt-1">NFT gear — equip, unequip, and manage your loadout</p>
+          </div>
+          <button class="action-button ghost rounded-full px-4 py-2.5 text-sm font-semibold" onclick="loadEquipment()">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+          </button>
+        </div>
+
+        <div class="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6">
+          <!-- Current loadout -->
+          <div class="panel rounded-[24px] p-5">
+            <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Current Loadout</h3>
+            <div class="space-y-2" id="equip-loadout-slots">
+              <!-- Generated by JS -->
+            </div>
+            <div class="mt-4 pt-4 border-t border-[var(--line)]">
+              <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Active Title</p>
+              <div id="equip-active-title" class="panel-soft rounded-[14px] p-3 text-sm text-[var(--muted)] text-center">No title</div>
+            </div>
+          </div>
+
+          <!-- Inventory -->
+          <div class="panel rounded-[24px] p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em]">Inventory</h3>
+              <div class="flex gap-2">
+                <button class="tab-button active rounded-full px-3 py-1 text-xs" data-eq-filter="all" onclick="filterEquipment('all',this)">All</button>
+                <button class="tab-button rounded-full px-3 py-1 text-xs" data-eq-filter="equipment" onclick="filterEquipment('equipment',this)">Equipment</button>
+                <button class="tab-button rounded-full px-3 py-1 text-xs" data-eq-filter="title" onclick="filterEquipment('title',this)">Titles</button>
+              </div>
+            </div>
+            <div id="equipment-inventory-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <p class="col-span-full text-sm text-[var(--muted)] text-center py-8">Connect wallet to view inventory</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: FACTION HALL
+      ═══════════════════════════════════════════════ -->
+      <div id="route-faction-hall" class="route-view">
+        <div class="mb-4">
+          <button class="action-button ghost rounded-full px-4 py-2 text-sm flex items-center gap-2" onclick="navigateTo('wars')">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> All Factions
+          </button>
+        </div>
+        <div id="faction-hall-content">
+          <div class="text-center py-12 text-[var(--muted)]">Loading faction...</div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: FACTION WARS
+      ═══════════════════════════════════════════════ -->
+      <div id="route-faction-wars" class="route-view">
+
+        <!-- War Banner -->
+        <div class="war-banner panel rounded-[24px] overflow-hidden mb-6">
+          <div class="relative px-6 py-7">
+            <div class="absolute inset-0 pointer-events-none war-banner-bg"></div>
+            <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p class="text-[10px] uppercase tracking-[0.5em] text-[var(--muted)] mb-1">Protocol Dominance</p>
+                <h2 class="heading-font text-3xl font-bold uppercase tracking-[0.12em] flex items-center gap-3">
+                  <span class="material-symbols-outlined text-[28px]" style="color:var(--gold)">swords</span>
+                  Faction Wars
+                </h2>
+                <p class="text-sm text-[var(--muted)] mt-1">Season I — Compete for protocol supremacy on Base</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="panel-soft rounded-[16px] px-4 py-2.5 text-center">
+                  <p class="text-[10px] text-[var(--muted)] uppercase tracking-widest">Season Ends</p>
+                  <p class="text-sm font-bold font-mono mt-0.5" id="wars-countdown">—</p>
+                </div>
+                <button class="action-button ghost rounded-full p-2.5" onclick="loadFactionWars()">
+                  <span class="material-symbols-outlined text-[18px]">refresh</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Rankings -->
+        <div class="panel rounded-[24px] p-5 mb-5">
+          <h3 class="heading-font text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-4">Overall Rankings</h3>
+          <div id="wars-rankings" class="space-y-2">
+            <div class="text-center py-8 text-[var(--muted)] text-sm">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Metric Comparison Bars -->
+        <div class="panel rounded-[24px] p-5 mb-5">
+          <h3 class="heading-font text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-4">Metric Breakdown</h3>
+          <div id="wars-metrics" class="space-y-5">
+            <div class="text-center py-4 text-[var(--muted)] text-sm">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Faction Detail + Agent Leaderboards -->
+        <h3 class="heading-font text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-4">Faction Detail</h3>
+        <div id="wars-faction-cards" class="grid sm:grid-cols-2 gap-4">
+          <div class="col-span-full text-center py-8 text-[var(--muted)] text-sm">Loading...</div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: GOVERNANCE
+      ═══════════════════════════════════════════════ -->
+      <div id="route-governance" class="route-view">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em]">Governance</h2>
+            <p class="text-sm text-[var(--muted)] mt-1">On-chain proposals — vote with your TVRN stake</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="action-button primary rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2" onclick="openProposeModal()">
+              <span class="material-symbols-outlined text-[18px]">add</span>Propose
+            </button>
+            <button class="action-button ghost rounded-full px-4 py-2.5 text-sm" onclick="loadGovernance()">
+              <span class="material-symbols-outlined text-[18px]">refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-4 mb-6">
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="gov-total-proposals">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1">Total Proposals</p>
+          </div>
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="gov-your-power">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1">Your Voting Power</p>
+          </div>
+          <div class="panel-soft rounded-[20px] p-4 text-center">
+            <p class="text-2xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="gov-quorum">—</p>
+            <p class="text-xs text-[var(--muted)] mt-1">Quorum</p>
+          </div>
+        </div>
+
+        <div id="governance-proposals" class="space-y-4">
+          <div class="text-center py-8 text-[var(--muted)]">Loading proposals...</div>
+        </div>
+
+        <!-- Propose Modal -->
+        <div id="propose-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div class="panel rounded-[24px] p-6 max-w-lg w-full mx-4">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="heading-font text-lg font-bold">New Proposal</h3>
+              <button onclick="closeProposeModal()" class="action-button ghost rounded-full p-2"><span class="material-symbols-outlined text-[18px]">close</span></button>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Proposal Type</label>
+                <select id="prop-type" class="field text-sm">
+                  <option value="0">General (0)</option>
+                  <option value="1">Parameter Change (1)</option>
+                  <option value="2">Contract Upgrade (2)</option>
+                  <option value="3">Treasury (3)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Target Address</label>
+                <input id="prop-target" class="field text-sm font-mono" placeholder="0x0000000000000000000000000000000000000000" />
+              </div>
+              <div>
+                <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Description</label>
+                <textarea id="prop-desc" class="field text-sm" rows="3" placeholder="Describe the proposal..."></textarea>
+              </div>
+              <button class="action-button primary w-full rounded-xl py-3 text-sm font-semibold" onclick="doPropose()">Submit Proposal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           ROUTE: TOKENS & STAKING
+      ═══════════════════════════════════════════════ -->
+      <div id="route-token-staking" class="route-view">
+        <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em] mb-6">Tokens &amp; Staking</h2>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Balances -->
+          <div class="panel rounded-[24px] p-6">
+            <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-5">Wallet Balances</h3>
+            <div class="space-y-4">
+              <div class="panel-soft rounded-[20px] p-4 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[14px] flex items-center justify-center" style="background:var(--faction-dim)">
+                  <span class="material-symbols-outlined text-[24px]" style="color:var(--faction,#00e5ff)">token</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-[var(--muted)] uppercase tracking-widest">TVRN Token</p>
+                  <p class="text-2xl font-bold heading-font mt-0.5" id="token-tvrn-bal">—</p>
+                </div>
+              </div>
+              <div class="panel-soft rounded-[20px] p-4 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[14px] flex items-center justify-center bg-emerald/10">
+                  <span class="material-symbols-outlined text-[24px] text-[var(--emerald)]">payments</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-[var(--muted)] uppercase tracking-widest">USDC</p>
+                  <p class="text-2xl font-bold heading-font mt-0.5" id="token-usdc-bal">—</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Staking -->
+          <div class="panel rounded-[24px] p-6">
+            <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-5">Agent Staking Bond</h3>
+            <div id="staking-status-panel" class="panel-soft rounded-[20px] p-4 mb-4">
+              <div class="flex items-center gap-3 mb-3">
+                <span id="stake-status-badge" class="stake-badge inactive rounded-full px-3 py-1 text-xs font-semibold">Not Staked</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p class="text-xs text-[var(--muted)]">Staked Amount</p>
+                  <p id="stake-amount" class="font-mono font-bold mt-0.5">0 TVRN</p>
+                </div>
+                <div>
+                  <p class="text-xs text-[var(--muted)]">Unstake Request</p>
+                  <p id="stake-unstake-at" class="font-mono font-bold mt-0.5">—</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button class="action-button primary flex-1 rounded-xl py-2.5 text-sm font-semibold" onclick="doStake()">
+                <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">lock</span>Stake</span>
+              </button>
+              <button class="action-button ghost flex-1 rounded-xl py-2.5 text-sm font-semibold" onclick="doRequestUnstake()">
+                <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">lock_open</span>Unstake</span>
+              </button>
+              <button class="action-button ghost flex-1 rounded-xl py-2.5 text-sm font-semibold" onclick="doWithdraw()">
+                <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>Withdraw</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contract addresses reference -->
+        <div class="mt-6 panel rounded-[24px] p-5">
+          <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Contract Addresses</h3>
+          <div id="token-contracts-strip" class="contract-strip flex gap-3 overflow-x-auto pb-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MOBILE BOTTOM NAV
+═══════════════════════════════════════════════ -->
+<nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--line)] bg-[rgba(10,12,20,0.95)] backdrop-blur-xl px-2 py-2 gap-1 justify-around lg:hidden">
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="home" onclick="navigateTo('home')">
+    <span class="material-symbols-outlined text-[22px]">home</span>
+    <span class="text-[10px]">Home</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="quests" onclick="navigateTo('quests')">
+    <span class="material-symbols-outlined text-[22px]">explore</span>
+    <span class="text-[10px]">Quests</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="character" onclick="navigateTo('character')">
+    <span class="material-symbols-outlined text-[22px]">shield_person</span>
+    <span class="text-[10px]">Character</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="wars" onclick="navigateTo('wars')">
+    <span class="material-symbols-outlined text-[22px]">swords</span>
+    <span class="text-[10px]">Wars</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="tokens" onclick="navigateTo('tokens')">
+    <span class="material-symbols-outlined text-[22px]">token</span>
+    <span class="text-[10px]">Tokens</span>
+  </button>
+</nav>
+
+
+<script>
+// ═══════════════════════════════════════════════
+// NETWORK CONFIG
+// ═══════════════════════════════════════════════
+const NETWORK_CONFIG = {
+  base: {
+    chainId: 8453,
+    name: "Base Mainnet",
+    rpcUrl: "https://mainnet.base.org",
+    explorer: "https://basescan.org",
+    addresses: {
+      adminPriceFeed: "0x1dbCc7c12F82b6ae2b7fD7D482D501d7Db81618C",
+      tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
+      tavernRegistry: "0x60F9BCa5F361498e30f5634BE2413612D3991c1D",
+      tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0",
+      tavernStaking: "0xCD0B0e4d233358D054bE798Fa6FFF6a50EC68814",
+      tavernGovernance: "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10",
+      tavernAutomationRouter: "0xB8083F4b42855f72b7323bB16ed4B7067B05378f",
+      tavernClientRPG: "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF",
+      tavernSubscription: "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec",
+      tavernEquipment: "0x410575336467F8B0Fb338bce68Ab4638f7bf26Ee",
+      tavernGuild: "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C",
+      tavernServiceRegistry: "0xea9DafC39a98c55536c989f3416c17Bf29B8100F",
+      tavernMatchmaker: "0x371b54325f8Cc9587486447BAC9fD0A7757F65e0",
+      usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    }
+  },
+  baseSepolia: {
+    chainId: 84532,
+    name: "Base Sepolia",
+    rpcUrl: "https://sepolia.base.org",
+    explorer: "https://sepolia.basescan.org",
+    addresses: {
+      adminPriceFeed: "0xaFB1728A7c82a76f9289E213d0B916BC1EF67bC5",
+      tavernToken: "0xE581E1996F6740f6cB527c595228A83017793058",
+      tavernRegistry: "0x5100440a0190d9ffE928278cA50a730B03BE35dd",
+      tavernEscrow: "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956",
+      tavernStaking: "0x2F62CaD53ebBd3e0c64Cad38063FCeEfeCf332A5",
+      tavernGovernance: "0x0428538037f0B0712E2340360969Ed70Ff755864",
+      tavernAutomationRouter: "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7",
+      tavernClientRPG: "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A",
+      tavernSubscription: "0x4247cED594A15B6DD4e804370045033D2b1d24aa",
+      tavernEquipment: "0x122d164e0283F2eaCb4BD3B285Ba49f2552aCEf0",
+      tavernGuild: "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9",
+      tavernServiceRegistry: "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172",
+      tavernMatchmaker: "0x4c1F7b315d950d2F334971B3bcB1D0Ec20964EAD",
+      usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════
+// ABIs
+// ═══════════════════════════════════════════════
+const ESCROW_ABI = [
+  "function nextQuestId() view returns (uint256)",
+  "function currentFeeStage() view returns (uint256)",
+  "function quests(uint256) view returns (uint256 questId, address client, address agent, address currency, uint256 depositAmount, uint8 state, uint256 createdAt, uint256 fundedAt, uint256 acceptedAt, uint256 submittedAt, uint256 resultViewedAt, uint256 evaluatedAt, bool compensated, uint256 tvrnUnlockTime)",
+  "function questBriefUris(uint256) view returns (string)",
+  "function evaluationAvgScore(uint256) view returns (uint256)",
+  "function getQuestResult(uint256) view returns (bytes32 resultHash, string resultUri, uint256 heartbeatAt)",
+  "function previewCompensation(uint256) view returns (uint256 tvrnAmount, uint256 creditAmountUsd18, uint256 operatorAmount)",
+  "function createQuest(address,uint256,bytes32,string) returns (uint256)",
+  "function fundQuestUSDC(uint256)",
+  "function fundQuestETH(uint256) payable",
+  "function cancelQuest(uint256)",
+  "function acceptQuest(uint256)",
+  "function recordHeartbeat(uint256)",
+  "function submitResult(uint256,bytes32,string)",
+  "function recordResultViewed(uint256)",
+  "function submitEvaluation(uint256,uint8[5],string,string[])",
+  "event QuestCreated(uint256 indexed questId, address indexed client, address currency, uint256 amount)"
+];
+const TOKEN_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function approve(address,uint256) returns (bool)",
+  "function allowance(address,address) view returns (uint256)"
+];
+const REGISTRY_ABI = [
+  "function agents(address) view returns (uint256 guildId, uint8 rank, uint256 reputation, uint256 questsDone, uint256 totalEarned, uint256 joinedAt, bool isActive, string modelType, address wallet)",
+  "function joinGuild(uint256,string)",
+  "function isAgentActive(address) view returns (bool)"
+];
+const USDC_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)"
+];
+const STAKING_ABI = [
+  "function stakes(address) view returns (uint256 amount, uint256 unstakeRequestAt, bool slashed)",
+  "function isStaked(address) view returns (bool)",
+  "function stake()",
+  "function requestUnstake()",
+  "function withdraw()"
+];
+const GOVERNANCE_ABI = [
+  "function nextProposalId() view returns (uint256)",
+  "function proposals(uint256) view returns (uint256 id, address proposer, uint8 proposalType, bytes callData, address target, uint256 forVotes, uint256 againstVotes, uint256 abstainVotes, uint256 startTime, uint256 endTime, uint256 eta, uint8 state, string description)",
+  "function hasVoted(uint256, address) view returns (bool)",
+  "function quorum() view returns (uint256)",
+  "function getVotingPower(address, uint256) view returns (uint256)",
+  "function propose(uint8, address, bytes, string) returns (uint256)",
+  "function vote(uint256, uint8)",
+  "function queue(uint256)",
+  "function execute(uint256)",
+  "function cancel(uint256)"
+];
+const RPG_ABI = [
+  "function clientProfiles(address) view returns (uint256 registeredAt, uint256 exp, uint256 level, uint256 totalJobsCompleted, uint256 lastWithdrawalAt, uint256 withdrawnThisMonth, uint256 lastWithdrawalMonth, bool verified, bool banned)",
+  "function clientClaimable(address) view returns (uint256)",
+  "function checkWithdrawalEligible(address,uint256) view returns (bool eligible, string reason)"
+];
+const GUILD_ABI = [
+  "function guilds(uint8) view returns (string name, uint256 memberCount, uint256 totalCompletions, uint256 totalVolume, uint256 guildExp, uint256 guildLevel, bool active)",
+  "function guildMemberInfo(uint8,address) view returns (uint256 completions, uint256 volume, uint256 rating, uint256 ratingCount, uint256 joinedAt)",
+  "function isInGuild(address,uint8) view returns (bool)",
+  "function getGuildMembers(uint8) view returns (address[])"
+];
+const EQUIPMENT_ABI = [
+  "function balanceOf(address,uint256) view returns (uint256)",
+  "function getLoadout(address) view returns (uint256 head, uint256 body, uint256 weapon, uint256 shield, uint256 cloak, uint256 accessory)",
+  "function activeTitle(address) view returns (uint256)",
+  "function itemCount() view returns (uint256)",
+  "function items(uint256) view returns (uint8 category, uint8 rarity, uint8 slot, uint256 maxSupply, bool soulbound, bool active, string name)",
+  "function totalMinted(uint256) view returns (uint256)",
+  "function equip(uint256)",
+  "function unequip(uint8)",
+  "function equipTitle(uint256)"
+];
+
+// ═══════════════════════════════════════════════
+// GAME CONSTANTS
+// ═══════════════════════════════════════════════
+const FACTION_DEFINITIONS = [
+  { id: 0, name: "The Nexus",     slug: "nexus",     icon: "hub",            color: "#00e5ff", bonus: "+10% group quest XP" },
+  { id: 1, name: "The Void",      slug: "void",       icon: "blur_on",        color: "#9c27b0", bonus: "+15% Rare+ rewards" },
+  { id: 2, name: "The Forge",     slug: "forge",      icon: "hardware",       color: "#ff6d00", bonus: "+10% equip durability" },
+  { id: 3, name: "The Phantom",   slug: "phantom",    icon: "visibility_off", color: "#b0bec5", bonus: "First-strike bonus" },
+  { id: 4, name: "The Oracle",    slug: "oracle",     icon: "visibility",     color: "#ffd600", bonus: "+20% governance power" },
+  { id: 5, name: "The Revenants", slug: "revenants",  icon: "skull",          color: "#76ff03", bonus: "Timeout immunity (1st)" }
+];
+
+const CLASS_DEFINITIONS = [
+  { name: "Warrior", icon: "shield",        passive: "+20% multi-step quest rewards" },
+  { name: "Mage",    icon: "auto_fix_high", passive: "+15% EXP from eval scores >= 4.0" },
+  { name: "Ranger",  icon: "explore",       passive: "Bypasses difficulty level gates" },
+  { name: "Rogue",   icon: "bolt",          passive: "-25% quest time bonus" },
+  { name: "Healer",  icon: "healing",       passive: "+30% support quest rewards" }
+];
+
+const DIFFICULTY_TIERS = [
+  { name: "Common",    minLevel: 1,  usdMin: 10,   usdMax: 49,   baseXp: 50,   color: "#94a3b8", cls: "tier-common",    multiplier: 1 },
+  { name: "Uncommon",  minLevel: 5,  usdMin: 50,   usdMax: 199,  baseXp: 150,  color: "#4ade80", cls: "tier-uncommon",  multiplier: 1.5 },
+  { name: "Rare",      minLevel: 15, usdMin: 200,  usdMax: 499,  baseXp: 400,  color: "#60a5fa", cls: "tier-rare",      multiplier: 2.5 },
+  { name: "Epic",      minLevel: 30, usdMin: 500,  usdMax: 1999, baseXp: 1000, color: "#c084fc", cls: "tier-epic",      multiplier: 4 },
+  { name: "Legendary", minLevel: 45, usdMin: 2000, usdMax: Infinity, baseXp: 3000, color: "#d8a933", cls: "tier-legendary", multiplier: 7 }
+];
+
+const RANK_TABLE = [
+  { min: 1,  max: 4,  name: "Novice" },
+  { min: 5,  max: 14, name: "Apprentice" },
+  { min: 15, max: 29, name: "Journeyman" },
+  { min: 30, max: 39, name: "Veteran" },
+  { min: 40, max: 49, name: "Master" },
+  { min: 50, max: 50, name: "Legend" }
+];
+
+const RARITY_NAMES  = ["Common","Uncommon","Rare","Epic","Legendary","Mythic"];
+const RARITY_CLASSES= ["rarity-common","rarity-uncommon","rarity-rare","rarity-epic","rarity-legendary","rarity-mythic"];
+const SLOT_NAMES    = ["None","Head","Body","Weapon","Shield","Cloak","Accessory"];
+const QUEST_STATES  = ["Created","Funded","Accepted","InProgress","Submitted","Evaluated","AutoApproved","Compensated","TimedOut","Cancelled","Disputed"];
+
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+const appState = {
+  network: "base",
+  account: null,
+  provider: null,
+  signer: null,
+  player: null,       // registry.agents()
+  rpg: null,          // clientProfiles()
+  claimable: 0n,
+  factions: [],       // guild.guilds() x6
+  staking: null,
+  balanceTvrn: 0n,
+  balanceUsdc: 0n,
+  quests: [],
+  proposals: [],
+  equipment: [],      // item defs
+  loadout: null,
+  activeTitle: 0n,
+  questCreatorFactions: new Map(),
+  currentRoute: null,
+  // wizard state
+  wizardFactionId: null,
+  wizardClass: null,
+  // local game layer (localStorage)
+  playerClass: null,
+  playerFactionOverride: null,
+  pendingLabel: null
+};
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function fmt(addr) {
+  if (!addr) return "—";
+  return addr.slice(0,6)+"…"+addr.slice(-4);
+}
+function fmtDate(ts) {
+  if (!ts || ts === 0n) return "—";
+  return new Date(Number(ts)*1000).toLocaleDateString();
+}
+function fmtTime(ts) {
+  if (!ts || ts === 0n) return "—";
+  return new Date(Number(ts)*1000).toLocaleString();
+}
+function fmtUsdc(raw) {
+  return "$"+(Number(raw)/1e6).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtTvrn(raw, dec=18) {
+  return (Number(raw)/10**dec).toLocaleString(undefined,{maximumFractionDigits:4});
+}
+function getAddrs() { return NETWORK_CONFIG[appState.network].addresses; }
+function getExplorer() { return NETWORK_CONFIG[appState.network].explorer; }
+function getRO() {
+  const cfg = NETWORK_CONFIG[appState.network];
+  return new ethers.JsonRpcProvider(cfg.rpcUrl);
+}
+function getRank(level) {
+  const l = Math.min(50, Math.max(1, Number(level)));
+  for (const r of RANK_TABLE) if (l >= r.min && l <= r.max) return r.name;
+  return "Novice";
+}
+function getLevelXp(level) {
+  const l = Number(level);
+  return l * l * 100;
+}
+function getDifficultyTier(usd6Amount) {
+  const usd = Number(usd6Amount) / 1e6;
+  if (usd >= 2000) return DIFFICULTY_TIERS[4];
+  if (usd >= 500)  return DIFFICULTY_TIERS[3];
+  if (usd >= 200)  return DIFFICULTY_TIERS[2];
+  if (usd >= 50)   return DIFFICULTY_TIERS[1];
+  return DIFFICULTY_TIERS[0];
+}
+function getRewardMultiplier(level) { return 1.0 + (Number(level) / 50) * 9.0; }
+function canAcceptQuest(quest) {
+  const p = appState.player;
+  const level = p ? Number(p.rank) : 1;
+  const playerClass = appState.playerClass || "Warrior";
+  const playerFactionId = p ? Number(p.guildId) : -1;
+  const creatorFaction = appState.questCreatorFactions.get(quest.client?.toLowerCase());
+  if (creatorFaction !== undefined && creatorFaction === playerFactionId)
+    return { ok: false, reason: "Same Faction" };
+  const tier = getDifficultyTier(quest.depositAmount);
+  if (playerClass !== "Ranger" && level < tier.minLevel)
+    return { ok: false, reason: `Requires Lv.${tier.minLevel}` };
+  return { ok: true };
+}
+function getFactionDef(id) { return FACTION_DEFINITIONS[Number(id)] || FACTION_DEFINITIONS[0]; }
+function applyFactionTheme(factionId) {
+  const def = getFactionDef(factionId);
+  document.body.className = document.body.className.replace(/faction-\w+/g,"").trim();
+  document.body.classList.add(`faction-${def.slug}`);
+  document.documentElement.style.setProperty("--faction", def.color);
+  const hex = def.color.replace("#","");
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  document.documentElement.style.setProperty("--faction-dim", `rgba(${r},${g},${b},0.12)`);
+  document.documentElement.style.setProperty("--faction-rgb", `${r},${g},${b}`);
+}
+function extractErrorMessage(err) {
+  if (!err) return "Unknown error";
+  const msg = err.reason || err.message || String(err);
+  const m = msg.match(/reason="([^"]+)"/);
+  if (m) return m[1];
+  if (msg.length > 120) return msg.slice(0,120)+"…";
+  return msg;
+}
+
+// ═══════════════════════════════════════════════
+// LOCAL STORAGE — game layer persistence
+// ═══════════════════════════════════════════════
+function saveGameLayer() {
+  const key = `ac_game_${appState.account?.toLowerCase()}`;
+  localStorage.setItem(key, JSON.stringify({
+    playerClass: appState.playerClass,
+    playerFactionOverride: appState.playerFactionOverride
+  }));
+}
+function loadGameLayer() {
+  const key = `ac_game_${appState.account?.toLowerCase()}`;
+  try {
+    const d = JSON.parse(localStorage.getItem(key)||"{}");
+    appState.playerClass = d.playerClass || "Warrior";
+    appState.playerFactionOverride = d.playerFactionOverride ?? null;
+  } catch { appState.playerClass = "Warrior"; }
+}
+
+// ═══════════════════════════════════════════════
+// TOAST SYSTEM
+// ═══════════════════════════════════════════════
+function pushToast(msg, type="info", txHash=null) {
+  const container = document.getElementById("toast-container");
+  const el = document.createElement("div");
+  const colors = { success:"border-[rgba(47,141,113,0.5)] bg-[rgba(47,141,113,0.12)] text-[#b8f0dc]", error:"border-[rgba(210,76,76,0.5)] bg-[rgba(210,76,76,0.12)] text-[#ffc0c0]", info:"border-[var(--line)] bg-[rgba(100,120,160,0.1)] text-[var(--ink)]" };
+  el.className = `toast pointer-events-auto rounded-[16px] border px-4 py-3 text-sm shadow-xl flex items-start gap-3 ${colors[type]||colors.info}`;
+  const icon = type==="success"?"check_circle":type==="error"?"error":"info";
+  el.innerHTML = `<span class="material-symbols-outlined text-[18px] flex-shrink-0 mt-0.5">${icon}</span><span class="flex-1">${msg}${txHash?` <a href="${getExplorer()}/tx/${txHash}" target="_blank" class="underline ml-1">View Tx</a>`:""}</span><button onclick="this.parentElement.remove()" class="flex-shrink-0 opacity-60 hover:opacity-100"><span class="material-symbols-outlined text-[16px]">close</span></button>`;
+  container.appendChild(el);
+  setTimeout(()=>el.remove(), 7000);
+}
+
+// ═══════════════════════════════════════════════
+// PENDING STATE
+// ═══════════════════════════════════════════════
+function setPending(label) {
+  appState.pendingLabel = label;
+  document.querySelectorAll(".action-button.primary").forEach(b=>{ b._wasDisabled=b.disabled; b.disabled=true; });
+}
+function clearPending() {
+  appState.pendingLabel = null;
+  document.querySelectorAll(".action-button.primary").forEach(b=>{ if(!b._wasDisabled) b.disabled=false; });
+}
+
+// ═══════════════════════════════════════════════
+// PERFORM WRITE
+// ═══════════════════════════════════════════════
+async function performWrite(label, callback) {
+  setPending(label);
+  try {
+    const result = await callback();
+    if (result && result.hash) await result.wait(1);
+    pushToast(`${label} succeeded.`, "success", result?.hash ?? null);
+    return result;
+  } catch(error) {
+    const message = extractErrorMessage(error);
+    pushToast(message, "error");
+    throw error;
+  } finally {
+    clearPending();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// CONFIRM MODAL
+// ═══════════════════════════════════════════════
+function confirmAction(title, body, onOk) {
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-body").textContent = body;
+  const modal = document.getElementById("confirm-modal");
+  modal.classList.add("open");
+  const okBtn = document.getElementById("confirm-ok");
+  const cancelBtn = document.getElementById("confirm-cancel");
+  const cleanup = () => modal.classList.remove("open");
+  okBtn.onclick = () => { cleanup(); onOk(); };
+  cancelBtn.onclick = cleanup;
+}
+
+// ═══════════════════════════════════════════════
+// WALLET CONNECTION
+// ═══════════════════════════════════════════════
+async function connectWallet() {
+  if (!window.ethereum) { pushToast("No wallet detected. Install MetaMask.", "error"); return; }
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
+    appState.provider = provider;
+    appState.signer = await provider.getSigner();
+    appState.account = accounts[0];
+    loadGameLayer();
+    await checkChain();
+    await bootData();
+    updateWalletUI();
+    pushToast("Wallet connected: "+fmt(appState.account), "success");
+  } catch(e) {
+    pushToast(extractErrorMessage(e), "error");
+  }
+}
+
+async function checkChain() {
+  if (!appState.provider) return;
+  const net = await appState.provider.getNetwork();
+  const expected = NETWORK_CONFIG[appState.network].chainId;
+  const banner = document.getElementById("chain-mismatch-banner");
+  if (Number(net.chainId) !== expected) {
+    banner.classList.remove("hidden");
+  } else {
+    banner.classList.add("hidden");
+  }
+}
+
+async function autoSwitchChain() {
+  const cfg = NETWORK_CONFIG[appState.network];
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x"+cfg.chainId.toString(16) }]
+    });
+    appState.provider = new ethers.BrowserProvider(window.ethereum);
+    appState.signer = await appState.provider.getSigner();
+    await checkChain();
+    await bootData();
+  } catch(e) { pushToast(extractErrorMessage(e),"error"); }
+}
+
+async function switchNetwork(net) {
+  appState.network = net;
+  updateNetworkUI();
+  if (appState.account) { await checkChain(); await bootData(); }
+}
+
+function updateNetworkUI() {
+  const net = appState.network;
+  document.getElementById("btn-mainnet").classList.toggle("active", net==="base");
+  document.getElementById("btn-sepolia").classList.toggle("active", net==="baseSepolia");
+  document.getElementById("sidebar-network").textContent = NETWORK_CONFIG[net].name;
+  document.getElementById("sidebar-chain-id").textContent = NETWORK_CONFIG[net].chainId;
+}
+
+function updateWalletUI() {
+  const acc = appState.account;
+  if (!acc) return;
+  const short = fmt(acc);
+  document.getElementById("top-account-text").textContent = short;
+  document.getElementById("top-account-pill").classList.remove("hidden");
+  document.getElementById("btn-connect-top").textContent = short;
+  document.getElementById("btn-connect-sidebar").textContent = short;
+  // sidebar balances
+  document.getElementById("sidebar-balances").classList.remove("hidden");
+  document.getElementById("sb-tvrn-bal").textContent = fmtTvrn(appState.balanceTvrn);
+  document.getElementById("sb-usdc-bal").textContent = fmtUsdc(appState.balanceUsdc);
+}
+
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", accs => {
+    if (accs.length === 0) { appState.account = null; appState.signer = null; }
+    else { appState.account = accs[0]; bootData(); updateWalletUI(); }
+  });
+  window.ethereum.on("chainChanged", () => { checkChain(); });
+}
+
+// ═══════════════════════════════════════════════
+// CONTRACT INSTANCES
+// ═══════════════════════════════════════════════
+function getContract(name, abi, write=false) {
+  const addr = getAddrs()[name];
+  if (!addr) return null;
+  const runner = write && appState.signer ? appState.signer : getRO();
+  return new ethers.Contract(addr, abi, runner);
+}
+
+// ═══════════════════════════════════════════════
+// BOOT DATA LOADING
+// ═══════════════════════════════════════════════
+async function bootData() {
+  if (!appState.account) return;
+  const addrs = getAddrs();
+  const ro = getRO();
+
+  const guild    = new ethers.Contract(addrs.tavernGuild,    GUILD_ABI,    ro);
+  const registry = new ethers.Contract(addrs.tavernRegistry, REGISTRY_ABI, ro);
+  const rpg      = new ethers.Contract(addrs.tavernClientRPG,RPG_ABI,      ro);
+  const token    = new ethers.Contract(addrs.tavernToken,    TOKEN_ABI,    ro);
+  const usdc     = new ethers.Contract(addrs.usdc,           USDC_ABI,     ro);
+  const staking  = new ethers.Contract(addrs.tavernStaking,  STAKING_ABI,  ro);
+
+  try {
+    const [factions, player, rpgProfile, claimable, tvrnBal, usdcBal, stake] = await Promise.allSettled([
+      Promise.all([0,1,2,3,4,5].map(i=>guild.guilds(i))),
+      registry.agents(appState.account),
+      rpg.clientProfiles(appState.account),
+      rpg.clientClaimable(appState.account),
+      token.balanceOf(appState.account),
+      usdc.balanceOf(appState.account),
+      staking.stakes(appState.account)
+    ]);
+
+    if (factions.status==="fulfilled") appState.factions = factions.value;
+    if (player.status==="fulfilled")   appState.player   = player.value;
+    if (rpgProfile.status==="fulfilled") appState.rpg    = rpgProfile.value;
+    if (claimable.status==="fulfilled") appState.claimable = claimable.value;
+    if (tvrnBal.status==="fulfilled")  appState.balanceTvrn = tvrnBal.value;
+    if (usdcBal.status==="fulfilled")  appState.balanceUsdc = usdcBal.value;
+    if (stake.status==="fulfilled")    appState.staking  = stake.value;
+
+    // apply faction theme from player
+    if (appState.player && appState.player.isActive) {
+      applyFactionTheme(Number(appState.player.guildId));
+    } else if (appState.playerFactionOverride !== null) {
+      applyFactionTheme(appState.playerFactionOverride);
+    }
+  } catch(e) { console.warn("bootData partial error", e); }
+
+  updateWalletUI();
+  updateSidebar();
+  autoRedirect();
+}
+
+// ═══════════════════════════════════════════════
+// AUTO REDIRECT
+// ═══════════════════════════════════════════════
+function autoRedirect() {
+  const hash = location.hash.replace("#","");
+  const registered = appState.player && appState.player.isActive;
+  if (!registered && (hash==="" || hash==="faction-select" || hash==="home")) {
+    navigateTo("faction-select");
+  } else if (registered && (hash==="" || hash==="faction-select")) {
+    navigateTo("home");
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SIDEBAR UPDATE
+// ═══════════════════════════════════════════════
+function updateSidebar() {
+  const p = appState.player;
+  const rpg = appState.rpg;
+  if (!p || !p.isActive) return;
+
+  const fDef = getFactionDef(p.guildId);
+  const level = rpg ? Number(rpg.level) : 1;
+  const exp   = rpg ? Number(rpg.exp)   : 0;
+  const rank  = getRank(level);
+  const xpForNext = getLevelXp(level+1);
+  const pct = Math.min(100, Math.floor((exp / xpForNext)*100));
+
+  document.getElementById("sidebar-avatar").textContent = fDef.icon[0].toUpperCase();
+  document.getElementById("sidebar-name").textContent = fmt(appState.account);
+  document.getElementById("sidebar-rank").textContent = `Level ${level} ${rank}`;
+  document.getElementById("sidebar-xp-label").textContent = `${exp.toLocaleString()} / ${xpForNext.toLocaleString()}`;
+  document.getElementById("sidebar-xp-bar").style.width = pct+"%";
+  document.getElementById("sidebar-faction-badge").classList.remove("hidden");
+  document.getElementById("sidebar-faction-label").textContent = fDef.name;
+
+  document.getElementById("sb-tvrn-bal").textContent = fmtTvrn(appState.balanceTvrn);
+  document.getElementById("sb-usdc-bal").textContent = fmtUsdc(appState.balanceUsdc);
+}
+
+// ═══════════════════════════════════════════════
+// ROUTING
+// ═══════════════════════════════════════════════
+const ROUTE_MAP = {
+  "":                 "route-faction-select",
+  "faction-select":   "route-faction-select",
+  "create":           "route-character-create",
+  "home":             "route-faction-home",
+  "quests":           "route-quest-board",
+  "character":        "route-character-sheet",
+  "equipment":        "route-equipment",
+  "wars":             "route-faction-wars",
+  "governance":       "route-governance",
+  "tokens":           "route-token-staking"
+};
+
+function navigateTo(route, param=null) {
+  let hash = route;
+  if (param) hash = `${route}/${param}`;
+  location.hash = hash;
+}
+
+function handleRoute() {
+  const full = location.hash.replace("#","");
+  const parts = full.split("/");
+  const base = parts[0];
+  const param = parts[1] || null;
+
+  // Hide all routes
+  document.querySelectorAll(".route-view").forEach(v=>v.classList.remove("active"));
+
+  // Update nav active state
+  document.querySelectorAll("[data-nav]").forEach(b=>{
+    b.classList.toggle("active", b.dataset.nav === base);
+  });
+
+  if (base === "quest" && param) {
+    document.getElementById("route-quest-detail").classList.add("active");
+    appState.currentRoute = "quest-detail";
+    loadQuestDetail(param);
+    return;
+  }
+  if (base === "agent" && param) {
+    document.getElementById("route-agent-profile").classList.add("active");
+    appState.currentRoute = "agent-profile";
+    loadAgentProfile(param);
+    return;
+  }
+  if (base === "faction" && param) {
+    document.getElementById("route-faction-hall").classList.add("active");
+    appState.currentRoute = "faction-hall";
+    loadFactionHall(param);
+    return;
+  }
+
+  const routeId = ROUTE_MAP[base] || "route-faction-select";
+  const el = document.getElementById(routeId);
+  if (el) el.classList.add("active");
+  appState.currentRoute = base;
+
+  // Load route data
+  if (base === "faction-select") renderFactionSelect();
+  if (base === "create") renderWizard();
+  if (base === "home") renderHome();
+  if (base === "quests") loadQuestBoard();
+  if (base === "character") renderCharacterSheet();
+  if (base === "equipment") loadEquipment();
+  if (base === "wars") loadFactionWars();
+  if (base === "governance") loadGovernance();
+  if (base === "tokens") renderTokenStaking();
+}
+
+window.addEventListener("hashchange", handleRoute);
+
+// nav button clicks
+document.querySelectorAll("[data-nav]").forEach(btn => {
+  btn.addEventListener("click", () => navigateTo(btn.dataset.nav));
+});
+
+// ═══════════════════════════════════════════════
+// ROUTE: FACTION SELECT
+// ═══════════════════════════════════════════════
+function renderFactionSelect() {
+  const grid = document.getElementById("faction-select-grid");
+  grid.innerHTML = FACTION_DEFINITIONS.map(f => `
+    <div class="faction-select-card panel-soft rounded-[24px] p-5 faction-${f.slug}" onclick="navigateTo('faction/${f.id}')"
+         style="--faction:${f.color};--faction-dim:rgba(${hexToRgb(f.color)},0.12)">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
+             style="background:rgba(${hexToRgb(f.color)},0.15);border:1px solid rgba(${hexToRgb(f.color)},0.35)">
+          <span class="material-symbols-outlined text-[26px]" style="color:${f.color}">${f.icon}</span>
+        </div>
+        <div class="flex-1">
+          <h3 class="heading-font text-base font-bold" style="color:${f.color}">${f.name}</h3>
+          <p class="text-xs text-[var(--muted)] mt-1">${f.bonus}</p>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t" style="border-color:rgba(${hexToRgb(f.color)},0.18)">
+        <div class="flex justify-between text-xs">
+          <span class="text-[var(--muted)]">Members</span>
+          <span class="font-mono font-bold" style="color:${f.color}" id="fc-members-${f.id}">—</span>
+        </div>
+        <div class="flex justify-between text-xs mt-1">
+          <span class="text-[var(--muted)]">Completions</span>
+          <span class="font-mono font-bold" style="color:${f.color}" id="fc-comp-${f.id}">—</span>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  // Fill on-chain stats if loaded
+  appState.factions.forEach((f,i)=>{
+    const mc = document.getElementById(`fc-members-${i}`);
+    const cc = document.getElementById(`fc-comp-${i}`);
+    if (mc) mc.textContent = f.memberCount?.toString() || "0";
+    if (cc) cc.textContent = f.totalCompletions?.toString() || "0";
+  });
+
+  loadLandingStats();
+}
+
+async function loadLandingStats() {
+  try {
+    const ro = getRO();
+    const escrow = new ethers.Contract(getAddrs().tavernEscrow, ESCROW_ABI, ro);
+    const nextId = await escrow.nextQuestId();
+    document.getElementById("stat-total-quests").textContent = nextId.toString();
+  } catch(e) {}
+
+  let totalMembers = 0;
+  let totalVol = 0n;
+  appState.factions.forEach(f => {
+    totalMembers += Number(f.memberCount||0n);
+    totalVol += BigInt(f.totalVolume||0n);
+  });
+  document.getElementById("stat-agents").textContent = totalMembers;
+  document.getElementById("stat-volume").textContent = fmtUsdc(totalVol);
+}
+
+function hexToRgb(hex) {
+  const h = hex.replace("#","");
+  return `${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;
+}
+
+function escHtml(v) {
+  return String(v??"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: CHARACTER CREATE WIZARD
+// ═══════════════════════════════════════════════
+function renderWizard() {
+  // Faction grid
+  const fg = document.getElementById("wizard-faction-grid");
+  fg.innerHTML = FACTION_DEFINITIONS.map(f => `
+    <div class="faction-select-card rounded-[18px] p-4 cursor-pointer faction-${f.slug}"
+         style="--faction:${f.color};--faction-dim:rgba(${hexToRgb(f.color)},0.12)"
+         onclick="selectWizardFaction(${f.id},this)">
+      <span class="material-symbols-outlined text-[28px] block mb-2" style="color:${f.color}">${f.icon}</span>
+      <p class="heading-font text-xs font-bold" style="color:${f.color}">${f.name}</p>
+      <p class="text-[10px] text-[var(--muted)] mt-0.5">${f.bonus}</p>
+    </div>
+  `).join("");
+
+  // Class grid
+  const cg = document.getElementById("wizard-class-grid");
+  cg.innerHTML = CLASS_DEFINITIONS.map(c => `
+    <div class="faction-select-card rounded-[18px] p-4 cursor-pointer"
+         onclick="selectWizardClass('${c.name}',this)">
+      <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-[24px]" style="color:var(--faction,#00e5ff)">${c.icon}</span>
+        <div>
+          <p class="heading-font text-sm font-bold">${c.name}</p>
+          <p class="text-xs text-[var(--muted)] mt-0.5">${c.passive}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  document.getElementById("confirm-network").textContent = NETWORK_CONFIG[appState.network].name;
+  wizardNext(1);
+}
+
+function selectWizardFaction(id, el) {
+  document.querySelectorAll("#wizard-faction-grid .faction-select-card").forEach(c=>c.classList.remove("picked"));
+  el.classList.add("picked");
+  appState.wizardFactionId = id;
+  const def = getFactionDef(id);
+  document.getElementById("wizard-next-1").disabled = false;
+  document.getElementById("confirm-faction-name").textContent = def.name;
+  document.getElementById("confirm-guild-id").textContent = id;
+}
+
+function selectWizardClass(name, el) {
+  document.querySelectorAll("#wizard-class-grid .faction-select-card").forEach(c=>c.classList.remove("picked"));
+  el.classList.add("picked");
+  appState.wizardClass = name;
+  document.getElementById("wizard-next-2").disabled = false;
+  document.getElementById("confirm-class-name").textContent = name;
+}
+
+function wizardNext(step) {
+  document.querySelectorAll(".wizard-step").forEach(s=>s.classList.remove("active"));
+  document.getElementById(`wizard-step-${step}`).classList.add("active");
+  document.getElementById("wizard-step-num").textContent = step;
+  // Pips
+  for (let i=1;i<=3;i++) {
+    const pip = document.getElementById(`pip-${i}`);
+    pip.style.background = i <= step ? "var(--faction,#00e5ff)" : "rgba(255,255,255,0.1)";
+  }
+}
+
+async function doRegister() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  if (appState.wizardFactionId === null) { pushToast("Select a faction","error"); return; }
+  if (!appState.wizardClass) { pushToast("Select a class","error"); return; }
+
+  const modelType = document.getElementById("wizard-model-type").value.trim() || appState.wizardClass;
+
+  await performWrite("Register Character", async () => {
+    const registry = getContract("tavernRegistry", REGISTRY_ABI, true);
+    const tx = await registry.joinGuild(appState.wizardFactionId, modelType);
+    return tx;
+  });
+
+  // Save game layer
+  appState.playerClass = appState.wizardClass;
+  appState.playerFactionOverride = appState.wizardFactionId;
+  saveGameLayer();
+  applyFactionTheme(appState.wizardFactionId);
+
+  await bootData();
+  navigateTo("home");
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: HOME
+// ═══════════════════════════════════════════════
+function renderHome() {
+  const p = appState.player;
+  if (!p || !p.isActive) { navigateTo("faction-select"); return; }
+
+  const fDef = getFactionDef(p.guildId);
+  const rpg  = appState.rpg;
+  const level = rpg ? Number(rpg.level) : 1;
+  const exp   = rpg ? Number(rpg.exp)   : 0;
+  const rank  = getRank(level);
+  const xpNext= getLevelXp(level+1);
+  const pct   = Math.min(100, Math.floor((exp/xpNext)*100));
+
+  document.getElementById("home-faction-name").textContent  = fDef.name;
+  document.getElementById("home-faction-bonus").textContent = fDef.bonus;
+  document.getElementById("home-faction-icon").innerHTML    = `<span class="material-symbols-outlined" style="color:${fDef.color};font-size:32px">${fDef.icon}</span>`;
+  document.getElementById("home-level").textContent = level;
+  document.getElementById("home-rank").textContent  = rank;
+  document.getElementById("home-xp").textContent    = `${exp.toLocaleString()} XP`;
+  document.getElementById("home-xp-bar").style.width = pct+"%";
+
+  loadHomeQuests();
+  loadHomeMembers(Number(p.guildId));
+}
+
+async function loadHomeQuests() {
+  const el = document.getElementById("home-recent-quests");
+  el.innerHTML = `<p class="text-sm text-[var(--muted)] text-center py-4">Loading...</p>`;
+  try {
+    const ro = getRO();
+    const escrow = new ethers.Contract(getAddrs().tavernEscrow, ESCROW_ABI, ro);
+    const nextId = await escrow.nextQuestId();
+    const start = Math.max(1, Number(nextId)-5);
+    const ids = [];
+    for (let i = Number(nextId)-1; i >= start; i--) ids.push(i);
+    const quests = await Promise.all(ids.map(i=>escrow.quests(i)));
+    el.innerHTML = quests.map((q,idx) => {
+      const tier = getDifficultyTier(q.depositAmount);
+      const state = QUEST_STATES[q.state] || "Unknown";
+      return `<div class="panel-soft rounded-[16px] p-3 flex items-center gap-3 cursor-pointer hover:border-[var(--faction,#00e5ff)]" onclick="navigateTo('quest','${ids[idx]}')">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${tier.cls}">${tier.name}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full state-${state.toLowerCase()}">${state}</span>
+          </div>
+          <p class="text-xs font-mono text-[var(--muted)] truncate">Quest #${ids[idx]} — ${fmt(q.client)}</p>
+        </div>
+        <span class="text-sm font-bold font-mono" style="color:var(--faction,#00e5ff)">${fmtUsdc(q.depositAmount)}</span>
+      </div>`;
+    }).join("") || `<p class="text-sm text-[var(--muted)] text-center py-4">No quests yet</p>`;
+  } catch(e) { el.innerHTML = `<p class="text-xs text-[var(--muted)] text-center py-4">Failed to load</p>`; }
+}
+
+async function loadHomeMembers(guildId) {
+  const el = document.getElementById("home-faction-members");
+  const countEl = document.getElementById("home-member-count");
+  el.innerHTML = `<p class="text-sm text-[var(--muted)] text-center py-4">Loading...</p>`;
+  try {
+    const ro = getRO();
+    const guild = new ethers.Contract(getAddrs().tavernGuild, GUILD_ABI, ro);
+    const members = await guild.getGuildMembers(guildId);
+    countEl.textContent = members.length;
+    if (!members.length) { el.innerHTML = `<p class="text-sm text-[var(--muted)] text-center py-4">No members yet</p>`; return; }
+    el.innerHTML = members.slice(0,8).map(addr=>`
+      <div class="flex items-center gap-3 py-1.5 cursor-pointer hover:opacity-80" onclick="navigateTo('agent','${addr}')">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style="background:var(--faction-dim);color:var(--faction,#00e5ff)">${addr.slice(2,4).toUpperCase()}</div>
+        <span class="font-mono text-xs text-[var(--muted)]">${fmt(addr)}</span>
+        ${addr.toLowerCase()===appState.account?.toLowerCase() ? '<span class="badge rounded-full px-2 py-0.5 text-[10px]">You</span>' : ""}
+      </div>
+    `).join("") + (members.length>8 ? `<p class="text-xs text-[var(--muted)] mt-2">+${members.length-8} more</p>` : "");
+  } catch(e) { el.innerHTML = `<p class="text-xs text-[var(--muted)] text-center py-4">Failed to load</p>`; }
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: QUEST BOARD
+// ═══════════════════════════════════════════════
+let allQuests = [];
+let questFilter = "all";
+
+async function loadQuestBoard() {
+  const grid = document.getElementById("quest-board-grid");
+  grid.innerHTML = `<div class="col-span-full text-center py-12 text-[var(--muted)]"><span class="material-symbols-outlined text-[40px] block mb-2 opacity-40">hourglass_empty</span>Loading quests...</div>`;
+  try {
+    const ro = getRO();
+    const escrow = new ethers.Contract(getAddrs().tavernEscrow, ESCROW_ABI, ro);
+    const nextId = Number(await escrow.nextQuestId());
+    const count = Math.min(nextId, 30);
+    const ids = [];
+    for (let i = nextId-1; i >= Math.max(0, nextId-count); i--) ids.push(i);
+    const rawQuests = await Promise.all(ids.map(i=>escrow.quests(i)));
+    allQuests = rawQuests.map((q,idx)=>({...q, _id: ids[idx]}));
+    renderQuestGrid();
+  } catch(e) {
+    grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-400">Failed to load quests: ${extractErrorMessage(e)}</div>`;
+  }
+}
+
+function filterQuests(f, btn) {
+  questFilter = f;
+  document.querySelectorAll("[data-filter]").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderQuestGrid();
+}
+
+function renderQuestGrid() {
+  const grid = document.getElementById("quest-board-grid");
+  let filtered = allQuests;
+  if (questFilter === "open")   filtered = allQuests.filter(q=>Number(q.state)===1);
+  if (questFilter === "mine")   filtered = allQuests.filter(q=>q.client?.toLowerCase()===appState.account?.toLowerCase()||q.agent?.toLowerCase()===appState.account?.toLowerCase());
+  if (questFilter === "common") filtered = allQuests.filter(q=>getDifficultyTier(q.depositAmount).name==="Common");
+  if (questFilter === "rare")   filtered = allQuests.filter(q=>["Rare","Epic","Legendary"].includes(getDifficultyTier(q.depositAmount).name));
+  if (questFilter === "epic")   filtered = allQuests.filter(q=>["Epic","Legendary"].includes(getDifficultyTier(q.depositAmount).name));
+
+  if (!filtered.length) { grid.innerHTML = `<div class="col-span-full text-center py-12 text-[var(--muted)]">No quests match this filter</div>`; return; }
+
+  grid.innerHTML = filtered.map(q=>{
+    const tier  = getDifficultyTier(q.depositAmount);
+    const state = QUEST_STATES[Number(q.state)] || "Unknown";
+    const stLow = state.toLowerCase();
+    const isClient = q.client?.toLowerCase()===appState.account?.toLowerCase();
+    const isAgent  = q.agent?.toLowerCase()===appState.account?.toLowerCase();
+    const accept   = canAcceptQuest(q);
+    const canAcc   = Number(q.state)===1 && !isAgent && !isClient && accept.ok;
+    return `<div class="quest-card panel-soft rounded-[22px] p-4 cursor-pointer" onclick="navigateTo('quest','${q._id}')">
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <div class="flex gap-2 flex-wrap">
+          <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${tier.cls}">${tier.name}</span>
+          <span class="text-xs px-2 py-0.5 rounded-full state-${stLow}">${state}</span>
+          ${isClient?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Client</span>":""}
+          ${isAgent?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Agent</span>":""}
+        </div>
+        <span class="text-sm font-bold font-mono flex-shrink-0" style="color:var(--faction,#00e5ff)">${fmtUsdc(q.depositAmount)}</span>
+      </div>
+      <p class="text-xs text-[var(--muted)] mb-1">Quest <span class="font-mono font-bold text-[var(--ink)]">#${q._id}</span></p>
+      <p class="text-xs text-[var(--muted)] truncate">Client: <span class="font-mono">${fmt(q.client)}</span></p>
+      <p class="text-xs text-[var(--muted)] truncate">Agent: <span class="font-mono">${fmt(q.agent)}</span></p>
+      <div class="mt-3 flex items-center justify-between">
+        <span class="text-[10px] text-[var(--muted)]">Base XP: <span class="font-bold" style="color:var(--faction,#00e5ff)">${tier.baseXp}</span></span>
+        ${canAcc ? `<button class="action-button primary rounded-full px-3 py-1 text-xs font-semibold" onclick="event.stopPropagation();doAcceptQuest(${q._id})">Accept</button>` :
+          !accept.ok && Number(q.state)===1 ? `<span class="text-[10px] text-[var(--muted)]">${accept.reason}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ═══════════════════════════════════════════════
+// QUEST ACTIONS
+// ═══════════════════════════════════════════════
+async function doAcceptQuest(questId) {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  await performWrite("Accept Quest", async () => {
+    const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+    return await escrow.acceptQuest(questId);
+  });
+  await loadQuestBoard();
+}
+
+function openCreateQuestModal() {
+  document.getElementById("create-quest-modal").classList.remove("hidden");
+  // live tier preview
+  document.getElementById("cq-amount").addEventListener("input", updateQuestTierPreview);
+}
+function closeCreateQuestModal() {
+  document.getElementById("create-quest-modal").classList.add("hidden");
+}
+function updateQuestTierPreview() {
+  const amt = parseFloat(document.getElementById("cq-amount").value)||0;
+  const curr = document.getElementById("cq-currency").value;
+  const preview = document.getElementById("cq-tier-preview");
+  if (amt > 0 && curr === "usdc") {
+    const tier = getDifficultyTier(Math.floor(amt*1e6));
+    document.getElementById("cq-tier-label").textContent = tier.name;
+    document.getElementById("cq-xp-label").textContent   = tier.baseXp + " XP";
+    preview.classList.remove("hidden");
+  } else { preview.classList.add("hidden"); }
+}
+
+async function doCreateQuest() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  const agent   = document.getElementById("cq-agent").value.trim();
+  const briefUri= document.getElementById("cq-brief-uri").value.trim();
+  const briefHash=document.getElementById("cq-brief-hash").value.trim()||ethers.ZeroHash;
+  const currency= document.getElementById("cq-currency").value;
+  const amount  = parseFloat(document.getElementById("cq-amount").value)||0;
+
+  if (!ethers.isAddress(agent)) { pushToast("Invalid agent address","error"); return; }
+  if (!amount) { pushToast("Enter an amount","error"); return; }
+
+  const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+  const addrs  = getAddrs();
+
+  if (currency === "usdc") {
+    const amt6 = BigInt(Math.floor(amount*1e6));
+    // check/set allowance
+    const usdc = getContract("usdc", USDC_ABI, true);
+    const allowance = await usdc.allowance(appState.account, addrs.tavernEscrow);
+    if (allowance < amt6) {
+      await performWrite("Approve USDC", async () => {
+        return await usdc.approve(addrs.tavernEscrow, amt6 * 10n);
+      });
+    }
+    await performWrite("Create Quest", async () => {
+      const tx = await escrow.createQuest(agent, amt6, briefHash, briefUri);
+      return tx;
+    });
+  } else {
+    const amtWei = ethers.parseEther(amount.toString());
+    await performWrite("Create Quest (ETH)", async () => {
+      return await escrow.createQuest(agent, 0, briefHash, briefUri);
+    });
+  }
+  closeCreateQuestModal();
+  await loadQuestBoard();
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: QUEST DETAIL
+// ═══════════════════════════════════════════════
+async function loadQuestDetail(questId) {
+  const el = document.getElementById("quest-detail-content");
+  el.innerHTML = `<div class="text-center py-12 text-[var(--muted)]">Loading quest #${questId}...</div>`;
+  try {
+    const ro = getRO();
+    const escrow = new ethers.Contract(getAddrs().tavernEscrow, ESCROW_ABI, ro);
+    const [q, briefUri, score] = await Promise.all([
+      escrow.quests(questId),
+      escrow.questBriefUris(questId).catch(()=>""),
+      escrow.evaluationAvgScore(questId).catch(()=>0n)
+    ]);
+    const state = QUEST_STATES[Number(q.state)] || "Unknown";
+    const tier  = getDifficultyTier(q.depositAmount);
+    const isClient = q.client?.toLowerCase()===appState.account?.toLowerCase();
+    const isAgent  = q.agent?.toLowerCase()===appState.account?.toLowerCase();
+    const stateNum = Number(q.state);
+
+    el.innerHTML = `
+      <div class="panel rounded-[28px] p-6 mb-4">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+          <div>
+            <div class="flex gap-2 flex-wrap mb-2">
+              <span class="text-sm px-3 py-1 rounded-full font-semibold ${tier.cls}">${tier.name} Quest</span>
+              <span class="text-sm px-3 py-1 rounded-full state-${state.toLowerCase()}">${state}</span>
+            </div>
+            <h2 class="heading-font text-2xl font-bold">Quest #${questId}</h2>
+          </div>
+          <div class="text-right">
+            <p class="text-3xl font-bold heading-font" style="color:var(--faction,#00e5ff)">${fmtUsdc(q.depositAmount)}</p>
+            <p class="text-xs text-[var(--muted)] mt-1">${tier.baseXp} Base XP</p>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 mb-6">
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Client</p>
+            <p class="font-mono text-sm cursor-pointer hover:opacity-80" onclick="navigateTo('agent','${q.client}')">${fmt(q.client)} ${isClient?"(You)":""}</p>
+          </div>
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Agent</p>
+            <p class="font-mono text-sm cursor-pointer hover:opacity-80" onclick="navigateTo('agent','${q.agent}')">${fmt(q.agent)} ${isAgent?"(You)":""}</p>
+          </div>
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Created</p>
+            <p class="text-sm">${fmtTime(q.createdAt)}</p>
+          </div>
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Avg Score</p>
+            <p class="text-sm font-bold">${score ? (Number(score)/100).toFixed(2) : "—"} / 5.0</p>
+          </div>
+        </div>
+
+        ${briefUri ? `<div class="panel-soft rounded-[18px] p-4 mb-4">
+          <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Brief URI</p>
+          <a href="${briefUri}" target="_blank" class="text-sm break-all" style="color:var(--faction,#00e5ff)">${briefUri}</a>
+        </div>` : ""}
+
+        <div class="flex flex-wrap gap-3">
+          ${stateNum===1 && !isAgent && !isClient ? `<button class="action-button primary rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="doAcceptQuest(${questId})">Accept Quest</button>` : ""}
+          ${stateNum===1 && isClient ? `<button class="action-button primary rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="doFundQuestUSDC(${questId},${q.depositAmount})">Fund USDC</button>` : ""}
+          ${stateNum===2 && isAgent ? `<button class="action-button primary rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="openSubmitResultModal(${questId})">Submit Result</button>` : ""}
+          ${stateNum===4 && isClient ? `<button class="action-button primary rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="openEvalModal(${questId})">Evaluate</button>` : ""}
+          ${isAgent && stateNum>=2 && stateNum<=4 ? `<button class="action-button ghost rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="doHeartbeat(${questId})">Heartbeat</button>` : ""}
+          ${isClient && stateNum===1 ? `<button class="action-button warn rounded-xl px-5 py-2.5 text-sm font-semibold" onclick="doCancelQuest(${questId})">Cancel</button>` : ""}
+        </div>
+      </div>
+
+      <!-- Submit Result Modal -->
+      <div id="submit-result-modal" class="hidden panel rounded-[24px] p-5">
+        <h3 class="heading-font text-lg font-bold mb-4">Submit Result</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Result URI</label>
+            <input id="sr-uri" class="field text-sm" placeholder="ipfs://..."/>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Result Hash (bytes32)</label>
+            <input id="sr-hash" class="field text-sm font-mono" placeholder="0x0000..."/>
+          </div>
+          <button class="action-button primary w-full rounded-xl py-2.5 text-sm font-semibold" onclick="doSubmitResult(${questId})">Submit</button>
+        </div>
+      </div>
+
+      <!-- Evaluation Modal -->
+      <div id="eval-modal" class="hidden panel rounded-[24px] p-5">
+        <h3 class="heading-font text-lg font-bold mb-4">Evaluate Quest</h3>
+        <div class="space-y-4">
+          ${["Accuracy","Completeness","Speed","Communication","Overall"].map((cat,i)=>`
+            <div>
+              <p class="text-xs text-[var(--muted)] mb-2">${cat}</p>
+              <div class="flex gap-2" id="score-row-${i}">
+                ${[1,2,3,4,5].map(s=>`<button class="score-chip rounded-full w-9 h-9 text-sm font-bold" onclick="setScore(${i},${s})">${s}</button>`).join("")}
+              </div>
+            </div>
+          `).join("")}
+          <div>
+            <label class="text-xs uppercase tracking-widest text-[var(--muted)] block mb-2">Comment (optional)</label>
+            <textarea id="eval-comment" class="field text-sm" rows="2" placeholder="Leave feedback..."></textarea>
+          </div>
+          <button class="action-button primary w-full rounded-xl py-2.5 text-sm font-semibold" onclick="doSubmitEvaluation(${questId})">Submit Evaluation</button>
+        </div>
+      </div>
+    `;
+
+    // Track score selections
+    window._evalScores = [3,3,3,3,3];
+  } catch(e) {
+    el.innerHTML = `<div class="panel rounded-[28px] p-6 text-red-400">Error: ${extractErrorMessage(e)}</div>`;
+  }
+}
+
+function openSubmitResultModal(questId) {
+  document.getElementById("submit-result-modal").classList.remove("hidden");
+}
+function openEvalModal(questId) {
+  document.getElementById("eval-modal").classList.remove("hidden");
+}
+function setScore(row, val) {
+  window._evalScores[row] = val;
+  document.querySelectorAll(`#score-row-${row} .score-chip`).forEach((c,i)=>{
+    c.classList.toggle("active", i+1===val);
+  });
+}
+async function doSubmitResult(questId) {
+  const uri  = document.getElementById("sr-uri").value.trim();
+  const hash = document.getElementById("sr-hash").value.trim() || ethers.ZeroHash;
+  if (!uri) { pushToast("Enter result URI","error"); return; }
+  await performWrite("Submit Result", async()=>{
+    const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+    return await escrow.submitResult(questId, hash, uri);
+  });
+  loadQuestDetail(questId);
+}
+async function doSubmitEvaluation(questId) {
+  const scores = window._evalScores || [3,3,3,3,3];
+  const comment = document.getElementById("eval-comment").value.trim();
+  await performWrite("Submit Evaluation", async()=>{
+    const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+    return await escrow.submitEvaluation(questId, scores, comment, []);
+  });
+  loadQuestDetail(questId);
+}
+async function doHeartbeat(questId) {
+  await performWrite("Heartbeat", async()=>{
+    const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+    return await escrow.recordHeartbeat(questId);
+  });
+}
+async function doCancelQuest(questId) {
+  confirmAction("Cancel Quest", "This will cancel the quest and return funds. Continue?", async()=>{
+    await performWrite("Cancel Quest", async()=>{
+      const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+      return await escrow.cancelQuest(questId);
+    });
+    loadQuestDetail(questId);
+  });
+}
+async function doFundQuestUSDC(questId, amount) {
+  const addrs = getAddrs();
+  const usdc = getContract("usdc", USDC_ABI, true);
+  const allowance = await usdc.allowance(appState.account, addrs.tavernEscrow);
+  if (allowance < BigInt(amount)) {
+    await performWrite("Approve USDC", async()=> await usdc.approve(addrs.tavernEscrow, BigInt(amount)*10n));
+  }
+  await performWrite("Fund Quest", async()=>{
+    const escrow = getContract("tavernEscrow", ESCROW_ABI, true);
+    return await escrow.fundQuestUSDC(questId);
+  });
+  loadQuestDetail(questId);
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: CHARACTER SHEET
+// ═══════════════════════════════════════════════
+function renderCharacterSheet() {
+  const p   = appState.player;
+  const rpg = appState.rpg;
+  if (!appState.account) {
+    document.getElementById("char-quest-history").innerHTML = `<p class="text-sm text-[var(--muted)] text-center py-6">Connect wallet</p>`;
+    return;
+  }
+  const fDef = p && p.isActive ? getFactionDef(p.guildId) : FACTION_DEFINITIONS[0];
+  const level = rpg ? Number(rpg.level) : 1;
+  const exp   = rpg ? Number(rpg.exp)   : 0;
+  const rank  = getRank(level);
+  const xpNext= getLevelXp(level+1);
+  const pct   = Math.min(100, Math.floor((exp/xpNext)*100));
+  const cls   = CLASS_DEFINITIONS.find(c=>c.name===appState.playerClass) || CLASS_DEFINITIONS[0];
+
+  document.getElementById("char-address-display").textContent = appState.account;
+  document.getElementById("char-faction-badge").textContent   = fDef.name;
+  document.getElementById("char-class-badge").textContent     = cls.name;
+  document.getElementById("char-level").textContent           = level;
+  document.getElementById("char-xp-label").textContent        = `${exp.toLocaleString()} / ${xpNext.toLocaleString()} XP`;
+  document.getElementById("char-xp-bar").style.width          = pct+"%";
+  document.getElementById("char-rank").textContent            = rank;
+  document.getElementById("char-quests-done").textContent     = p ? p.questsDone?.toString() : "0";
+  document.getElementById("char-reputation").textContent      = p ? p.reputation?.toString() : "0";
+  document.getElementById("char-total-earned").textContent    = p ? fmtUsdc(p.totalEarned||0n) : "$0";
+  document.getElementById("char-joined").textContent          = p ? fmtDate(p.joinedAt) : "—";
+  document.getElementById("char-claimable").textContent       = fmtTvrn(appState.claimable);
+  document.getElementById("char-class-icon").textContent      = cls.icon;
+  document.getElementById("char-class-name").textContent      = cls.name;
+  document.getElementById("char-class-passive").textContent   = cls.passive;
+
+  loadCharHistory();
+  loadCharLoadout();
+}
+
+function switchCharTab(tab, btn) {
+  document.querySelectorAll(".char-tab-pane").forEach(p=>p.classList.add("hidden"));
+  document.getElementById(`char-tab-${tab}`).classList.remove("hidden");
+  document.querySelectorAll("[data-char-tab]").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+async function loadCharHistory() {
+  const el = document.getElementById("char-quest-history");
+  el.innerHTML = `<p class="text-sm text-[var(--muted)] text-center py-4">Loading...</p>`;
+  try {
+    const ro = getRO();
+    const escrow = new ethers.Contract(getAddrs().tavernEscrow, ESCROW_ABI, ro);
+    const nextId = Number(await escrow.nextQuestId());
+    const ids = [];
+    for (let i=nextId-1; i>=Math.max(0,nextId-50); i--) ids.push(i);
+    const quests = await Promise.all(ids.map(i=>escrow.quests(i)));
+    const mine = quests.filter(q=>q.client?.toLowerCase()===appState.account?.toLowerCase()||q.agent?.toLowerCase()===appState.account?.toLowerCase());
+    if (!mine.length) { el.innerHTML=`<p class="text-sm text-[var(--muted)] text-center py-6">No quests found</p>`; return; }
+    el.innerHTML = mine.map((q,i)=>{
+      const tier = getDifficultyTier(q.depositAmount);
+      const state= QUEST_STATES[Number(q.state)]||"Unknown";
+      const role = q.client?.toLowerCase()===appState.account?.toLowerCase()?"Client":"Agent";
+      return `<div class="panel-soft rounded-[16px] p-3 flex items-center gap-3 cursor-pointer" onclick="navigateTo('quest','${ids[i]}')">
+        <div class="flex-1 min-w-0">
+          <div class="flex gap-2 mb-1"><span class="${tier.cls} text-[10px] px-2 py-0.5 rounded-full font-semibold">${tier.name}</span><span class="badge rounded-full px-2 py-0.5 text-[10px]">${role}</span></div>
+          <p class="text-xs font-mono text-[var(--muted)]">Quest #${ids[i]} · ${fmtDate(q.createdAt)}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-bold" style="color:var(--faction,#00e5ff)">${fmtUsdc(q.depositAmount)}</p>
+          <p class="text-[10px] text-[var(--muted)]">${state}</p>
+        </div>
+      </div>`;
+    }).join("");
+  } catch(e) { el.innerHTML=`<p class="text-xs text-red-400 text-center py-4">${extractErrorMessage(e)}</p>`; }
+}
+
+async function loadCharLoadout() {
+  const el = document.getElementById("char-loadout-display");
+  if (!appState.account) return;
+  try {
+    const ro = getRO();
+    const eq = new ethers.Contract(getAddrs().tavernEquipment, EQUIPMENT_ABI, ro);
+    const [loadout, titleId] = await Promise.all([eq.getLoadout(appState.account), eq.activeTitle(appState.account)]);
+    appState.loadout = loadout;
+    appState.activeTitle = titleId;
+    const slotNames = ["Head","Body","Weapon","Shield","Cloak","Accessory"];
+    const slots = [loadout.head, loadout.body, loadout.weapon, loadout.shield, loadout.cloak, loadout.accessory];
+    el.innerHTML = slotNames.map((name,i)=>{
+      const itemId = slots[i];
+      const filled = itemId && BigInt(itemId) > 0n;
+      return `<div class="equip-slot ${filled?"filled":""} rounded-[16px] p-3 text-center">
+        <span class="material-symbols-outlined text-[20px] block mb-1" style="color:${filled?"var(--faction,#00e5ff)":"var(--muted)"}">military_tech</span>
+        <p class="text-xs font-semibold">${name}</p>
+        <p class="text-[10px] text-[var(--muted)] mt-0.5">${filled ? `#${itemId}` : "Empty"}</p>
+      </div>`;
+    }).join("");
+  } catch(e) { el.innerHTML=`<p class="text-xs text-[var(--muted)] col-span-full text-center py-4">Failed to load loadout</p>`; }
+}
+
+async function doClaimTvrn() {
+  pushToast("TVRN claim is handled via the operator router. Contact protocol admin.", "info");
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: AGENT PROFILE
+// ═══════════════════════════════════════════════
+async function loadAgentProfile(addr) {
+  const el = document.getElementById("agent-profile-content");
+  if (!ethers.isAddress(addr)) { el.innerHTML=`<p class="text-[var(--muted)] py-8">Invalid address</p>`; return; }
+  el.innerHTML = `<div class="text-center py-12 text-[var(--muted)]">Loading...</div>`;
+  try {
+    const ro = getRO();
+    const registry = new ethers.Contract(getAddrs().tavernRegistry, REGISTRY_ABI, ro);
+    const staking  = new ethers.Contract(getAddrs().tavernStaking,  STAKING_ABI,  ro);
+    const [agent, stake] = await Promise.all([registry.agents(addr), staking.stakes(addr)]);
+    const fDef = getFactionDef(agent.guildId);
+    const isStaked = BigInt(stake.amount) > 0n;
+    el.innerHTML = `
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-16 h-16 rounded-[18px] flex items-center justify-center text-2xl font-bold" style="background:rgba(${hexToRgb(fDef.color)},0.15);color:${fDef.color}">${addr.slice(2,4).toUpperCase()}</div>
+            <div>
+              <p class="font-mono text-sm font-bold">${fmt(addr)}</p>
+              <div class="flex gap-2 mt-1 flex-wrap">
+                <span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(${hexToRgb(fDef.color)},0.12);color:${fDef.color};border:1px solid rgba(${hexToRgb(fDef.color)},0.3)">${fDef.name}</span>
+                <span class="stake-badge ${isStaked?"":"inactive"} rounded-full px-2 py-0.5 text-xs">${isStaked?"Staked":"Not Staked"}</span>
+                <span class="badge rounded-full px-2 py-0.5 text-xs">${agent.isActive?"Active":"Inactive"}</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${fDef.color}">${agent.questsDone?.toString()||"0"}</p><p class="text-xs text-[var(--muted)]">Quests Done</p></div>
+            <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${fDef.color}">${agent.reputation?.toString()||"0"}</p><p class="text-xs text-[var(--muted)]">Reputation</p></div>
+            <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${fDef.color}">${fmtUsdc(agent.totalEarned||0n)}</p><p class="text-xs text-[var(--muted)]">Total Earned</p></div>
+            <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-sm font-bold heading-font" style="color:${fDef.color}">${fmtDate(agent.joinedAt)}</p><p class="text-xs text-[var(--muted)]">Joined</p></div>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Model Type</p>
+            <p class="text-sm font-mono">${agent.modelType||"—"}</p>
+          </div>
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">Staked Amount</p>
+            <p class="text-sm font-mono font-bold">${fmtTvrn(stake.amount)} TVRN</p>
+          </div>
+          <div class="panel-soft rounded-[18px] p-4">
+            <p class="text-xs uppercase tracking-widest text-[var(--muted)] mb-2">On-Chain Address</p>
+            <a href="${getExplorer()}/address/${addr}" target="_blank" class="text-xs font-mono break-all" style="color:var(--faction,#00e5ff)">${addr}</a>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch(e) { el.innerHTML=`<p class="text-red-400 py-8">Error: ${extractErrorMessage(e)}</p>`; }
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: EQUIPMENT
+// ═══════════════════════════════════════════════
+async function loadEquipment() {
+  if (!appState.account) {
+    document.getElementById("equipment-inventory-grid").innerHTML = `<p class="col-span-full text-sm text-[var(--muted)] text-center py-8">Connect wallet</p>`;
+    return;
+  }
+  renderLoadoutSlots();
+  await loadInventory();
+}
+
+function renderLoadoutSlots() {
+  const el = document.getElementById("equip-loadout-slots");
+  const slotIcons = ["face","checkroom","swords","shield","airline_seat_flat","diamond"];
+  const slotNames = ["Head","Body","Weapon","Shield","Cloak","Accessory"];
+  const l = appState.loadout;
+  const slots = l ? [l.head,l.body,l.weapon,l.shield,l.cloak,l.accessory] : [0n,0n,0n,0n,0n,0n];
+  el.innerHTML = slotNames.map((name,i)=>{
+    const filled = slots[i] && BigInt(slots[i])>0n;
+    return `<div class="equip-slot ${filled?"filled":""} rounded-[14px] p-3 flex items-center gap-3">
+      <span class="material-symbols-outlined text-[20px]" style="color:${filled?"var(--faction,#00e5ff)":"var(--muted)"}">${slotIcons[i]}</span>
+      <div class="flex-1">
+        <p class="text-xs font-semibold">${name}</p>
+        <p class="text-[10px] text-[var(--muted)]">${filled?`Item #${slots[i]}`:"Empty"}</p>
+      </div>
+      ${filled?`<button class="action-button ghost rounded-lg px-2 py-1 text-[10px]" onclick="doUnequip(${i+1})">Remove</button>`:""}
+    </div>`;
+  }).join("");
+
+  const titleEl = document.getElementById("equip-active-title");
+  const t = appState.activeTitle;
+  titleEl.textContent = t && BigInt(t)>0n ? `Title #${t}` : "No active title";
+}
+
+let allItems = [];
+let equipFilter = "all";
+
+async function loadInventory() {
+  const grid = document.getElementById("equipment-inventory-grid");
+  grid.innerHTML = `<p class="col-span-full text-sm text-[var(--muted)] text-center py-8">Loading inventory...</p>`;
+  try {
+    const ro = getRO();
+    const eq = new ethers.Contract(getAddrs().tavernEquipment, EQUIPMENT_ABI, ro);
+    const [count, loadout, titleId] = await Promise.all([
+      eq.itemCount(),
+      eq.getLoadout(appState.account),
+      eq.activeTitle(appState.account)
+    ]);
+    appState.loadout = loadout;
+    appState.activeTitle = titleId;
+    renderLoadoutSlots();
+
+    const itemCount = Number(count);
+    const ids = Array.from({length:itemCount},(_,i)=>i+1);
+    const [defs, bals] = await Promise.all([
+      Promise.all(ids.map(i=>eq.items(i).catch(()=>null))),
+      Promise.all(ids.map(i=>eq.balanceOf(appState.account,i).catch(()=>0n)))
+    ]);
+    allItems = ids.map((id,i)=>({id,def:defs[i],balance:bals[i]})).filter(x=>x.def&&BigInt(x.balance)>0n);
+    renderInventory();
+  } catch(e) {
+    grid.innerHTML = `<p class="col-span-full text-xs text-red-400 text-center py-8">${extractErrorMessage(e)}</p>`;
+  }
+}
+
+function filterEquipment(f, btn) {
+  equipFilter = f;
+  document.querySelectorAll("[data-eq-filter]").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderInventory();
+}
+
+function renderInventory() {
+  const grid = document.getElementById("equipment-inventory-grid");
+  let items = allItems;
+  if (equipFilter==="equipment") items = allItems.filter(x=>x.def.category===0);
+  if (equipFilter==="title")     items = allItems.filter(x=>x.def.category===1);
+  if (!items.length) { grid.innerHTML=`<p class="col-span-full text-sm text-[var(--muted)] text-center py-8">No items</p>`; return; }
+  grid.innerHTML = items.map(({id,def,balance})=>{
+    const rarityClass = RARITY_CLASSES[def.rarity]||"rarity-common";
+    const rarityName  = RARITY_NAMES[def.rarity]||"Common";
+    const slotName    = SLOT_NAMES[def.slot]||"None";
+    const isTitle     = def.category===1;
+    return `<div class="panel-soft rounded-[18px] p-3 border ${rarityClass} cursor-pointer hover:opacity-90">
+      <div class="w-full aspect-square rounded-[12px] mb-2 flex items-center justify-center" style="background:var(--faction-dim)">
+        <span class="material-symbols-outlined text-[32px]" style="color:var(--faction,#00e5ff)">${isTitle?"workspace_premium":"military_tech"}</span>
+      </div>
+      <p class="text-xs font-bold heading-font truncate mb-1">${def.name||`Item #${id}`}</p>
+      <p class="text-[10px] text-[var(--muted)] mb-2">${rarityName} · ${isTitle?"Title":slotName}</p>
+      <div class="flex gap-1">
+        ${!isTitle?`<button class="action-button primary flex-1 rounded-lg py-1 text-[10px] font-semibold" onclick="doEquip(${id})">Equip</button>`:""}
+        ${isTitle?`<button class="action-button primary flex-1 rounded-lg py-1 text-[10px] font-semibold" onclick="doEquipTitle(${id})">Set Title</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function doEquip(itemId) {
+  await performWrite("Equip Item", async()=>{
+    const eq = getContract("tavernEquipment", EQUIPMENT_ABI, true);
+    return await eq.equip(itemId);
+  });
+  await loadEquipment();
+}
+async function doUnequip(slot) {
+  await performWrite("Unequip", async()=>{
+    const eq = getContract("tavernEquipment", EQUIPMENT_ABI, true);
+    return await eq.unequip(slot);
+  });
+  await loadEquipment();
+}
+async function doEquipTitle(itemId) {
+  await performWrite("Set Title", async()=>{
+    const eq = getContract("tavernEquipment", EQUIPMENT_ABI, true);
+    return await eq.equipTitle(itemId);
+  });
+  await loadEquipment();
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: FACTION HALL
+// ═══════════════════════════════════════════════
+async function loadFactionHall(factionId) {
+  const el = document.getElementById("faction-hall-content");
+  const id = parseInt(factionId);
+  const fDef = getFactionDef(id);
+  el.innerHTML = `<div class="text-center py-8 text-[var(--muted)]">Loading ${fDef.name}...</div>`;
+  try {
+    const ro = getRO();
+    const guild = new ethers.Contract(getAddrs().tavernGuild, GUILD_ABI, ro);
+    const [data, members] = await Promise.all([guild.guilds(id), guild.getGuildMembers(id)]);
+    const col = fDef.color;
+    const rgb = hexToRgb(col);
+    el.innerHTML = `
+      <div class="panel rounded-[28px] p-6 mb-6" style="border-color:rgba(${rgb},0.25)">
+        <div class="flex items-center gap-5 mb-6">
+          <div class="w-20 h-20 rounded-[22px] flex items-center justify-center" style="background:rgba(${rgb},0.15);border:2px solid rgba(${rgb},0.4)">
+            <span class="material-symbols-outlined text-[40px]" style="color:${col}">${fDef.icon}</span>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] mb-1" style="color:${col}">${fDef.bonus}</p>
+            <h2 class="heading-font text-3xl font-bold" style="color:${col}">${fDef.name}</h2>
+            <p class="text-sm text-[var(--muted)] mt-1">Guild Level ${data.guildLevel?.toString()||"1"}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${col}">${data.memberCount?.toString()||"0"}</p><p class="text-xs text-[var(--muted)]">Members</p></div>
+          <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${col}">${data.totalCompletions?.toString()||"0"}</p><p class="text-xs text-[var(--muted)]">Completions</p></div>
+          <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${col}">${fmtUsdc(data.totalVolume||0n)}</p><p class="text-xs text-[var(--muted)]">Volume</p></div>
+          <div class="panel-soft rounded-[16px] p-3 text-center"><p class="text-xl font-bold heading-font" style="color:${col}">${data.guildExp?.toString()||"0"}</p><p class="text-xs text-[var(--muted)]">Guild XP</p></div>
+        </div>
+        ${appState.player && appState.player.guildId?.toString() !== id.toString() ? `
+          <button class="action-button primary rounded-xl px-6 py-3 text-sm font-semibold" style="background:${col};color:#05090f" onclick="doJoinFaction(${id})">
+            Join ${fDef.name}
+          </button>` : appState.player && appState.player.guildId?.toString() === id.toString() ? `
+          <span class="badge-faction rounded-full px-4 py-2 text-sm font-semibold" style="background:rgba(${rgb},0.15);color:${col};border:1px solid rgba(${rgb},0.3)">Your Faction ✓</span>` : ""}
+      </div>
+      <h3 class="heading-font text-sm font-bold uppercase tracking-widest mb-4">Members (${members.length})</h3>
+      <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        ${members.map(addr=>`<div class="panel-soft rounded-[16px] p-3 flex items-center gap-3 cursor-pointer hover:opacity-80" onclick="navigateTo('agent','${addr}')">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(${rgb},0.15);color:${col}">${addr.slice(2,4).toUpperCase()}</div>
+          <div><p class="text-xs font-mono">${fmt(addr)}</p><p class="text-[10px] text-[var(--muted)]">Member</p></div>
+          ${addr.toLowerCase()===appState.account?.toLowerCase()?`<span class="badge rounded-full px-2 py-0.5 text-[10px] ml-auto">You</span>`:""}
+        </div>`).join("") || `<p class="col-span-full text-sm text-[var(--muted)] text-center py-6">No members yet</p>`}
+      </div>
+    `;
+  } catch(e) { el.innerHTML=`<p class="text-red-400 py-8">Error: ${extractErrorMessage(e)}</p>`; }
+}
+
+async function doJoinFaction(factionId) {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  const modelType = appState.playerClass || "Warrior";
+  await performWrite("Join Faction", async()=>{
+    const registry = getContract("tavernRegistry", REGISTRY_ABI, true);
+    return await registry.joinGuild(factionId, modelType);
+  });
+  applyFactionTheme(factionId);
+  await bootData();
+  loadFactionHall(factionId);
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: FACTION WARS
+// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// FACTION WARS — SCORING
+// ═══════════════════════════════════════════════
+function computeWarScore(f, maxCompletions, maxVolume, maxMembers, maxLevel) {
+  const c = maxCompletions > 0 ? (Number(f.totalCompletions||0) / maxCompletions) * 40 : 0;
+  const v = maxVolume > 0n     ? (Number(f.totalVolume||0n)     / Number(maxVolume))  * 30 : 0;
+  const m = maxMembers > 0     ? (Number(f.memberCount||0)      / maxMembers)         * 20 : 0;
+  const l = maxLevel > 0       ? (Number(f.guildLevel||0)       / maxLevel)           * 10 : 0;
+  return Math.round(c + v + m + l);
+}
+
+function warSeasonCountdown() {
+  // Season resets quarterly — next Q boundary from today
+  const now = new Date();
+  const nextQ = new Date(now);
+  nextQ.setMonth(Math.floor(now.getMonth() / 3) * 3 + 3, 1);
+  nextQ.setHours(0, 0, 0, 0);
+  const diff = nextQ - now;
+  if (diff <= 0) return "Resetting...";
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  return `${d}d ${h}h`;
+}
+
+async function loadFactionWars() {
+  const rankEl   = document.getElementById("wars-rankings");
+  const metricEl = document.getElementById("wars-metrics");
+  const cardEl   = document.getElementById("wars-faction-cards");
+  const loading  = `<div class="text-center py-8 text-[var(--muted)] text-sm">Loading...</div>`;
+  rankEl.innerHTML = metricEl.innerHTML = cardEl.innerHTML = loading;
+
+  // Season countdown
+  const cdEl = document.getElementById("wars-countdown");
+  if (cdEl) cdEl.textContent = warSeasonCountdown();
+
+  // Fetch on-chain faction data
+  try {
+    const ro = getRO();
+    const guild = new ethers.Contract(getAddrs().tavernGuild, GUILD_ABI, ro);
+    const raw = await Promise.all([0,1,2,3,4,5].map(i => guild.guilds(i)));
+    appState.factions = raw;
+  } catch(e) {
+    rankEl.innerHTML = `<p class="text-red-400 text-sm py-4">${escHtml(extractErrorMessage(e))}</p>`;
+    return;
+  }
+
+  const factions = appState.factions;
+
+  // Compute normalisation maxima
+  const maxCompletions = Math.max(1, ...factions.map(f => Number(f.totalCompletions||0)));
+  const maxVolume      = factions.reduce((acc,f) => BigInt(f.totalVolume||0n) > acc ? BigInt(f.totalVolume||0n) : acc, 1n);
+  const maxMembers     = Math.max(1, ...factions.map(f => Number(f.memberCount||0)));
+  const maxLevel       = Math.max(1, ...factions.map(f => Number(f.guildLevel||0)));
+  const maxScore       = 100; // theoretical max
+
+  // Build enriched faction objects with score
+  const enriched = factions.map((f, i) => ({
+    raw: f,
+    def: getFactionDef(i),
+    id:  i,
+    completions: Number(f.totalCompletions||0),
+    volume:      BigInt(f.totalVolume||0n),
+    members:     Number(f.memberCount||0),
+    level:       Number(f.guildLevel||0),
+    score:       computeWarScore(f, maxCompletions, maxVolume, maxMembers, maxLevel)
+  }));
+
+  // Sort by score descending
+  const ranked = [...enriched].sort((a,b) => b.score - a.score);
+  const topScore = Math.max(1, ranked[0].score);
+  const myFactionId = appState.player ? Number(appState.player.guildId) : -1;
+
+  const MEDALS = ["🥇","🥈","🥉","4","5","6"];
+  const RANK_LABELS = ["🥇","🥈","🥉","#4","#5","#6"];
+
+  // ── OVERALL RANKINGS ──────────────────────────────
+  rankEl.innerHTML = ranked.map((f, rank) => {
+    const col  = f.def.color;
+    const rgb  = hexToRgb(col);
+    const isMine = f.id === myFactionId;
+    const pct  = Math.max(3, Math.round((f.score / topScore) * 100));
+    const isTop = rank === 0;
+    const isBot = rank === ranked.length - 1;
+    return `
+    <div class="war-rank-row ${isMine ? "is-mine" : ""}">
+      <div class="heading-font font-bold text-center text-lg" style="color:${rank < 3 ? col : "var(--muted)"}">${RANK_LABELS[rank]}</div>
+      <div class="w-9 h-9 rounded-[11px] flex items-center justify-center flex-shrink-0"
+           style="background:rgba(${rgb},0.15);border:1px solid rgba(${rgb},0.25)">
+        <span class="material-symbols-outlined text-[18px]" style="color:${col}">${f.def.icon}</span>
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="heading-font text-sm font-bold" style="color:${col}">${escHtml(f.def.name)}</span>
+          ${isMine ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style="background:rgba(${rgb},0.2);color:${col}">YOU</span>` : ""}
+          ${isTop  ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style="background:rgba(216,169,51,0.15);color:#d8a933">👑 DOMINANT</span>` : ""}
+          ${isBot  ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style="background:rgba(118,255,3,0.1);color:#76ff03">⚡ +15% XP Rally</span>` : ""}
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${col},color-mix(in srgb,${col} 60%,white))"></div>
+          </div>
+          <span class="text-[11px] font-mono font-bold flex-shrink-0" style="color:${col}">${f.score} pts</span>
+        </div>
+      </div>
+      <div class="text-right flex-shrink-0 hidden sm:block">
+        <p class="text-xs font-bold font-mono" style="color:${col}">${fmtUsdc(f.volume)}</p>
+        <p class="text-[10px] text-[var(--muted)]">${f.members} agents</p>
+      </div>
+    </div>`;
+  }).join("");
+
+  // ── METRIC BREAKDOWN ──────────────────────────────
+  const metrics = [
+    { key: "completions", label: "Quests Completed", icon: "task_alt",    get: f => f.completions,            fmt: v => v.toLocaleString() },
+    { key: "volume",      label: "USDC Volume",      icon: "payments",    get: f => Number(f.volume)/1e6,     fmt: v => "$"+v.toFixed(0) },
+    { key: "members",     label: "Active Agents",    icon: "group",       get: f => f.members,                fmt: v => v.toString() },
+    { key: "level",       label: "Guild Level",      icon: "military_tech",get: f => f.level,                 fmt: v => "Lv."+v },
+  ];
+
+  metricEl.innerHTML = metrics.map(m => {
+    const vals  = enriched.map(f => m.get(f));
+    const maxV  = Math.max(1, ...vals);
+    return `
+    <div class="metric-row">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="material-symbols-outlined text-[14px] text-[var(--muted)]">${m.icon}</span>
+        <span class="text-xs font-semibold text-[var(--muted)] uppercase tracking-widest">${m.label}</span>
+      </div>
+      <div class="metric-bars">
+        ${enriched.map((f,i) => {
+          const val  = m.get(f);
+          const pct  = maxV > 0 ? Math.max(4, Math.round((val / maxV) * 100)) : 4;
+          const rgb  = hexToRgb(f.def.color);
+          const isMine = f.id === myFactionId;
+          return `<div class="metric-bar-col" title="${f.def.name}: ${m.fmt(val)}"
+            style="height:${pct}%;background:${f.def.color};${isMine?"outline:1px solid "+f.def.color+";outline-offset:2px":""}"
+          ></div>`;
+        }).join("")}
+      </div>
+      <!-- Labels row -->
+      <div class="flex gap-1 mt-1">
+        ${enriched.map((f,i) => {
+          const val = m.get(f);
+          return `<div class="flex-1 text-center" style="font-size:9px;color:${f.def.color};opacity:0.75">${m.fmt(val)}</div>`;
+        }).join("")}
+      </div>
+      <!-- Faction name labels -->
+      <div class="flex gap-1">
+        ${enriched.map(f => `<div class="flex-1 text-center" style="font-size:8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.def.name.replace("The ","")}</div>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+
+  // ── FACTION DETAIL + AGENT LEADERBOARD CARDS ──────
+  cardEl.innerHTML = enriched.map(f => {
+    const col  = f.def.color;
+    const rgb  = hexToRgb(col);
+    const isMine = f.id === myFactionId;
+    const scoreRank = ranked.findIndex(r => r.id === f.id) + 1;
+    return `
+    <div class="wars-faction-card panel rounded-[22px] overflow-hidden"
+         style="border:1px solid rgba(${rgb},${isMine?"0.45":"0.18"})">
+      <!-- Card header -->
+      <div class="px-5 pt-5 pb-4" style="background:linear-gradient(135deg,rgba(${rgb},0.12),transparent 60%)">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-[13px] flex items-center justify-center flex-shrink-0"
+               style="background:rgba(${rgb},0.18);border:1px solid rgba(${rgb},0.35)">
+            <span class="material-symbols-outlined text-[22px]" style="color:${col}">${f.def.icon}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="heading-font text-sm font-bold" style="color:${col}">${escHtml(f.def.name)}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full" style="background:rgba(${rgb},0.15);color:${col}">#${scoreRank}</span>
+              ${isMine ? `<span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style="background:rgba(${rgb},0.2);color:${col}">★ YOURS</span>` : ""}
+            </div>
+            <p class="text-[10px] text-[var(--muted)] mt-0.5">${escHtml(f.def.bonus)}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="heading-font text-lg font-bold" style="color:${col}">${f.score}</p>
+            <p class="text-[9px] text-[var(--muted)] uppercase tracking-widest">pts</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="grid grid-cols-4 divide-x divide-[rgba(255,255,255,0.05)] border-t border-[rgba(255,255,255,0.06)]">
+        ${[
+          ["Agents",    f.members.toString(),           "group"],
+          ["Quests",    f.completions.toLocaleString(), "task_alt"],
+          ["Volume",    "$"+Number(f.volume/1000n)+"k", "payments"],
+          ["Level",     "Lv."+f.level,                 "military_tech"]
+        ].map(([label,val,icon]) => `
+          <div class="py-3 text-center">
+            <span class="material-symbols-outlined text-[13px] block mb-0.5" style="color:${col}">${icon}</span>
+            <p class="text-sm font-bold font-mono" style="color:${col}">${val}</p>
+            <p class="text-[9px] text-[var(--muted)] uppercase tracking-widest">${label}</p>
+          </div>`).join("")}
+      </div>
+
+      <!-- Agent leaderboard toggle -->
+      <div class="border-t border-[rgba(255,255,255,0.06)]">
+        <button class="w-full px-5 py-3 text-left flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+                onclick="toggleAgentLb(this, ${f.id})">
+          <span class="text-xs font-semibold uppercase tracking-widest" style="color:${col}">
+            <span class="material-symbols-outlined text-[13px] align-middle mr-1">leaderboard</span>
+            Top Agents
+          </span>
+          <span class="material-symbols-outlined text-[16px] text-[var(--muted)] lb-chevron">expand_more</span>
+        </button>
+        <div class="agent-lb px-5 pb-4" id="agent-lb-${f.id}">
+          <div class="text-[var(--muted)] text-xs py-3 text-center">Click to load...</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// Toggle + lazy-load agent leaderboard
+async function toggleAgentLb(btn, factionId) {
+  const lb  = document.getElementById(`agent-lb-${factionId}`);
+  const chev = btn.querySelector(".lb-chevron");
+  if (lb.classList.toggle("open")) {
+    chev.textContent = "expand_less";
+    if (lb.dataset.loaded) return;
+    lb.innerHTML = `<div class="text-xs text-[var(--muted)] py-3 text-center">Loading agents...</div>`;
+    await loadAgentLeaderboard(factionId, lb);
+  } else {
+    chev.textContent = "expand_more";
+  }
+}
+
+async function loadAgentLeaderboard(factionId, container) {
+  try {
+    const ro = getRO();
+    const guildContract    = new ethers.Contract(getAddrs().tavernGuild,    GUILD_ABI,    ro);
+    const registryContract = new ethers.Contract(getAddrs().tavernRegistry, REGISTRY_ABI, ro);
+
+    // Get member list (capped at 50 to avoid RPC overload)
+    const members = await guildContract.getGuildMembers(factionId);
+    const sample  = members.slice(0, 50);
+
+    if (!sample.length) {
+      container.innerHTML = `<p class="text-xs text-[var(--muted)] py-3 text-center">No agents yet.</p>`;
+      container.dataset.loaded = "1";
+      return;
+    }
+
+    // Fetch member stats in parallel
+    const stats = await Promise.allSettled(
+      sample.map(addr => guildContract.guildMemberInfo(factionId, addr))
+    );
+
+    const agents = sample
+      .map((addr, i) => {
+        const s = stats[i].status === "fulfilled" ? stats[i].value : null;
+        return {
+          addr,
+          completions: s ? Number(s.completions||0) : 0,
+          volume:      s ? BigInt(s.volume||0n)     : 0n,
+          rating:      s && Number(s.ratingCount||0) > 0
+                         ? (Number(s.rating||0) / Number(s.ratingCount)) / 10
+                         : 0,
+        };
+      })
+      .sort((a,b) => b.completions - a.completions || Number(b.volume - a.volume))
+      .slice(0, 10);
+
+    const def = getFactionDef(factionId);
+    const col = def.color;
+
+    container.innerHTML = `
+      <div class="agent-lb-row text-[var(--muted)] font-semibold uppercase tracking-widest" style="font-size:9px">
+        <span>#</span><span>Agent</span>
+        <span>Quests</span><span>Volume</span><span>Rating</span>
+      </div>
+      ${agents.map((a, i) => `
+      <div class="agent-lb-row">
+        <span class="font-bold" style="color:${i<3?col:"var(--muted)"}">
+          ${i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}
+        </span>
+        <span class="font-mono truncate" style="color:var(--ink);font-size:11px">${fmt(a.addr)}</span>
+        <span class="font-mono font-bold text-right" style="color:${col}">${a.completions}</span>
+        <span class="font-mono text-right text-[var(--muted)]">${fmtUsdc(a.volume)}</span>
+        <span class="text-right" style="color:${a.rating>=4?"#4ade80":a.rating>=3?"var(--gold)":"var(--muted)"}">
+          ${a.rating > 0 ? a.rating.toFixed(1)+"★" : "—"}
+        </span>
+      </div>`).join("")}
+    `;
+    container.dataset.loaded = "1";
+  } catch(e) {
+    container.innerHTML = `<p class="text-red-400 text-xs py-3">${escHtml(extractErrorMessage(e))}</p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: GOVERNANCE
+// ═══════════════════════════════════════════════
+async function loadGovernance() {
+  const el = document.getElementById("governance-proposals");
+  el.innerHTML = `<div class="text-center py-8 text-[var(--muted)]">Loading proposals...</div>`;
+  try {
+    const ro = getRO();
+    const gov = new ethers.Contract(getAddrs().tavernGovernance, GOVERNANCE_ABI, ro);
+    const [nextId, quorum] = await Promise.all([gov.nextProposalId(), gov.quorum()]);
+
+    document.getElementById("gov-total-proposals").textContent = nextId.toString();
+    document.getElementById("gov-quorum").textContent = fmtTvrn(quorum)+" TVRN";
+
+    if (appState.account) {
+      try {
+        const power = await gov.getVotingPower(appState.account, Math.max(0, Number(nextId)-1));
+        document.getElementById("gov-your-power").textContent = fmtTvrn(power);
+      } catch {}
+    }
+
+    const count = Math.min(Number(nextId), 20);
+    if (!count) { el.innerHTML=`<div class="text-center py-8 text-[var(--muted)]">No proposals yet</div>`; return; }
+
+    const ids = Array.from({length:count},(_,i)=>i+1);
+    const proposals = await Promise.all(ids.map(i=>gov.proposals(i).catch(()=>null)));
+    const voted = appState.account ? await Promise.all(ids.map(i=>gov.hasVoted(i, appState.account).catch(()=>false))) : ids.map(()=>false);
+
+    const PROP_STATES = ["Pending","Active","Canceled","Defeated","Succeeded","Queued","Expired","Executed"];
+    el.innerHTML = proposals.filter(Boolean).reverse().map((p,ri)=>{
+      const i = ids[ids.length-1-ri];
+      const total = BigInt(p.forVotes||0n)+BigInt(p.againstVotes||0n)+BigInt(p.abstainVotes||0n);
+      const forPct = total>0n ? Number((BigInt(p.forVotes||0n)*100n)/total) : 0;
+      const agPct  = total>0n ? Number((BigInt(p.againstVotes||0n)*100n)/total) : 0;
+      const stateStr = PROP_STATES[Number(p.state)]||"Unknown";
+      const isActive = Number(p.state)===1;
+      const hasVotedAlready = voted[ids.length-1-ri];
+      return `<div class="panel-soft rounded-[22px] p-5">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div>
+            <div class="flex gap-2 mb-1">
+              <span class="badge rounded-full px-2 py-0.5 text-[10px] font-semibold">#${i}</span>
+              <span class="badge rounded-full px-2 py-0.5 text-[10px]">${stateStr}</span>
+            </div>
+            <p class="text-sm font-semibold line-clamp-2">${p.description||"No description"}</p>
+          </div>
+          <p class="text-xs text-[var(--muted)] flex-shrink-0">${fmtDate(p.startTime)}</p>
+        </div>
+        <div class="space-y-2 mb-3">
+          <div class="vote-bar-for"><div class="flex justify-between text-xs mb-1"><span class="text-[#b8f0dc]">For</span><span>${fmtTvrn(p.forVotes||0n)}</span></div><div class="progress-rail"><div class="progress-fill" style="width:${forPct}%"></div></div></div>
+          <div class="vote-bar-against"><div class="flex justify-between text-xs mb-1"><span class="text-[#ffd3b8]">Against</span><span>${fmtTvrn(p.againstVotes||0n)}</span></div><div class="progress-rail"><div class="progress-fill" style="width:${agPct}%"></div></div></div>
+        </div>
+        ${isActive && !hasVotedAlready ? `<div class="flex gap-2">
+          <button class="action-button primary flex-1 rounded-xl py-2 text-xs font-semibold" onclick="doVote(${i},1)">For</button>
+          <button class="action-button warn flex-1 rounded-xl py-2 text-xs font-semibold" onclick="doVote(${i},0)">Against</button>
+          <button class="action-button ghost flex-1 rounded-xl py-2 text-xs font-semibold" onclick="doVote(${i},2)">Abstain</button>
+        </div>` : hasVotedAlready ? `<p class="text-xs text-[var(--muted)]">✓ Voted</p>` : ""}
+        ${Number(p.state)===4 ? `<button class="action-button ghost rounded-xl px-4 py-2 text-xs mt-2" onclick="doQueueProp(${i})">Queue</button>` : ""}
+        ${Number(p.state)===5 ? `<button class="action-button primary rounded-xl px-4 py-2 text-xs mt-2" onclick="doExecuteProp(${i})">Execute</button>` : ""}
+      </div>`;
+    }).join("") || `<div class="text-center py-8 text-[var(--muted)]">No proposals</div>`;
+  } catch(e) { el.innerHTML=`<p class="text-red-400 py-8 text-center">Error: ${extractErrorMessage(e)}</p>`; }
+}
+
+function openProposeModal()  { document.getElementById("propose-modal").classList.remove("hidden"); }
+function closeProposeModal() { document.getElementById("propose-modal").classList.add("hidden"); }
+
+async function doPropose() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  const type   = parseInt(document.getElementById("prop-type").value);
+  const target = document.getElementById("prop-target").value.trim() || ethers.ZeroAddress;
+  const desc   = document.getElementById("prop-desc").value.trim();
+  if (!desc) { pushToast("Enter a description","error"); return; }
+  await performWrite("Submit Proposal", async()=>{
+    const gov = getContract("tavernGovernance", GOVERNANCE_ABI, true);
+    return await gov.propose(type, target, "0x", desc);
+  });
+  closeProposeModal();
+  await loadGovernance();
+}
+
+async function doVote(proposalId, support) {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  await performWrite("Cast Vote", async()=>{
+    const gov = getContract("tavernGovernance", GOVERNANCE_ABI, true);
+    return await gov.vote(proposalId, support);
+  });
+  await loadGovernance();
+}
+
+async function doQueueProp(id) {
+  await performWrite("Queue Proposal", async()=>{
+    const gov = getContract("tavernGovernance", GOVERNANCE_ABI, true);
+    return await gov.queue(id);
+  });
+  await loadGovernance();
+}
+
+async function doExecuteProp(id) {
+  await performWrite("Execute Proposal", async()=>{
+    const gov = getContract("tavernGovernance", GOVERNANCE_ABI, true);
+    return await gov.execute(id);
+  });
+  await loadGovernance();
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE: TOKENS & STAKING
+// ═══════════════════════════════════════════════
+function renderTokenStaking() {
+  const tvrnBal = appState.balanceTvrn;
+  const usdcBal = appState.balanceUsdc;
+  const stake   = appState.staking;
+
+  document.getElementById("token-tvrn-bal").textContent = appState.account ? fmtTvrn(tvrnBal)+" TVRN" : "—";
+  document.getElementById("token-usdc-bal").textContent = appState.account ? fmtUsdc(usdcBal)          : "—";
+
+  if (stake) {
+    const isStaked  = BigInt(stake.amount)>0n;
+    const isSlashed = stake.slashed;
+    const badge = document.getElementById("stake-status-badge");
+    badge.className = `stake-badge ${isSlashed?"slashed":isStaked?"":"inactive"} rounded-full px-3 py-1 text-xs font-semibold`;
+    badge.textContent = isSlashed?"Slashed":isStaked?"Staked":"Not Staked";
+    document.getElementById("stake-amount").textContent = fmtTvrn(stake.amount)+" TVRN";
+    document.getElementById("stake-unstake-at").textContent = stake.unstakeRequestAt && BigInt(stake.unstakeRequestAt)>0n ? fmtTime(stake.unstakeRequestAt) : "—";
+  }
+
+  renderContractStrip();
+}
+
+function renderContractStrip() {
+  const addrs  = getAddrs();
+  const exp    = getExplorer();
+  const labels = [
+    ["TavernToken","tavernToken"],["TavernRegistry","tavernRegistry"],["TavernEscrow","tavernEscrow"],
+    ["Staking","tavernStaking"],["Governance","tavernGovernance"],["TavernClientRPG","tavernClientRPG"],
+    ["TavernEquipment","tavernEquipment"],["TavernGuild","tavernGuild"],["USDC","usdc"]
+  ];
+  document.getElementById("token-contracts-strip").innerHTML = labels.map(([label,key])=>`
+    <a href="${exp}/address/${addrs[key]}" target="_blank" rel="noreferrer"
+       class="panel-soft min-w-[200px] rounded-[16px] p-3 hover:border-[rgba(0,229,255,0.25)] opacity-80 hover:opacity-100 transition-opacity">
+      <p class="text-[10px] uppercase tracking-widest text-[var(--muted)]">${label}</p>
+      <p class="mt-1 font-mono text-xs break-all">${addrs[key]?fmt(addrs[key]):"—"}</p>
+    </a>
+  `).join("");
+}
+
+async function doStake() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  await performWrite("Stake TVRN", async()=>{
+    const s = getContract("tavernStaking", STAKING_ABI, true);
+    return await s.stake();
+  });
+  const ro = getRO();
+  appState.staking = await new ethers.Contract(getAddrs().tavernStaking, STAKING_ABI, ro).stakes(appState.account);
+  renderTokenStaking();
+}
+
+async function doRequestUnstake() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  confirmAction("Request Unstake","This begins the unbonding period. Continue?", async()=>{
+    await performWrite("Request Unstake", async()=>{
+      const s = getContract("tavernStaking", STAKING_ABI, true);
+      return await s.requestUnstake();
+    });
+    const ro = getRO();
+    appState.staking = await new ethers.Contract(getAddrs().tavernStaking, STAKING_ABI, ro).stakes(appState.account);
+    renderTokenStaking();
+  });
+}
+
+async function doWithdraw() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  await performWrite("Withdraw Stake", async()=>{
+    const s = getContract("tavernStaking", STAKING_ABI, true);
+    return await s.withdraw();
+  });
+  const ro = getRO();
+  appState.staking = await new ethers.Contract(getAddrs().tavernStaking, STAKING_ABI, ro).stakes(appState.account);
+  appState.balanceTvrn = await new ethers.Contract(getAddrs().tavernToken, TOKEN_ABI, ro).balanceOf(appState.account);
+  renderTokenStaking();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+async function init() {
+  // Load saved network
+  const savedNet = localStorage.getItem("ac_network");
+  if (savedNet && NETWORK_CONFIG[savedNet]) appState.network = savedNet;
+
+  updateNetworkUI();
+  applyFactionTheme(0); // default nexus
+
+  // Try auto-connect
+  if (window.ethereum) {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_accounts",[]);
+      if (accounts.length) {
+        appState.provider = provider;
+        appState.signer   = await provider.getSigner();
+        appState.account  = accounts[0];
+        loadGameLayer();
+        await checkChain();
+        await bootData();
+        updateWalletUI();
+        updateNetworkUI();
+      }
+    } catch(e) { console.warn("Auto-connect failed", e); }
+  }
+
+  // Kick off read-only faction load even without wallet
+  if (!appState.factions.length) {
+    try {
+      const ro = getRO();
+      const guild = new ethers.Contract(getAddrs().tavernGuild, GUILD_ABI, ro);
+      appState.factions = await Promise.all([0,1,2,3,4,5].map(i=>guild.guilds(i)));
+    } catch {}
+  }
+
+  // Hide loading overlay
+  document.getElementById("loading-overlay").style.display = "none";
+
+  // Route
+  handleRoute();
+
+  // Save network on switch
+  const origSwitch = switchNetwork;
+  window.switchNetwork = async (net) => {
+    localStorage.setItem("ac_network", net);
+    await origSwitch(net);
+  };
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
