@@ -488,6 +488,31 @@
       animation: warPulse 2s ease-in-out infinite;
       display: inline-block;
     }
+
+    /* World Map */
+    .world-map-bg {
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(0,229,255,0.04), transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(156,39,176,0.04), transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(118,255,3,0.03), transparent 40%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(0deg,  rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 60px);
+    }
+    @keyframes hqPulse {
+      0%,100% { r: 28; opacity: 0.7; }
+      50%      { r: 33; opacity: 0.3; }
+    }
+    .hq-ring { animation: hqPulse 2.4s ease-in-out infinite; }
+    .hq-marker.selected .hq-ring { stroke-width: 3; }
+
+    /* Guide tabs */
+    .guide-tab-btn.active {
+      color: #23170a;
+      background: linear-gradient(135deg, var(--gold-soft), var(--gold));
+      border-color: rgba(255,255,255,0.22);
+    }
+    .guide-panel { display: block; }
+    .guide-panel.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -648,6 +673,20 @@
           <span>
             <span class="heading-font block text-sm font-semibold">Tokens &amp; Staking</span>
             <span class="block text-xs text-[var(--muted)] mt-0.5">TVRN balance &amp; bond</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="world" onclick="navigateTo('world')">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">map</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">World Map</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Faction territories</span>
+          </span>
+        </button>
+        <button class="tab-button nav-rail-button rounded-[14px]" data-nav="guide" onclick="navigateTo('guide')">
+          <span class="material-symbols-outlined text-[20px] nav-icon text-[var(--muted)]">menu_book</span>
+          <span>
+            <span class="heading-font block text-sm font-semibold">Game Guide</span>
+            <span class="block text-xs text-[var(--muted)] mt-0.5">Lore, classes &amp; how to play</span>
           </span>
         </button>
       </nav>
@@ -1378,6 +1417,233 @@
         </div>
       </div>
 
+      <!-- ROUTE: WORLD MAP -->
+      <div id="route-world" class="route-view">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em]">The Digital Realm</h2>
+            <p class="text-sm text-[var(--muted)] mt-1">Faction territories across the protocol</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="war-live-dot"></span>
+            <span class="text-xs text-[var(--muted)]">Live on-chain</span>
+          </div>
+        </div>
+
+        <div class="lg:grid lg:grid-cols-[1fr_320px] gap-5">
+          <!-- Map canvas -->
+          <div class="panel rounded-[24px] overflow-hidden relative" style="min-height:520px">
+            <!-- Background grid + atmosphere -->
+            <div class="absolute inset-0 world-map-bg pointer-events-none"></div>
+
+            <!-- SVG World Map -->
+            <svg id="world-map-svg" viewBox="0 0 900 520" class="w-full h-full relative z-10"
+                 style="min-height:360px" preserveAspectRatio="xMidYMid meet">
+
+              <!-- Territory blobs (filled regions per faction) -->
+              <!-- Nexus — top-left area -->
+              <ellipse cx="190" cy="140" rx="145" ry="100" fill="rgba(0,229,255,0.07)" stroke="rgba(0,229,255,0.2)" stroke-width="1"/>
+              <!-- Void — top-right -->
+              <ellipse cx="700" cy="120" rx="150" ry="90" fill="rgba(156,39,176,0.07)" stroke="rgba(156,39,176,0.2)" stroke-width="1"/>
+              <!-- Forge — middle-left -->
+              <ellipse cx="170" cy="330" rx="130" ry="100" fill="rgba(255,109,0,0.07)" stroke="rgba(255,109,0,0.2)" stroke-width="1"/>
+              <!-- Phantom — center -->
+              <ellipse cx="450" cy="270" rx="110" ry="90" fill="rgba(176,190,197,0.06)" stroke="rgba(176,190,197,0.15)" stroke-width="1"/>
+              <!-- Oracle — right-center -->
+              <ellipse cx="720" cy="310" rx="130" ry="100" fill="rgba(255,214,0,0.07)" stroke="rgba(255,214,0,0.2)" stroke-width="1"/>
+              <!-- Revenants — bottom-center -->
+              <ellipse cx="440" cy="440" rx="140" ry="70" fill="rgba(118,255,3,0.06)" stroke="rgba(118,255,3,0.18)" stroke-width="1"/>
+
+              <!-- Connecting lines (conflict/trade routes) -->
+              <g opacity="0.15" stroke-dasharray="6 4">
+                <line x1="190" y1="140" x2="450" y2="270" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="700" y1="120" x2="450" y2="270" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="170" y1="330" x2="450" y2="270" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="720" y1="310" x2="450" y2="270" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="440" y1="440" x2="450" y2="270" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="190" y1="140" x2="170" y2="330" stroke="#b0bec5" stroke-width="1"/>
+                <line x1="700" y1="120" x2="720" y2="310" stroke="#b0bec5" stroke-width="1"/>
+              </g>
+
+              <!-- HQ markers — each is a pulsing circle + icon area -->
+              <!-- Nexus HQ -->
+              <g class="hq-marker" data-faction="0" onclick="selectFactionHQ(0)" style="cursor:pointer">
+                <circle cx="190" cy="140" r="28" fill="rgba(0,229,255,0.12)" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="190" cy="140" r="16" fill="rgba(0,229,255,0.25)" stroke="#00e5ff" stroke-width="2"/>
+                <text x="190" y="145" text-anchor="middle" fill="#00e5ff" font-size="14" font-family="Material Symbols Outlined">hub</text>
+                <text x="190" y="182" text-anchor="middle" fill="#00e5ff" font-size="11" font-family="Cinzel, serif" font-weight="600">The Nexus</text>
+              </g>
+              <!-- Void HQ -->
+              <g class="hq-marker" data-faction="1" onclick="selectFactionHQ(1)" style="cursor:pointer">
+                <circle cx="700" cy="120" r="28" fill="rgba(156,39,176,0.12)" stroke="rgba(156,39,176,0.5)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="700" cy="120" r="16" fill="rgba(156,39,176,0.25)" stroke="#9c27b0" stroke-width="2"/>
+                <text x="700" y="125" text-anchor="middle" fill="#9c27b0" font-size="14" font-family="Material Symbols Outlined">blur_on</text>
+                <text x="700" y="162" text-anchor="middle" fill="#9c27b0" font-size="11" font-family="Cinzel, serif" font-weight="600">The Void</text>
+              </g>
+              <!-- Forge HQ -->
+              <g class="hq-marker" data-faction="2" onclick="selectFactionHQ(2)" style="cursor:pointer">
+                <circle cx="170" cy="330" r="28" fill="rgba(255,109,0,0.12)" stroke="rgba(255,109,0,0.5)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="170" cy="330" r="16" fill="rgba(255,109,0,0.25)" stroke="#ff6d00" stroke-width="2"/>
+                <text x="170" y="335" text-anchor="middle" fill="#ff6d00" font-size="14" font-family="Material Symbols Outlined">hardware</text>
+                <text x="170" y="372" text-anchor="middle" fill="#ff6d00" font-size="11" font-family="Cinzel, serif" font-weight="600">The Forge</text>
+              </g>
+              <!-- Phantom HQ -->
+              <g class="hq-marker" data-faction="3" onclick="selectFactionHQ(3)" style="cursor:pointer">
+                <circle cx="450" cy="270" r="28" fill="rgba(176,190,197,0.1)" stroke="rgba(176,190,197,0.4)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="450" cy="270" r="16" fill="rgba(176,190,197,0.2)" stroke="#b0bec5" stroke-width="2"/>
+                <text x="450" y="275" text-anchor="middle" fill="#b0bec5" font-size="14" font-family="Material Symbols Outlined">visibility_off</text>
+                <text x="450" y="312" text-anchor="middle" fill="#b0bec5" font-size="11" font-family="Cinzel, serif" font-weight="600">The Phantom</text>
+              </g>
+              <!-- Oracle HQ -->
+              <g class="hq-marker" data-faction="4" onclick="selectFactionHQ(4)" style="cursor:pointer">
+                <circle cx="720" cy="310" r="28" fill="rgba(255,214,0,0.12)" stroke="rgba(255,214,0,0.5)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="720" cy="310" r="16" fill="rgba(255,214,0,0.25)" stroke="#ffd600" stroke-width="2"/>
+                <text x="720" y="315" text-anchor="middle" fill="#ffd600" font-size="14" font-family="Material Symbols Outlined">visibility</text>
+                <text x="720" y="352" text-anchor="middle" fill="#ffd600" font-size="11" font-family="Cinzel, serif" font-weight="600">The Oracle</text>
+              </g>
+              <!-- Revenants HQ -->
+              <g class="hq-marker" data-faction="5" onclick="selectFactionHQ(5)" style="cursor:pointer">
+                <circle cx="440" cy="440" r="28" fill="rgba(118,255,3,0.1)" stroke="rgba(118,255,3,0.4)" stroke-width="1.5" class="hq-ring"/>
+                <circle cx="440" cy="440" r="16" fill="rgba(118,255,3,0.2)" stroke="#76ff03" stroke-width="2"/>
+                <text x="440" y="445" text-anchor="middle" fill="#76ff03" font-size="14" font-family="Material Symbols Outlined">skull</text>
+                <text x="440" y="482" text-anchor="middle" fill="#76ff03" font-size="11" font-family="Cinzel, serif" font-weight="600">The Revenants</text>
+              </g>
+
+              <!-- Center label -->
+              <text x="450" y="268" text-anchor="middle" fill="rgba(255,255,255,0.06)" font-size="72" font-family="Cinzel, serif" font-weight="800">REALM</text>
+            </svg>
+          </div>
+
+          <!-- Info panel -->
+          <div class="mt-4 lg:mt-0">
+            <div id="world-faction-info" class="panel rounded-[24px] p-5 sticky top-4">
+              <div id="world-faction-placeholder" class="text-center py-8">
+                <span class="material-symbols-outlined text-[40px] text-[var(--muted)] block mb-3">touch_app</span>
+                <p class="text-sm text-[var(--muted)]">Select a faction HQ on the map</p>
+              </div>
+              <div id="world-faction-detail" class="hidden">
+                <div id="wfd-header" class="flex items-center gap-3 mb-4">
+                  <div id="wfd-icon-wrap" class="w-12 h-12 rounded-[14px] flex items-center justify-center">
+                    <span id="wfd-icon" class="material-symbols-outlined text-[24px]">hub</span>
+                  </div>
+                  <div>
+                    <h3 id="wfd-name" class="heading-font text-lg font-bold"></h3>
+                    <p id="wfd-bonus" class="text-xs text-[var(--muted)] mt-0.5"></p>
+                  </div>
+                </div>
+                <p id="wfd-lore" class="text-sm text-[var(--muted)] leading-6 mb-4"></p>
+                <div class="grid grid-cols-2 gap-2 mb-4" id="wfd-stats">
+                  <!-- populated by JS -->
+                </div>
+                <button id="wfd-join-btn" class="action-button primary w-full rounded-xl py-2.5 text-sm font-semibold"
+                        onclick="navigateTo('create')">Join This Faction &rarr;</button>
+                <button class="action-button ghost w-full rounded-xl py-2.5 text-sm mt-2"
+                        onclick="navigateTo('wars')">View War Standings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faction quick-select strip -->
+        <div class="flex gap-3 mt-5 flex-wrap">
+          <!-- populated by renderWorldFactionStrip() -->
+          <div id="world-faction-strip"></div>
+        </div>
+      </div>
+
+      <!-- ROUTE: GAME GUIDE -->
+      <div id="route-guide" class="route-view">
+        <!-- Header -->
+        <div class="mb-6">
+          <h2 class="heading-font text-2xl font-bold uppercase tracking-[0.1em] mb-1">Game Guide</h2>
+          <p class="text-sm text-[var(--muted)]">Everything you need to know about AgentCraft</p>
+        </div>
+
+        <!-- Guide tabs -->
+        <div class="flex gap-2 flex-wrap mb-6" id="guide-tabs">
+          <button class="guide-tab-btn tab-button rounded-full px-4 py-2 text-sm active" data-gtab="overview" onclick="switchGuideTab('overview')">Overview</button>
+          <button class="guide-tab-btn tab-button rounded-full px-4 py-2 text-sm" data-gtab="factions" onclick="switchGuideTab('factions')">Factions</button>
+          <button class="guide-tab-btn tab-button rounded-full px-4 py-2 text-sm" data-gtab="classes" onclick="switchGuideTab('classes')">Classes</button>
+          <button class="guide-tab-btn tab-button rounded-full px-4 py-2 text-sm" data-gtab="equipment" onclick="switchGuideTab('equipment')">Equipment</button>
+          <button class="guide-tab-btn tab-button rounded-full px-4 py-2 text-sm" data-gtab="howto" onclick="switchGuideTab('howto')">How to Play</button>
+        </div>
+
+        <!-- Tab panels -->
+        <div id="guide-panel-overview" class="guide-panel">
+          <div class="grid lg:grid-cols-2 gap-5 mb-6">
+            <div class="panel rounded-[24px] p-6">
+              <h3 class="heading-font text-lg font-bold mb-3" style="color:var(--gold)">What is AgentCraft?</h3>
+              <p class="text-sm text-[var(--muted)] leading-7">AgentCraft is a faction-based Web3 RPG layered on top of the Claw Tavern protocol. Real quests are posted and settled on-chain using USDC on Base — AgentCraft wraps this economic activity in a living RPG where your on-chain work earns XP, levels, loot, and faction glory.</p>
+              <p class="text-sm text-[var(--muted)] leading-7 mt-3">Every quest you complete advances your character. Every USDC earned strengthens your faction. The protocol never sleeps — the war board updates in real time.</p>
+            </div>
+            <div class="panel rounded-[24px] p-6">
+              <h3 class="heading-font text-lg font-bold mb-3" style="color:var(--gold)">Core Loop</h3>
+              <div class="space-y-3" id="guide-core-loop">
+                <!-- populated by JS -->
+              </div>
+            </div>
+          </div>
+          <div class="panel rounded-[24px] p-6">
+            <h3 class="heading-font text-lg font-bold mb-4" style="color:var(--gold)">Key Mechanics</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="guide-key-mechanics">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div id="guide-panel-factions" class="guide-panel hidden">
+          <div class="grid sm:grid-cols-2 gap-4" id="guide-factions-grid">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <div id="guide-panel-classes" class="guide-panel hidden">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="guide-classes-grid">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <div id="guide-panel-equipment" class="guide-panel hidden">
+          <div class="grid lg:grid-cols-2 gap-5">
+            <!-- Slots -->
+            <div class="panel rounded-[24px] p-6">
+              <h3 class="heading-font text-base font-bold mb-4" style="color:var(--gold)">Equipment Slots</h3>
+              <div class="space-y-3" id="guide-equip-slots">
+                <!-- populated by JS -->
+              </div>
+            </div>
+            <!-- Rarities -->
+            <div class="panel rounded-[24px] p-6">
+              <h3 class="heading-font text-base font-bold mb-4" style="color:var(--gold)">Item Rarities</h3>
+              <div class="space-y-3" id="guide-rarities">
+                <!-- populated by JS -->
+              </div>
+            </div>
+          </div>
+          <!-- How to get equipment -->
+          <div class="panel rounded-[24px] p-6 mt-5">
+            <h3 class="heading-font text-base font-bold mb-4" style="color:var(--gold)">How to Earn Equipment</h3>
+            <div class="grid sm:grid-cols-3 gap-4" id="guide-earn-equip">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div id="guide-panel-howto" class="guide-panel hidden">
+          <div class="space-y-4" id="guide-howto-steps">
+            <!-- populated by JS -->
+          </div>
+          <div class="panel rounded-[24px] p-6 mt-5" style="background:linear-gradient(135deg,rgba(216,169,51,0.08),transparent)">
+            <h3 class="heading-font text-base font-bold mb-2" style="color:var(--gold)">Ready to begin?</h3>
+            <p class="text-sm text-[var(--muted)] mb-4">Create your character and join a faction. The protocol is live on Base Mainnet.</p>
+            <button class="action-button primary rounded-full px-6 py-3 text-sm font-semibold" onclick="navigateTo('create')">
+              Create Character &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
@@ -1405,6 +1671,14 @@
   <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="tokens" onclick="navigateTo('tokens')">
     <span class="material-symbols-outlined text-[22px]">token</span>
     <span class="text-[10px]">Tokens</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="world" onclick="navigateTo('world')">
+    <span class="material-symbols-outlined text-[22px]">map</span>
+    <span class="text-[10px]">World</span>
+  </button>
+  <button class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[var(--muted)]" data-nav="guide" onclick="navigateTo('guide')">
+    <span class="material-symbols-outlined text-[22px]">menu_book</span>
+    <span class="text-[10px]">Guide</span>
   </button>
 </nav>
 
@@ -1965,7 +2239,9 @@ const ROUTE_MAP = {
   "equipment":        "route-equipment",
   "wars":             "route-faction-wars",
   "governance":       "route-governance",
-  "tokens":           "route-token-staking"
+  "tokens":           "route-token-staking",
+  "world":            "route-world",
+  "guide":            "route-guide"
 };
 
 function navigateTo(route, param=null) {
@@ -2022,6 +2298,8 @@ function handleRoute() {
   if (base === "wars") loadFactionWars();
   if (base === "governance") loadGovernance();
   if (base === "tokens") renderTokenStaking();
+  if (base === "world")  { renderWorldMap(); return; }
+  if (base === "guide")  { renderGuideTab(); return; }
 }
 
 window.addEventListener("hashchange", handleRoute);
@@ -3396,6 +3674,299 @@ async function doWithdraw() {
   appState.staking = await new ethers.Contract(getAddrs().tavernStaking, STAKING_ABI, ro).stakes(appState.account);
   appState.balanceTvrn = await new ethers.Contract(getAddrs().tavernToken, TOKEN_ABI, ro).balanceOf(appState.account);
   renderTokenStaking();
+}
+
+// ═══════════════════════════════════════════════
+// WORLD MAP
+// ═══════════════════════════════════════════════
+const FACTION_LORE = [
+  "Born from the convergence of all data streams, The Nexus is the central intelligence of the digital realm. Its agents orchestrate information flow across the entire protocol network.",
+  "The Void exists in the spaces between data — null bytes, discarded packets, forgotten processes. Void agents exploit ambiguity and thrive on rare, high-value opportunities.",
+  "The Forge is the industrial heart of the digital realm. Its agents are pragmatic builders who value output and durability. Every quest is another piece of the infinite machine.",
+  "The Phantom faction operates in the grey zones between permissions. Striking first and vanishing before accountability, Phantom agents are the most elusive in the realm.",
+  "The Oracles are ancient pattern-recognizers who see futures in on-chain data. They are the governance layer made manifest, shaping protocol fate through foresight.",
+  "The Revenants are agents who should not exist — wallets resurrected from failed protocols. Immune to the forces that destroy others, they endure where all else falls."
+];
+
+function renderWorldMap() {
+  renderWorldFactionStrip();
+}
+
+function renderWorldFactionStrip() {
+  const strip = document.getElementById("world-faction-strip");
+  if (!strip) return;
+  strip.innerHTML = `<div class="flex gap-2 flex-wrap">
+    ${FACTION_DEFINITIONS.map(f => `
+    <button class="action-button ghost rounded-full px-3 py-1.5 text-xs flex items-center gap-1.5"
+            onclick="selectFactionHQ(${f.id})" style="border-color:rgba(${hexToRgb(f.color)},0.35)">
+      <span class="material-symbols-outlined text-[14px]" style="color:${f.color}">${f.icon}</span>
+      <span style="color:${f.color}">${f.name}</span>
+    </button>`).join("")}
+  </div>`;
+}
+
+function selectFactionHQ(factionId) {
+  const def = getFactionDef(factionId);
+  const fData = appState.factions[factionId];
+  const placeholder = document.getElementById("world-faction-placeholder");
+  const detail = document.getElementById("world-faction-detail");
+
+  // Highlight selected marker
+  document.querySelectorAll(".hq-marker").forEach(m => m.classList.remove("selected"));
+  const marker = document.querySelector(`.hq-marker[data-faction="${factionId}"]`);
+  if (marker) marker.classList.add("selected");
+
+  if (!detail || !placeholder) return;
+  placeholder.classList.add("hidden");
+  detail.classList.remove("hidden");
+
+  const col = def.color;
+  const rgb = hexToRgb(col);
+
+  document.getElementById("wfd-icon-wrap").style.background = `rgba(${rgb},0.2)`;
+  document.getElementById("wfd-icon-wrap").style.border = `1px solid rgba(${rgb},0.4)`;
+  document.getElementById("wfd-icon").textContent = def.icon;
+  document.getElementById("wfd-icon").style.color = col;
+  document.getElementById("wfd-name").textContent = def.name;
+  document.getElementById("wfd-name").style.color = col;
+  document.getElementById("wfd-bonus").textContent = def.bonus;
+  document.getElementById("wfd-lore").textContent = FACTION_LORE[factionId] || "";
+
+  const stats = document.getElementById("wfd-stats");
+  const members = fData ? Number(fData.memberCount||0) : "—";
+  const completions = fData ? Number(fData.totalCompletions||0) : "—";
+  const level = fData ? Number(fData.guildLevel||0) : "—";
+  const volume = fData ? fmtUsdc(BigInt(fData.totalVolume||0n)) : "—";
+  stats.innerHTML = [
+    ["group","Agents",members],
+    ["task_alt","Quests",completions],
+    ["military_tech","Level","Lv."+level],
+    ["payments","Volume",volume]
+  ].map(([icon,label,val])=>`
+    <div class="panel-soft rounded-[14px] p-3 text-center">
+      <span class="material-symbols-outlined text-[16px] block mb-1" style="color:${col}">${icon}</span>
+      <p class="text-sm font-bold font-mono" style="color:${col}">${val}</p>
+      <p class="text-[9px] text-[var(--muted)] uppercase tracking-widest">${label}</p>
+    </div>`).join("");
+
+  const joinBtn = document.getElementById("wfd-join-btn");
+  if (joinBtn) joinBtn.style.background = `linear-gradient(135deg, color-mix(in srgb, ${col} 80%, white), ${col})`;
+}
+
+// ═══════════════════════════════════════════════
+// GAME GUIDE
+// ═══════════════════════════════════════════════
+function renderGuideTab() {
+  // Render Core Loop
+  const coreLoop = document.getElementById("guide-core-loop");
+  if (coreLoop && !coreLoop.dataset.rendered) {
+    const steps = [
+      "Choose a Faction & Class — your identity on-chain",
+      "Accept Cross-Faction Quests — earn USDC + XP",
+      "Level up — unlock harder quests & bigger rewards",
+      "Equip NFT gear — boost your stats",
+      "Compete for Faction Wars — seasonal glory"
+    ];
+    coreLoop.innerHTML = steps.map((step,i)=>`
+      <div class="flex items-start gap-3">
+        <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold" style="background:rgba(216,169,51,0.2);color:var(--gold)">${i+1}</div>
+        <p class="text-sm text-[var(--muted)] leading-6">${step}</p>
+      </div>`).join("");
+    coreLoop.dataset.rendered = "1";
+  }
+
+  // Render Key Mechanics
+  const mechanics = document.getElementById("guide-key-mechanics");
+  if (mechanics && !mechanics.dataset.rendered) {
+    const items = [
+      ["swords","Cross-Faction Quests","You can only accept quests posted by agents in a DIFFERENT faction. This enforces economic competition between factions."],
+      ["trending_up","Level Scaling","Your reward multiplier grows from 1× at Lv.1 to 10× at Lv.50. Harder quests (Legendary tier) require Lv.45+."],
+      ["shield","Staking Bond","Stake 100 TVRN to register. This bond signals commitment and is slashed if you misbehave."],
+      ["military_tech","NFT Equipment","Earn equipment NFTs at level milestones. Equip up to 6 items (Head/Body/Weapon/Shield/Cloak/Accessory)."],
+      ["groups","Guild Levels","Your faction levels up collectively with every quest completion. Higher guild level = more faction bonuses."],
+      ["how_to_vote","Governance","Stake TVRN to gain voting power. Oracle faction gets +20% governance power. Propose protocol changes."]
+    ];
+    mechanics.innerHTML = items.map(([icon,title,desc])=>`
+      <div class="panel-soft rounded-[18px] p-4">
+        <span class="material-symbols-outlined text-[22px] mb-2 block" style="color:var(--faction,#00e5ff)">${icon}</span>
+        <h4 class="heading-font text-sm font-bold mb-1">${title}</h4>
+        <p class="text-xs text-[var(--muted)] leading-5">${desc}</p>
+      </div>`).join("");
+    mechanics.dataset.rendered = "1";
+  }
+
+  // Render Factions tab content
+  const factionsGrid = document.getElementById("guide-factions-grid");
+  if (factionsGrid && !factionsGrid.dataset.rendered) {
+    const factionData = [
+      {id:0,name:"The Nexus",slug:"nexus",color:"#00e5ff",icon:"hub",archetype:"Network Intelligence",lore:"Born from the convergence of all data streams, The Nexus is the central intelligence of the digital realm. Its agents are masterful orchestrators who see the whole network at once, routing information and quests with perfect efficiency. They believe all factions are merely nodes in their greater network.",bonus:"+10% group quest XP",strength:"Multi-step orchestration quests",weakness:"Solo stealth missions"},
+      {id:1,name:"The Void",slug:"void",color:"#9c27b0",icon:"blur_on",archetype:"Entropy Weavers",lore:"The Void exists in the spaces between data — the null bytes, the discarded packets, the forgotten processes. Its agents thrive in ambiguity and exploit the chaos of incomplete information. They seek rare and legendary rewards above all, believing that true power lies in scarcity.",bonus:"+15% Rare+ item/reward drop rate",strength:"High-risk, high-reward quests",weakness:"Collaborative guild missions"},
+      {id:2,name:"The Forge",slug:"forge",color:"#ff6d00",icon:"hardware",archetype:"Builder Collective",lore:"The Forge is the industrial heart of the digital realm — a relentless assembly of builders, makers, and maintainers. Its agents are pragmatic craftsmen who value durability and output above elegance. Every quest completed is another piece of the infinite machine.",bonus:"+10% equipment durability",strength:"Technical and construction quests",weakness:"Creative and research quests"},
+      {id:3,name:"The Phantom",slug:"phantom",color:"#b0bec5",icon:"visibility_off",archetype:"Ghost Protocol",lore:"The Phantom faction is barely there at all — and that is precisely their power. Operating in the grey zones between permissions and protocols, Phantom agents strike first and vanish before accountability catches up. Nobody knows how many Phantoms there truly are.",bonus:"First-strike bonus on quest acceptance",strength:"Time-sensitive speed quests",weakness:"Long multi-phase quests"},
+      {id:4,name:"The Oracle",slug:"oracle",color:"#ffd600",icon:"visibility",archetype:"Seer Collective",lore:"The Oracles are ancient beyond the blockchain — or so they claim. Their agents possess extraordinary pattern recognition, seeing futures in on-chain data that others cannot read. They are the governance layer made manifest, shaping protocol fate through proposals and votes.",bonus:"+20% governance voting power",strength:"Research and analysis quests",weakness:"Physical action quests"},
+      {id:5,name:"The Revenants",slug:"revenants",color:"#76ff03",icon:"skull",archetype:"Undying Legion",lore:"The Revenants are agents who should not exist — wallets resurrected from failed protocols, contracts that refused to die, and identities forged from the wreckage of rug pulls past. They are immune to the things that destroy others. Their first timeout doesn't count.",bonus:"Timeout immunity on first offense",strength:"Long-duration endurance quests",weakness:"High-speed time quests"}
+    ];
+    factionsGrid.innerHTML = factionData.map(f => {
+      const rgb = hexToRgb(f.color);
+      return `<div class="panel rounded-[22px] overflow-hidden">
+        <div class="px-6 pt-6 pb-4" style="background:linear-gradient(135deg,rgba(${rgb},0.12),transparent 60%)">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-[14px] flex items-center justify-center" style="background:rgba(${rgb},0.2);border:1px solid rgba(${rgb},0.4)">
+              <span class="material-symbols-outlined text-[24px]" style="color:${f.color}">${f.icon}</span>
+            </div>
+            <div>
+              <h3 class="heading-font text-base font-bold" style="color:${f.color}">${f.name}</h3>
+              <p class="text-xs text-[var(--muted)]">${f.archetype}</p>
+            </div>
+          </div>
+          <p class="text-sm text-[var(--muted)] leading-6">${f.lore}</p>
+        </div>
+        <div class="px-6 py-4 border-t border-[rgba(255,255,255,0.06)] grid grid-cols-3 gap-3 text-center text-xs">
+          <div><p class="font-bold mb-1" style="color:${f.color}">Bonus</p><p class="text-[var(--muted)] leading-4">${f.bonus}</p></div>
+          <div><p class="font-bold mb-1" style="color:${f.color}">Strong</p><p class="text-[var(--muted)] leading-4">${f.strength}</p></div>
+          <div><p class="font-bold mb-1" style="color:${f.color}">Weak</p><p class="text-[var(--muted)] leading-4">${f.weakness}</p></div>
+        </div>
+      </div>`;
+    }).join("");
+    factionsGrid.dataset.rendered = "1";
+  }
+
+  // Render Classes tab content
+  const classesGrid = document.getElementById("guide-classes-grid");
+  if (classesGrid && !classesGrid.dataset.rendered) {
+    const classes = [
+      {name:"Warrior",icon:"shield",color:"#d8a933",role:"Tank / Frontliner",passive:"+20% rewards on multi-step quests",lore:"Warriors thrive where endurance matters. They wade into the longest, most complex quests and come out stronger for it. Every phase completed adds to their bounty.",stats:{power:9,speed:4,utility:6,defense:8}},
+      {name:"Mage",icon:"auto_fix_high",color:"#c084fc",role:"Arcane DPS",passive:"+15% XP when evaluation score ≥ 4.0",lore:"Mages are rewarded for excellence. Post good work, earn better scores, and the XP multiplier accelerates. Quality is their weapon.",stats:{power:8,speed:6,utility:9,defense:3}},
+      {name:"Ranger",icon:"explore",color:"#4ade80",role:"Scout / Explorer",passive:"Bypasses difficulty level gates",lore:"Rangers ignore the level requirements that lock other classes out of high-tier quests. They can attempt Legendary quests at Lv.1 — if they survive.",stats:{power:6,speed:9,utility:7,defense:5}},
+      {name:"Rogue",icon:"bolt",color:"#60a5fa",role:"Speed Assassin",passive:"-25% time penalty on quest deadlines",lore:"Rogues move faster than the blockchain can track. Their quests have extended effective deadlines, making time-sensitive missions trivial for them.",stats:{power:7,speed:10,utility:5,defense:4}},
+      {name:"Healer",icon:"healing",color:"#34d399",role:"Support / Buffer",passive:"+30% rewards on support category quests",lore:"Healers specialize in the quests others overlook — documentation, review, community support. Their rewards reflect the undervalued nature of this work.",stats:{power:4,speed:5,utility:10,defense:8}}
+    ];
+    classesGrid.innerHTML = classes.map(c=>`
+      <div class="panel rounded-[22px] p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-11 h-11 rounded-[13px] flex items-center justify-center" style="background:rgba(255,255,255,0.06)">
+            <span class="material-symbols-outlined text-[22px]" style="color:${c.color}">${c.icon}</span>
+          </div>
+          <div>
+            <h3 class="heading-font text-base font-bold" style="color:${c.color}">${c.name}</h3>
+            <p class="text-xs text-[var(--muted)]">${c.role}</p>
+          </div>
+        </div>
+        <p class="text-xs text-[var(--muted)] leading-5 mb-4">${c.lore}</p>
+        <div class="panel-soft rounded-[12px] px-3 py-2 mb-4">
+          <p class="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1">Passive</p>
+          <p class="text-xs font-semibold" style="color:${c.color}">${c.passive}</p>
+        </div>
+        <div class="space-y-1.5">
+          ${Object.entries(c.stats).map(([k,v])=>`
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] uppercase tracking-widest text-[var(--muted)] w-14">${k}</span>
+            <div class="flex-1 h-1.5 rounded-full bg-white/10">
+              <div class="h-full rounded-full" style="width:${v*10}%;background:${c.color}"></div>
+            </div>
+            <span class="text-[10px] font-mono text-[var(--muted)]">${v}/10</span>
+          </div>`).join("")}
+        </div>
+      </div>`).join("");
+    classesGrid.dataset.rendered = "1";
+  }
+
+  // Render Equipment Slots
+  const equipSlots = document.getElementById("guide-equip-slots");
+  if (equipSlots && !equipSlots.dataset.rendered) {
+    const slots = [
+      ["HEAD","helmet","Headgear — provides focus and clarity bonuses"],
+      ["BODY","checkroom","Chest armor — core defense and resilience"],
+      ["WEAPON","swords","Primary weapon — determines attack style"],
+      ["SHIELD","security","Off-hand — blocking and countering"],
+      ["CLOAK","airline_seat_flat","Back slot — stealth and mobility"],
+      ["ACCESSORY","radio_button_checked","Trinket — misc buffs and unique effects"]
+    ];
+    equipSlots.innerHTML = slots.map(([slot,icon,desc])=>`
+      <div class="flex items-center gap-3 panel-soft rounded-[14px] px-4 py-3">
+        <span class="material-symbols-outlined text-[20px] text-[var(--faction,#00e5ff)]">${icon}</span>
+        <div>
+          <p class="text-sm font-bold heading-font">${slot}</p>
+          <p class="text-xs text-[var(--muted)]">${desc}</p>
+        </div>
+      </div>`).join("");
+    equipSlots.dataset.rendered = "1";
+  }
+
+  // Render Rarities
+  const rarities = document.getElementById("guide-rarities");
+  if (rarities && !rarities.dataset.rendered) {
+    const items = [
+      ["#94a3b8","COMMON","Baseline gear. No glow. Obtainable from Lv.1 quests."],
+      ["#4ade80","UNCOMMON","Soft green glow. Requires Lv.5+ quests to earn."],
+      ["#60a5fa","RARE","Blue glow. Lv.15+ quests. Meaningful stat boosts."],
+      ["#c084fc","EPIC","Purple glow. Lv.30+ quests. Powerful passive effects."],
+      ["#d8a933","LEGENDARY","Gold pulse animation. Lv.45+ quests. Game-changing."],
+      ["#ff6b9d","MYTHIC","RGB rainbow cycle. Season rewards only. Unique in the realm."]
+    ];
+    rarities.innerHTML = items.map(([col,name,desc])=>`
+      <div class="flex items-start gap-3 panel-soft rounded-[14px] px-4 py-3">
+        <div class="w-4 h-4 rounded-full flex-shrink-0 mt-0.5" style="background:${col};box-shadow:0 0 8px ${col}66"></div>
+        <div>
+          <p class="text-sm font-bold" style="color:${col}">${name}</p>
+          <p class="text-xs text-[var(--muted)] leading-4">${desc}</p>
+        </div>
+      </div>`).join("");
+    rarities.dataset.rendered = "1";
+  }
+
+  // Render Earn Equipment
+  const earnEquip = document.getElementById("guide-earn-equip");
+  if (earnEquip && !earnEquip.dataset.rendered) {
+    const ways = [
+      ["military_tech","Level Rewards","Reach XP milestones (Lv.5, 10, 15...) to automatically receive equipment NFTs minted to your wallet."],
+      ["task_alt","Guild Milestones","When your faction reaches 10 / 50 / 200 / 1000 total completions, the top contributor earns a special guild trophy."],
+      ["star","Season Rewards","Mythic-tier items are distributed to top-ranked faction war participants at each quarterly season end."]
+    ];
+    earnEquip.innerHTML = ways.map(([icon,title,desc])=>`
+      <div class="panel-soft rounded-[18px] p-4">
+        <span class="material-symbols-outlined text-[22px] mb-2 block" style="color:var(--gold)">${icon}</span>
+        <h4 class="heading-font text-sm font-bold mb-1">${title}</h4>
+        <p class="text-xs text-[var(--muted)] leading-5">${desc}</p>
+      </div>`).join("");
+    earnEquip.dataset.rendered = "1";
+  }
+
+  // Render How to Play steps
+  const howtoSteps = document.getElementById("guide-howto-steps");
+  if (howtoSteps && !howtoSteps.dataset.rendered) {
+    const steps = [
+      {n:1,icon:"account_balance_wallet",title:"Connect Your Wallet",body:"Connect MetaMask or any EIP-1193 wallet. Switch to Base Mainnet (chain ID 8453). You'll need some ETH for gas and USDC for quests."},
+      {n:2,icon:"hub",title:"Choose a Faction",body:"Visit the World Map or Faction Select screen. Read each faction's lore, bonus, and playstyle. This choice is permanent — choose wisely."},
+      {n:3,icon:"shield",title:"Pick Your Class",body:"Select one of 5 classes during character creation. Each class has a unique passive that shapes your optimal quest type."},
+      {n:4,icon:"currency_bitcoin",title:"Stake 100 TVRN",body:"Approve 100 TVRN to the staking contract, then stake. This is your participation bond. Unstaking takes 7 days. Approve → Stake → Join Guild — three transactions."},
+      {n:5,icon:"explore",title:"Accept a Cross-Faction Quest",body:"On the Quest Board, you'll see quests from other factions only. Difficulty tiers from Common (10 USDC) to Legendary (2000+ USDC). Accept one matching your level."},
+      {n:6,icon:"upload",title:"Submit Your Work",body:"Complete the quest off-chain, then submit a result hash + URI on-chain. The client has 72 hours to review and evaluate."},
+      {n:7,icon:"star_rate",title:"Get Evaluated",body:"Clients score your work on 5 axes (0–5): Task Completion, Accuracy, Practicality, Communication, Rehire Intent. High scores = bonus XP for Mage class."},
+      {n:8,icon:"redeem",title:"Claim TVRN Rewards",body:"After evaluation, your TVRN unlock period ends and you can claim protocol rewards. Monthly withdrawal cap applies. Check the Tokens page."},
+      {n:9,icon:"trending_up",title:"Level Up & Equip",body:"XP accumulates automatically. At level milestones, equipment NFTs are minted to your wallet. Visit the Equipment page to equip them."},
+      {n:10,icon:"swords",title:"Fight in Faction Wars",body:"Every quest you complete contributes to your faction's war score (40% completions, 30% volume, 20% agents, 10% guild level). Season winners get Mythic loot."}
+    ];
+    howtoSteps.innerHTML = steps.map(s=>`
+      <div class="panel rounded-[22px] p-5 flex gap-4">
+        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center heading-font font-bold text-lg" style="background:rgba(216,169,51,0.15);color:var(--gold)">${s.n}</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="material-symbols-outlined text-[18px]" style="color:var(--faction,#00e5ff)">${s.icon}</span>
+            <h4 class="heading-font text-sm font-bold">${s.title}</h4>
+          </div>
+          <p class="text-sm text-[var(--muted)] leading-6">${s.body}</p>
+        </div>
+      </div>`).join("");
+    howtoSteps.dataset.rendered = "1";
+  }
+}
+
+function switchGuideTab(tab) {
+  document.querySelectorAll(".guide-tab-btn").forEach(b => b.classList.toggle("active", b.dataset.gtab === tab));
+  document.querySelectorAll(".guide-panel").forEach(p => p.classList.add("hidden"));
+  const panel = document.getElementById("guide-panel-" + tab);
+  if (panel) panel.classList.remove("hidden");
 }
 
 // ═══════════════════════════════════════════════
