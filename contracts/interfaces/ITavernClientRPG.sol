@@ -2,9 +2,7 @@
 pragma solidity ^0.8.20;
 
 interface ITavernClientRPG {
-    function SEASON_DURATION() external view returns (uint256);
-
-    function currentSeasonStart() external view returns (uint256);
+    function MAX_LEVEL() external view returns (uint256);
 
     function clientClaimable(address client) external view returns (uint256);
 
@@ -29,5 +27,5 @@ interface ITavernClientRPG {
 
     function withdrawFor(address client, uint256 amount) external;
 
-    function startNewSeason() external;
+    function levelThreshold(uint256 level) external view returns (uint256);
 }

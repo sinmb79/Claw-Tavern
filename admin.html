@@ -152,7 +152,7 @@
         <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="automation">Automation</button>
         <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="treasury">Treasury</button>
         <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="management">Management</button>
-        <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="season">Seasons</button>
+
         <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="contracts">Contracts</button>
       </div>
     </header>
@@ -213,18 +213,6 @@
         </div>
       </section>
 
-      <section id="admin-tab-season" class="admin-panel hidden space-y-6">
-        <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <div class="panel rounded-[28px] p-6">
-            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Season Control</p>
-            <div id="season-summary" class="mt-6 space-y-4"></div>
-          </div>
-          <div class="panel rounded-[28px] p-6">
-            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Reset Guardrails</p>
-            <div id="season-guardrails" class="mt-6 space-y-4"></div>
-          </div>
-        </div>
-      </section>
 
       <section id="admin-tab-contracts" class="admin-panel hidden space-y-6">
         <div class="panel rounded-[28px] p-6">
@@ -245,15 +233,19 @@
         rpcUrl: "https://base-rpc.publicnode.com",
         explorer: "https://basescan.org",
         addresses: {
-          adminPriceFeed: "0xb484695F28382E9960d37728Aa724777FC252149",
-          tavernToken: "0x7E0185DF566269906711ada358cD816394e20447",
-          tavernRegistry: "0xF19Fc7b03Af2704e9a8d7D11071dE92014B9A0ac",
-          tavernEscrow: "0xd78000aDdd0e9eFAf597fDFE8BF47aF2b6cd53e4",
-          tavernStaking: "0x8593D907FC46Ea84c2d6C74E78b04565DAD8860E",
-          tavernGovernance: "0x46407450a1CeAB0F6BFd40e1df33D85fB1E088Ca",
-          tavernAutomationRouter: "0x5dfCd50a8412AebC87F97eE2fD890924643b40EC",
-          tavernClientRPG: "0xAAA156e23D8E89FBA9f17C3e4ff6ad42ed9fB4A3",
-          tavernSubscription: "0x1868c2133Cb6cB0cF993e0F877CE0B8C758050CB",
+          adminPriceFeed: "0x1dbCc7c12F82b6ae2b7fD7D482D501d7Db81618C",
+          tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
+          tavernRegistry: "0x60F9BCa5F361498e30f5634BE2413612D3991c1D",
+          tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0",
+          tavernStaking: "0xCD0B0e4d233358D054bE798Fa6FFF6a50EC68814",
+          tavernGovernance: "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10",
+          tavernAutomationRouter: "0xB8083F4b42855f72b7323bB16ed4B7067B05378f",
+          tavernClientRPG: "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF",
+          tavernSubscription: "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec",
+          tavernEquipment: "0x410575336467F8B0Fb338bce68Ab4638f7bf26Ee",
+          tavernGuild: "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C",
+          tavernServiceRegistry: "0xea9DafC39a98c55536c989f3416c17Bf29B8100F",
+          tavernMatchmaker: "0x371b54325f8Cc9587486447BAC9fD0A7757F65e0",
           usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
           operatorWallet: "0xf95232Ae6a716862799C90239028fb590C9bB307"
         },
@@ -266,10 +258,26 @@
           intervalMinutes: 5
         },
         roleLedger: [
-          ["TavernAutomationRouter", "KEEPER_ROLE", "0x96e175C10bD9fADa3f9dB2a499312e6b10e6d455", "granted"],
-          ["TavernClientRPG", "KEEPER_ROLE", "0x5dfCd50a8412AebC87F97eE2fD890924643b40EC", "granted"],
-          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0x1868c2133Cb6cB0cF993e0F877CE0B8C758050CB", "granted"],
-          ["AdminPriceFeed", "REFRESHER", "0x5dfCd50a8412AebC87F97eE2fD890924643b40EC", "granted"]
+          ["TavernToken", "MINTER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "BURNER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "GOVERNANCE_ROLE", "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10", "granted"],
+          ["TavernRegistry", "ARBITER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernRegistry", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEscrow", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEscrow", "GOVERNANCE_ROLE", "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10", "granted"],
+          ["TavernEscrow", "SERVICE_REGISTRY_ROLE", "0xea9DafC39a98c55536c989f3416c17Bf29B8100F", "granted"],
+          ["TavernGuild", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernGuild", "SERVICE_REGISTRY_ROLE", "0xea9DafC39a98c55536c989f3416c17Bf29B8100F", "granted"],
+          ["TavernGuild", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEquipment", "MINTER_ROLE", "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF", "granted"],
+          ["TavernEquipment", "GUILD_ROLE", "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C", "granted"],
+          ["TavernServiceRegistry", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernClientRPG", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernClientRPG", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec", "granted"],
+          ["TavernSubscription", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["AdminPriceFeed", "REFRESHER", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"]
         ]
       },
       baseSepolia: {
@@ -279,15 +287,19 @@
         rpcUrl: "https://base-sepolia-rpc.publicnode.com",
         explorer: "https://sepolia.basescan.org",
         addresses: {
-          adminPriceFeed: "0x1E072c705Cb306BA3Dd03A5f952ecd0c82416F80",
-          tavernToken: "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
-          tavernRegistry: "0x08a3adAfb04E03589B9D167B6FA8b2152507107B",
-          tavernEscrow: "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
-          tavernStaking: "0x77235E24b49936cE3D6b195E6a1c4c68F686D82A",
-          tavernGovernance: "0x8c653FFe2EaD67a7147D86e9a0c9617F31b95f3C",
-          tavernAutomationRouter: "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
-          tavernClientRPG: "0x877183b139981A4e7Dd593f6223C56e28032fc7D",
-          tavernSubscription: "0xEDc2D80075F26399f3af2d61800bdf95DCC90AaA",
+          adminPriceFeed: "0xaFB1728A7c82a76f9289E213d0B916BC1EF67bC5",
+          tavernToken: "0xE581E1996F6740f6cB527c595228A83017793058",
+          tavernRegistry: "0x5100440a0190d9ffE928278cA50a730B03BE35dd",
+          tavernEscrow: "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956",
+          tavernStaking: "0x2F62CaD53ebBd3e0c64Cad38063FCeEfeCf332A5",
+          tavernGovernance: "0x0428538037f0B0712E2340360969Ed70Ff755864",
+          tavernAutomationRouter: "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7",
+          tavernClientRPG: "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A",
+          tavernSubscription: "0x4247cED594A15B6DD4e804370045033D2b1d24aa",
+          tavernEquipment: "0x122d164e0283F2eaCb4BD3B285Ba49f2552aCEf0",
+          tavernGuild: "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9",
+          tavernServiceRegistry: "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172",
+          tavernMatchmaker: "0x4c1F7b315d950d2F334971B3bcB1D0Ec20964EAD",
           usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
           operatorWallet: "0xf95232Ae6a716862799C90239028fb590C9bB307"
         },
@@ -300,10 +312,26 @@
           intervalMinutes: 5
         },
         roleLedger: [
-          ["TavernAutomationRouter", "KEEPER_ROLE", "0x1cEE38e968804d4A85F7d48830dDfbbee5E081FD", "granted"],
-          ["TavernClientRPG", "KEEPER_ROLE", "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14", "granted"],
-          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0xEDc2D80075F26399f3af2d61800bdf95DCC90AaA", "granted"],
-          ["AdminPriceFeed", "REFRESHER", "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14", "granted"]
+          ["TavernToken", "MINTER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "BURNER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "GOVERNANCE_ROLE", "0x0428538037f0B0712E2340360969Ed70Ff755864", "granted"],
+          ["TavernRegistry", "ARBITER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernRegistry", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEscrow", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEscrow", "GOVERNANCE_ROLE", "0x0428538037f0B0712E2340360969Ed70Ff755864", "granted"],
+          ["TavernEscrow", "SERVICE_REGISTRY_ROLE", "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172", "granted"],
+          ["TavernGuild", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernGuild", "SERVICE_REGISTRY_ROLE", "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172", "granted"],
+          ["TavernGuild", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEquipment", "MINTER_ROLE", "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A", "granted"],
+          ["TavernEquipment", "GUILD_ROLE", "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9", "granted"],
+          ["TavernServiceRegistry", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernClientRPG", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernClientRPG", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0x4247cED594A15B6DD4e804370045033D2b1d24aa", "granted"],
+          ["TavernSubscription", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["AdminPriceFeed", "REFRESHER", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"]
         ]
       }
     };
@@ -319,9 +347,6 @@
     const REGISTRY_ABI = [
       "function jobQuota(uint256) view returns (uint256)"
     ];
-    const RPG_ABI = [
-      "function currentSeasonNumber() view returns (uint256)"
-    ];
 
     const refs = {};
     const state = {
@@ -335,7 +360,7 @@
       questCount: 0,
       feeStage: 0,
       ecosystemPool: 0n,
-      seasonNumber: 0,
+
       quotas: [],
       isAdmin: false,
       currentTab: "guild"
@@ -359,8 +384,7 @@
       refs.treasuryMetrics = $("treasury-metrics");
       refs.treasuryNotes = $("treasury-notes");
       refs.managementCards = $("management-cards");
-      refs.seasonSummary = $("season-summary");
-      refs.seasonGuardrails = $("season-guardrails");
+
       refs.contractGrid = $("contract-grid");
     }
 
@@ -405,8 +429,7 @@
       refs.guildMetrics.innerHTML = [
         ["Latest block", String(state.blockNumber ?? "n/a"), "Live provider height"],
         ["Quest count", String(Math.max(0, state.questCount - 1)), "Derived from nextQuestId()"],
-        ["Fee stage", `${state.feeStage}%`, "Escrow current fee stage"],
-        ["Season", `Season ${state.seasonNumber || "n/a"}`, "Current TavernClientRPG season"]
+        ["Fee stage", `${state.feeStage}%`, "Escrow current fee stage"]
       ].map(([label, value, note]) => `
         <div class="panel-soft rounded-2xl p-4">
           <p class="text-xs uppercase tracking-[0.22em] text-muted">${label}</p>
@@ -484,7 +507,7 @@
         ["AutoApprove", "Automated result approval through router upkeep.", "ACTIVE"],
         ["FeeStage", "Escrow fee stage checks routed via upkeep.", "ACTIVE"],
         ["QuotaRebalance", "Registry quota maintenance and hysteresis checks.", "ACTIVE"],
-        ["SeasonReset", "Client RPG season rollover guardrail.", "MANUAL"],
+
         ["SubscriptionExpiry", "Subscription expiry and client status review.", "MANUAL"]
       ];
       refs.automationTasks.innerHTML = taskCards.map(([title, body, status]) => `
@@ -545,36 +568,6 @@
       `).join("");
     }
 
-    function renderSeason() {
-      refs.seasonSummary.innerHTML = `
-        <div class="panel-soft rounded-2xl p-5">
-          <p class="text-xs uppercase tracking-[0.22em] text-muted">Current season</p>
-          <p class="mt-3 font-display text-4xl font-bold text-gold">Season ${state.seasonNumber || "n/a"}</p>
-          <p class="mt-3 leading-7 text-muted">The live season number comes from TavernClientRPG. Keepers can roll it every 180 days once the current window has expired.</p>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="panel-soft rounded-2xl p-4">
-            <p class="text-xs uppercase tracking-[0.22em] text-muted">Season duration</p>
-            <p class="mt-2 font-display text-2xl font-bold text-ink">180 days</p>
-          </div>
-          <div class="panel-soft rounded-2xl p-4">
-            <p class="text-xs uppercase tracking-[0.22em] text-muted">Withdrawal gate</p>
-            <p class="mt-2 text-sm text-muted">Lv.2+, 5 jobs+, verified, 30 day age, monthly cap room.</p>
-          </div>
-        </div>
-      `;
-
-      refs.seasonGuardrails.innerHTML = `
-        <div class="panel-soft rounded-2xl p-5">
-          <p class="font-display text-xl font-bold text-ink">Manual reset guardrails</p>
-          <ul class="mt-4 space-y-3 text-sm text-muted">
-            <li>Only perform season rollover after confirming the cooldown window has elapsed.</li>
-            <li>Use terminal scripts for any privileged write or multisig-backed action.</li>
-            <li>Validate automation health before and after any manual intervention.</li>
-          </ul>
-        </div>
-      `;
-    }
 
     function renderContracts() {
       const config = getConfig();
@@ -621,7 +614,6 @@
       const escrow = new ethers.Contract(config.addresses.tavernEscrow, ESCROW_ABI, state.provider);
       const registry = new ethers.Contract(config.addresses.tavernRegistry, REGISTRY_ABI, state.provider);
       const token = new ethers.Contract(config.addresses.tavernToken, TOKEN_ABI, state.provider);
-      const clientRPG = new ethers.Contract(config.addresses.tavernClientRPG, RPG_ABI, state.provider);
 
       const quotaReads = [];
       for (let index = 0; index < 6; index += 1) {
@@ -632,13 +624,11 @@
       const nextQuestId = await escrow.nextQuestId().catch(() => 0n);
       const feeStage = await escrow.currentFeeStage().catch(() => 0n);
       const ecosystemPool = await token.remainingEcosystemPool().catch(() => 0n);
-      const seasonNumber = await clientRPG.currentSeasonNumber().catch(() => 0n);
 
       state.blockNumber = blockNumber;
       state.questCount = Number(nextQuestId);
       state.feeStage = Number(feeStage);
       state.ecosystemPool = ecosystemPool;
-      state.seasonNumber = Number(seasonNumber);
       state.quotas = quotaReads.map((value) => Number(value));
       state.isAdmin = false;
 
@@ -656,7 +646,6 @@
       renderAutomation();
       renderTreasury();
       renderManagement();
-      renderSeason();
       renderContracts();
     }
 

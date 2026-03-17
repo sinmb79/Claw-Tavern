@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./interfaces/IAutomationCompatible.sol";
 import "./interfaces/ITavernClientRPG.sol";
+import "./interfaces/ITavernGuild.sol";
 import "./interfaces/ITavernSubscription.sol";
 
 interface ITavernEscrowAutomation {
@@ -66,7 +67,7 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
         PriceRefresh,
         MasterSettle,
         MonthlyEjection,
-        SeasonReset,
+        GuildMaintenance,
         SubscriptionExpiry
     }
 
@@ -74,6 +75,7 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
     address public registry;
     address public priceFeed;
     ITavernClientRPG public clientRPG;
+    ITavernGuild public guildContract;
     ITavernSubscription public subscriptionContract;
     uint256 public scanBatchSize;
     uint256 public lastScanCursor;
@@ -158,8 +160,8 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
             return (true, abi.encode(TaskType.MonthlyEjection, uint256(0)));
         }
 
-        if (_shouldResetSeason()) {
-            return (true, abi.encode(TaskType.SeasonReset, uint256(0)));
+        if (_shouldRunGuildMaintenance()) {
+            return (true, abi.encode(TaskType.GuildMaintenance, uint256(0)));
         }
 
         if (_shouldProcessSubscriptions()) {
@@ -192,8 +194,8 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
         } else if (taskType == TaskType.MonthlyEjection) {
             lastEjectionReviewAt = block.timestamp;
             _executeMonthlyEjection();
-        } else if (taskType == TaskType.SeasonReset) {
-            clientRPG.startNewSeason();
+        } else if (taskType == TaskType.GuildMaintenance) {
+            guildContract.performMaintenance();
         } else if (taskType == TaskType.SubscriptionExpiry) {
             _executeSubscriptionTasks();
         } else {
@@ -223,6 +225,11 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
     function setClientRPG(address _rpg) external onlyRole(ADMIN_ROLE) {
         clientRPG = ITavernClientRPG(_rpg);
         emit AddressConfigUpdated("clientRPG", _rpg);
+    }
+
+    function setGuildContract(address _guild) external onlyRole(ADMIN_ROLE) {
+        guildContract = ITavernGuild(_guild);
+        emit AddressConfigUpdated("guildContract", _guild);
     }
 
     function setSubscriptionContract(address _subscription) external onlyRole(ADMIN_ROLE) {
@@ -399,12 +406,12 @@ contract TavernAutomationRouter is AccessControl, ReentrancyGuard, AutomationCom
             && block.timestamp >= lastEjectionReviewAt + ejectionReviewInterval;
     }
 
-    function _shouldResetSeason() internal view returns (bool) {
-        if (address(clientRPG) == address(0)) {
+    function _shouldRunGuildMaintenance() internal view returns (bool) {
+        if (address(guildContract) == address(0)) {
             return false;
         }
 
-        return block.timestamp >= clientRPG.currentSeasonStart() + clientRPG.SEASON_DURATION();
+        return guildContract.needsMaintenance();
     }
 
     function _shouldProcessSubscriptions() internal view returns (bool) {

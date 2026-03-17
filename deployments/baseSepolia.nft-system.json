@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-03-15T23:16:37.258Z",
+  "network": "baseSepolia",
+  "execute": false,
+  "metadataUri": "ipfs://REPLACE_METADATA_CID/",
+  "existingAddresses": {
+    "tavernToken": "0xf57549A6207421FFbA836B12C9343B060bE9A8Ed",
+    "tavernEscrow": "0x77EDA16B3a35B5732bdc252eD127Db08fB6f273D",
+    "tavernStaking": "0x77235E24b49936cE3D6b195E6a1c4c68F686D82A",
+    "tavernAutomationRouter": "0x77F4feFE154EB40b316421800d8D2FB8ccb99E14",
+    "tavernClientRPG": "0x877183b139981A4e7Dd593f6223C56e28032fc7D"
+  },
+  "steps": [
+    "Deploy TavernEquipment",
+    "Deploy TavernGuild",
+    "Wire RPG equipment/guild references",
+    "Wire Router guild reference",
+    "Grant equipment/guild roles",
+    "Register 145 items",
+    "Set level rewards for levels 1-10",
+    "Set Lv100 threshold table"
+  ],
+  "levelRewardMap": {
+    "1": [
+      1,
+      11,
+      21,
+      31,
+      41,
+      51,
+      61
+    ],
+    "2": [
+      3,
+      13,
+      23,
+      33,
+      53,
+      63
+    ],
+    "3": [
+      5,
+      25,
+      43,
+      65
+    ],
+    "4": [
+      15,
+      35,
+      45,
+      55
+    ],
+    "5": [
+      7,
+      27,
+      67
+    ],
+    "6": [
+      17,
+      37
+    ],
+    "7": [
+      47,
+      57
+    ],
+    "8": [
+      9,
+      29,
+      69
+    ],
+    "9": [
+      19,
+      39
+    ],
+    "10": [
+      50,
+      70
+    ]
+  }
+}

@@ -33,6 +33,9 @@ deployments/baseSepolia.automation.json
 # Claude internal
 .claude/
 
+# AI design prompts (internal use)
+prompts/
+
 # Design assets (large binary files)
 design/
 nft-images/

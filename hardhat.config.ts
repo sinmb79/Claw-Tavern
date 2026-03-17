@@ -18,14 +18,29 @@ function getAccounts(): string[] {
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.8.20",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 1
+    compilers: [
+      {
+        version: "0.8.20",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1
+          },
+          viaIR: true
+        }
       },
-      viaIR: true
-    },
+      {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 1
+          },
+          viaIR: true,
+          evmVersion: "cancun"
+        }
+      }
+    ]
   },
   networks: {
     hardhat: {},

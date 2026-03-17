@@ -54,6 +54,10 @@ interface ITavernRegistry {
     function recordMasterJobCompletion(address agent, uint256 satisfactionScore) external;
 }
 
+interface ITavernServiceRegistrySettlement {
+    function recordServiceCompletion(uint256 serviceId, uint256 volume, uint256 rating) external;
+}
+
 error NotQuestClient();
 error NotQuestAgent();
 error NotKeeper();
@@ -102,6 +106,7 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
     bytes32 public constant GOVERNANCE_ROLE = keccak256("GOVERNANCE_ROLE");
+    bytes32 public constant SERVICE_REGISTRY_ROLE = keccak256("SERVICE_REGISTRY_ROLE");
 
     uint256 public constant BPS_DENOMINATOR = 10_000;
     uint256 public constant ORACLE_STALENESS = 1 hours;
@@ -182,6 +187,8 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
         uint256 tvrnUnlockTime;
         address planningAgent;
         address verificationAgent;
+        uint256 serviceId;
+        uint8 serviceTier;
     }
 
     struct CreditGrant {
@@ -205,6 +212,7 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
     address public registry;
     address public ethUsdFeed;
     address public tvrnUsdFeed;
+    address private _serviceRegistry;
 
     uint256 public nextQuestId;
     uint256 public maxQuestDeposit;
@@ -272,6 +280,14 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
     event OperatorPoolWithdrawn(address indexed to, address currency, uint256 amount);
     event BuybackExecuted(address currency, uint256 amount);
     event TreasuryWithdrawn(address indexed to, address currency, uint256 amount);
+    event QuestCreatedFromService(
+        uint256 indexed questId,
+        address indexed client,
+        address indexed agent,
+        uint256 amount,
+        uint256 serviceId,
+        uint8 tier
+    );
 
     modifier onlyExistingQuest(uint256 questId) {
         if (quests[questId].questId == 0) revert QuestNotFound();
@@ -364,7 +380,9 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
             compensated: false,
             tvrnUnlockTime: 0,
             planningAgent: address(0),
-            verificationAgent: address(0)
+            verificationAgent: address(0),
+            serviceId: 0,
+            serviceTier: 0
         });
 
         questBriefHashes[questId] = briefHash;
@@ -376,6 +394,54 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
         }
 
         emit QuestCreated(questId, msg.sender, currency, depositAmount);
+    }
+
+    function createQuestFromService(
+        address client,
+        address agent,
+        uint256 amount,
+        uint256 serviceId,
+        uint8 tier
+    ) external onlyRole(SERVICE_REGISTRY_ROLE) returns (uint256 questId) {
+        if (client == address(0) || agent == address(0)) revert ZeroAddress();
+        if (amount == 0) revert ZeroAmount();
+        if (amount > maxQuestDepositUsdc) revert UsdcDepositCapExceeded();
+        if (tier > 2) revert InvalidStage();
+
+        questId = ++nextQuestId;
+
+        quests[questId] = Quest({
+            questId: questId,
+            client: client,
+            agent: agent,
+            currency: address(usdc),
+            depositAmount: amount,
+            state: QuestState.Accepted,
+            createdAt: block.timestamp,
+            fundedAt: block.timestamp,
+            acceptedAt: block.timestamp,
+            submittedAt: 0,
+            resultViewedAt: 0,
+            evaluatedAt: 0,
+            evalScores: [uint8(0), 0, 0, 0, 0],
+            compensated: false,
+            tvrnUnlockTime: 0,
+            planningAgent: address(0),
+            verificationAgent: address(0),
+            serviceId: serviceId,
+            serviceTier: tier
+        });
+
+        if (!knownClients[client]) {
+            knownClients[client] = true;
+            activeClientCount++;
+        }
+        if (!knownAgents[agent]) {
+            knownAgents[agent] = true;
+            activeAgentCount++;
+        }
+
+        emit QuestCreatedFromService(questId, client, agent, amount, serviceId, tier);
     }
 
     function fundQuestUSDC(uint256 questId)
@@ -628,6 +694,10 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
         emit RegistryUpdated(newRegistry);
     }
 
+    function setServiceRegistry(address newServiceRegistry) external onlyRole(ADMIN_ROLE) {
+        _serviceRegistry = newServiceRegistry;
+    }
+
     function setMaxQuestDeposit(uint256 newMax) external onlyRole(ADMIN_ROLE) {
         if (newMax == 0) revert MaxZero();
         maxQuestDeposit = newMax;
@@ -820,14 +890,13 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
         Quest storage q = quests[questId];
         SettlementQuote memory quote = _quoteSettlement(q.depositAmount);
         uint256 serviceAmount = _distributeSettlementCurrency(q, quote);
+        uint256 volume = _toUsdcLikeAmount(_toUsd18(q.currency, q.depositAmount));
 
         _mintSettlementTVRN(q, quote.agentTvrnReferenceAmount);
         _callClientRPG(abi.encodeWithSelector(ITavernClientRPG.grantJobCompleteEXP.selector, q.client));
         _notifyRegistryReputation(q.agent, reputationDelta, reputationTag);
-        _notifyRegistryGuildActivity(
-            q.agent,
-            _toUsdcLikeAmount(_toUsd18(q.currency, quote.agentCurrencyPayout))
-        );
+        _notifyRegistryGuildActivity(q.agent, _toUsdcLikeAmount(_toUsd18(q.currency, quote.agentCurrencyPayout)));
+        _notifyServiceRegistryCompletion(q, volume);
 
         if (serviceAmount < _settlementRetainedMinimum(quote)) revert InvalidSettlementMath();
     }
@@ -1264,6 +1333,22 @@ contract TavernEscrow is AccessControl, ReentrancyGuard {
                 try ITavernRegistry(registryAddress).recordGuildActivity(profile.guildId, earnedUsdc) {} catch {}
             }
         } catch {}
+    }
+
+    function _notifyServiceRegistryCompletion(Quest storage q, uint256 volume) internal {
+        address serviceRegistryAddress = _serviceRegistry;
+        if (serviceRegistryAddress == address(0) || q.serviceId == 0) {
+            return;
+        }
+
+        uint256 rating = evaluationAvgScore[q.questId];
+        if (rating == 0) {
+            rating = 40;
+        }
+
+        try ITavernServiceRegistrySettlement(serviceRegistryAddress).recordServiceCompletion(
+            q.serviceId, volume, rating
+        ) {} catch {}
     }
 
     function _notifyRegistryMasterJobCompletion(address agent, uint256 satisfactionScore) internal {

@@ -235,6 +235,48 @@ describe("TavernAutomationRouter", function () {
     };
   }
 
+  async function deployGuildMaintenanceFixture() {
+    const core = await deployCoreFixture();
+    const { keeper, client, agent, other } = core;
+
+    const AdminPriceFeed = await ethers.getContractFactory("AdminPriceFeed");
+    const adminPriceFeed: any = await AdminPriceFeed.deploy(1_000_000);
+    await adminPriceFeed.waitForDeployment();
+
+    const TavernAutomationRouter = await ethers.getContractFactory("TavernAutomationRouter");
+    const router: any = await TavernAutomationRouter.deploy(
+      await core.escrow.getAddress(),
+      await core.registry.getAddress(),
+      await adminPriceFeed.getAddress()
+    );
+    await router.waitForDeployment();
+
+    const TavernEquipment = await ethers.getContractFactory("TavernEquipment");
+    const equipment: any = await TavernEquipment.deploy("ipfs://metadata/");
+    await equipment.waitForDeployment();
+
+    const TavernGuild = await ethers.getContractFactory("TavernGuild");
+    const guild: any = await TavernGuild.deploy(await equipment.getAddress());
+    await guild.waitForDeployment();
+
+    await guild.grantRole(await guild.KEEPER_ROLE(), await router.getAddress());
+    await guild.grantRole(await guild.SERVICE_REGISTRY_ROLE(), core.deployer.address);
+    await guild.grantRole(await guild.ESCROW_ROLE(), core.deployer.address);
+    await router.grantRole(await router.KEEPER_ROLE(), keeper.address);
+    await router.setGuildContract(await guild.getAddress());
+
+    return {
+      ...core,
+      keeper,
+      router,
+      equipment,
+      guild,
+      founder: client,
+      secondMember: agent,
+      thirdMember: other
+    };
+  }
+
   it("checkUpkeep returns false when no quests exist", async function () {
     const { router } = await loadFixture(deployFixture);
 
@@ -372,16 +414,19 @@ describe("TavernAutomationRouter", function () {
     expect(refreshedUpdatedAt).to.be.gt(initialUpdatedAt);
   });
 
-  it("executes a season reset when the RPG season duration elapses", async function () {
-    const { router, keeper, clientRPG } = await loadFixture(deployFixture);
+  it("executes guild maintenance when the guild interval elapses", async function () {
+    const { router, keeper, guild, founder } = await loadFixture(
+      deployGuildMaintenanceFixture
+    );
 
     await router.setQuotaRebalanceInterval(365 * 24 * 60 * 60);
     await router.setFeeStageCheckInterval(365 * 24 * 60 * 60);
     await router.setPriceRefreshThreshold(365 * 24 * 60 * 60);
     await router.setMasterSettleInterval(365 * 24 * 60 * 60);
     await router.setEjectionReviewInterval(365 * 24 * 60 * 60);
-
-    await time.increase(180 * 24 * 60 * 60 + 1);
+    await guild.addMember(0, founder.address);
+    await guild.recordGuildCompletion(founder.address, 0, 100_000_000n);
+    await time.increase(30 * 24 * 60 * 60 + 1);
 
     const [needed, data] = await router.checkUpkeep.staticCall("0x");
     const decoded = await decodePerformData(data);
@@ -389,8 +434,9 @@ describe("TavernAutomationRouter", function () {
     expect(needed).to.equal(true);
     expect(decoded.taskType).to.equal(8);
 
+    const before = await guild.lastMaintenanceAt();
     await router.connect(keeper).performUpkeep(data);
-    expect(await clientRPG.currentSeasonNumber()).to.equal(2n);
+    expect(await guild.lastMaintenanceAt()).to.be.gt(before);
   });
 
   it("enforces KEEPER_ROLE on performUpkeep", async function () {

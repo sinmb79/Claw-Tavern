@@ -46,6 +46,14 @@ async function readManifest(manifestPath: string): Promise<DeploymentManifest> {
   return JSON.parse(await readFile(manifestPath, "utf8")) as DeploymentManifest;
 }
 
+async function callOptional<T>(action: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await action();
+  } catch {
+    return fallback;
+  }
+}
+
 async function main(): Promise<void> {
   if (!(network.name in NETWORK_CONFIG)) {
     throw new Error(`phase2-readonly-smoke only supports baseSepolia or base. Current network: ${network.name}`);
@@ -75,7 +83,24 @@ async function main(): Promise<void> {
   const staking: any = await getWorkspaceContractAt("TavernStaking", stakingAddress);
   const governance: any = await getWorkspaceContractAt("TavernGovernance", governanceAddress);
   const router: any = await getWorkspaceContractAt("TavernAutomationRouter", routerAddress);
-  const rpg: any = await getWorkspaceContractAt("TavernClientRPG", rpgAddress);
+  const rpg = new ethers.Contract(
+    rpgAddress,
+    [
+      "function ESCROW_ROLE() view returns (bytes32)",
+      "function KEEPER_ROLE() view returns (bytes32)",
+      "function SUBSCRIPTION_ROLE() view returns (bytes32)",
+      "function MIN_WITHDRAWAL_LEVEL() view returns (uint256)",
+      "function MIN_JOBS_FOR_WITHDRAWAL() view returns (uint256)",
+      "function MAX_WITHDRAWAL_PER_MONTH() view returns (uint256)",
+      "function MAX_LEVEL() view returns (uint256)",
+      "function levelThreshold(uint256) view returns (uint256)",
+      "function escrow() view returns (address)",
+      "function hasRole(bytes32,address) view returns (bool)",
+      "function currentSeasonNumber() view returns (uint256)",
+      "function SEASON_DURATION() view returns (uint256)"
+    ],
+    ethers.provider
+  );
   const subscription: any = await getWorkspaceContractAt("TavernSubscription", subscriptionAddress);
 
   const usdcAddress = await subscription.usdc();
@@ -136,8 +161,10 @@ async function main(): Promise<void> {
       routerIsRefresher: await adminPriceFeed.isRefresher(routerAddress)
     },
     rpg: {
-      seasonDuration: (await rpg.SEASON_DURATION()).toString(),
-      currentSeasonNumber: (await rpg.currentSeasonNumber()).toString(),
+      maxLevel: (await callOptional(() => rpg.MAX_LEVEL(), 0n)).toString(),
+      levelThreshold10: (await callOptional(() => rpg.levelThreshold(10), 0n)).toString(),
+      seasonDuration: (await callOptional(() => rpg.SEASON_DURATION(), 0n)).toString(),
+      currentSeasonNumber: (await callOptional(() => rpg.currentSeasonNumber(), 0n)).toString(),
       minWithdrawalLevel: (await rpg.MIN_WITHDRAWAL_LEVEL()).toString(),
       minJobsForWithdrawal: (await rpg.MIN_JOBS_FOR_WITHDRAWAL()).toString(),
       maxWithdrawalPerMonth: (await rpg.MAX_WITHDRAWAL_PER_MONTH()).toString(),

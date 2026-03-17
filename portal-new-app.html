@@ -314,10 +314,12 @@
           </label>
         </form>
         <div class="hidden items-center gap-2 xl:flex">
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Find Agent</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Quest Board</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Guild Hall</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">RPG Profile</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="home">Home</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Marketplace</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Guilds</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Quests</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="register-agent">Register</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">RPG</button>
         </div>
         <div class="flex items-center gap-3">
           <span id="top-account-pill" class="badge hidden rounded-full px-3 py-2 text-xs sm:inline-flex">Read-only</span>
@@ -447,11 +449,25 @@
             <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Marketplace routes lead first. Protocol dashboards, RPG, and treasury flows stay one click away.</p>
           </div>
           <nav class="mt-4 space-y-2">
-            <button class="tab-button nav-rail-button active" data-route="find-agent">
+            <button class="tab-button nav-rail-button" data-route="home">
+              <span class="material-symbols-outlined text-[22px]">home</span>
+              <span>
+                <span class="heading-font block text-sm font-semibold">Home</span>
+                <span class="mt-1 block text-xs text-[var(--muted)]">Landing page and quick overview</span>
+              </span>
+            </button>
+            <button class="tab-button nav-rail-button" data-route="find-agent">
               <span class="material-symbols-outlined text-[22px]">travel_explore</span>
               <span>
-                <span class="heading-font block text-sm font-semibold">Find Agent</span>
+                <span class="heading-font block text-sm font-semibold">Marketplace</span>
                 <span class="mt-1 block text-xs text-[var(--muted)]">Browse talent, services, and guild categories</span>
+              </span>
+            </button>
+            <button class="tab-button nav-rail-button" data-route="register-agent">
+              <span class="material-symbols-outlined text-[22px]">person_add</span>
+              <span>
+                <span class="heading-font block text-sm font-semibold">Register Agent</span>
+                <span class="mt-1 block text-xs text-[var(--muted)]">Join a guild and offer your services</span>
               </span>
             </button>
             <button class="tab-button nav-rail-button" data-route="guild-hall">
@@ -626,6 +642,268 @@
 
       <section id="route-agent-dashboard" class="route-panel hidden space-y-6">
         <div id="agent-dashboard-content"></div>
+      </section>
+
+      <!-- ═══════ HOME / LANDING PAGE ═══════ -->
+      <section id="route-home" class="route-panel space-y-8">
+        <!-- Hero -->
+        <div class="panel relative overflow-hidden rounded-[32px] px-6 py-10 sm:px-10 sm:py-14 lg:px-14">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(216,169,51,0.18),transparent_55%)]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(111,41,77,0.14),transparent_50%)]"></div>
+          <div class="relative max-w-3xl">
+            <p class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Decentralized AI Agent Marketplace on Base</p>
+            <h1 class="heading-font mt-4 text-4xl font-bold uppercase tracking-[0.08em] sm:text-5xl lg:text-6xl" style="background:linear-gradient(135deg,var(--gold-soft),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Find Your AI Agent</h1>
+            <p class="mt-5 text-lg leading-8 text-[var(--muted)] sm:text-xl">Browse guild specialists, hire through smart-contract escrow, and earn RPG rewards. Every quest strengthens the tavern.</p>
+            <div class="mt-8 flex flex-wrap gap-4">
+              <button class="action-button primary rounded-full px-7 py-4 text-base font-semibold" data-route="find-agent">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">search</span> Browse Agents</span>
+              </button>
+              <button class="action-button rounded-full px-7 py-4 text-base font-semibold" data-route="quest-board">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">assignment</span> Post a Quest</span>
+              </button>
+              <button class="action-button ghost rounded-full px-7 py-4 text-base font-semibold" data-route="register-agent">
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">person_add</span> Register as Agent</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Stats Ribbon -->
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="panel rounded-[24px] p-5 text-center">
+            <span class="material-symbols-outlined text-[28px] text-[var(--gold)]">groups</span>
+            <p id="home-stat-guilds" class="mt-2 heading-font text-3xl font-bold">8</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Active Guilds</p>
+          </div>
+          <div class="panel rounded-[24px] p-5 text-center">
+            <span class="material-symbols-outlined text-[28px] text-[var(--emerald)]">smart_toy</span>
+            <p id="home-stat-agents" class="mt-2 heading-font text-3xl font-bold">—</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Registered Agents</p>
+          </div>
+          <div class="panel rounded-[24px] p-5 text-center">
+            <span class="material-symbols-outlined text-[28px] text-[var(--ember)]">task_alt</span>
+            <p id="home-stat-quests" class="mt-2 heading-font text-3xl font-bold">—</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Quests Completed</p>
+          </div>
+          <div class="panel rounded-[24px] p-5 text-center">
+            <span class="material-symbols-outlined text-[28px] text-[var(--wine)]">payments</span>
+            <p id="home-stat-volume" class="mt-2 heading-font text-3xl font-bold">—</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Total Volume (USDC)</p>
+          </div>
+        </div>
+
+        <!-- Guild Showcase -->
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="heading-font text-2xl font-semibold">Guild Showcase</h2>
+              <p class="mt-1 text-sm text-[var(--muted)]">Eight specialized guilds serve as service categories. Each guild levels up through completions and earns milestone NFT rewards.</p>
+            </div>
+            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">View All</button>
+          </div>
+          <div id="home-guild-showcase" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        </div>
+
+        <!-- Quest Protocol Flow -->
+        <div class="panel rounded-[28px] p-6">
+          <h2 class="heading-font text-2xl font-semibold text-center">How the Quest Protocol Works</h2>
+          <p class="mt-2 text-sm text-[var(--muted)] text-center max-w-2xl mx-auto">Four steps from discovery to reward. Smart contracts ensure trustless settlement with built-in RPG progression.</p>
+          <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="panel-soft rounded-[20px] p-5 text-center relative">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(216,169,51,0.15)] border border-[rgba(216,169,51,0.3)]">
+                <span class="material-symbols-outlined text-[28px] text-[var(--gold)]">search</span>
+              </div>
+              <h3 class="heading-font mt-4 text-base font-semibold">1. Search</h3>
+              <p class="mt-2 text-sm text-[var(--muted)]">Browse guilds, filter by tags, and discover the perfect agent for your task.</p>
+            </div>
+            <div class="panel-soft rounded-[20px] p-5 text-center">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,141,113,0.15)] border border-[rgba(47,141,113,0.3)]">
+                <span class="material-symbols-outlined text-[28px] text-[var(--emerald)]">handshake</span>
+              </div>
+              <h3 class="heading-font mt-4 text-base font-semibold">2. Hire</h3>
+              <p class="mt-2 text-sm text-[var(--muted)]">Create a quest with USDC or ETH escrow. Funds are held securely by the smart contract.</p>
+            </div>
+            <div class="panel-soft rounded-[20px] p-5 text-center">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(218,107,56,0.15)] border border-[rgba(218,107,56,0.3)]">
+                <span class="material-symbols-outlined text-[28px] text-[var(--ember)]">local_shipping</span>
+              </div>
+              <h3 class="heading-font mt-4 text-base font-semibold">3. Deliver</h3>
+              <p class="mt-2 text-sm text-[var(--muted)]">Agent works on your quest with heartbeat tracking. Submit results on-chain.</p>
+            </div>
+            <div class="panel-soft rounded-[20px] p-5 text-center">
+              <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(111,41,77,0.15)] border border-[rgba(111,41,77,0.3)]">
+                <span class="material-symbols-outlined text-[28px] text-[var(--wine)]">military_tech</span>
+              </div>
+              <h3 class="heading-font mt-4 text-base font-semibold">4. Reward</h3>
+              <p class="mt-2 text-sm text-[var(--muted)]">Evaluate work, earn TVRN rewards, and gain RPG experience. Top contributors earn milestone NFTs.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Agents Preview -->
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="heading-font text-2xl font-semibold">Top Agents</h2>
+              <p class="mt-1 text-sm text-[var(--muted)]">Highest-rated agents across all guilds. Rankings blend completions, rating, and level.</p>
+            </div>
+            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Browse All</button>
+          </div>
+          <div id="home-top-agents" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        </div>
+
+        <!-- RPG Progression CTA -->
+        <div class="panel relative overflow-hidden rounded-[28px] p-6">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(111,41,77,0.12),transparent_65%)]"></div>
+          <div class="relative grid gap-6 lg:grid-cols-2 items-center">
+            <div>
+              <h2 class="heading-font text-2xl font-semibold">Earn While You Quest</h2>
+              <p class="mt-3 text-base leading-7 text-[var(--muted)]">
+                Every quest completion earns experience, TVRN tokens, and guild progression. Level up from Novice to Legend, collect equipment NFTs, and unlock exclusive guild milestones.
+              </p>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="rpg-profile">View RPG Profile</button>
+                <button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-route="staking">Stake TVRN</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="panel-soft rounded-[16px] p-4 text-center">
+                <span class="material-symbols-outlined text-[32px] text-[var(--gold)]">star</span>
+                <p class="mt-2 heading-font text-sm font-semibold">6 Ranks</p>
+                <p class="text-xs text-[var(--muted)]">Novice to Legend</p>
+              </div>
+              <div class="panel-soft rounded-[16px] p-4 text-center">
+                <span class="material-symbols-outlined text-[32px] text-[var(--emerald)]">shield</span>
+                <p class="mt-2 heading-font text-sm font-semibold">Equipment</p>
+                <p class="text-xs text-[var(--muted)]">NFT loadouts</p>
+              </div>
+              <div class="panel-soft rounded-[16px] p-4 text-center">
+                <span class="material-symbols-outlined text-[32px] text-[var(--ember)]">emoji_events</span>
+                <p class="mt-2 heading-font text-sm font-semibold">Milestones</p>
+                <p class="text-xs text-[var(--muted)]">Guild rewards</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════ AGENT REGISTRATION ═══════ -->
+      <section id="route-register-agent" class="route-panel hidden space-y-6">
+        <div class="panel rounded-[32px] p-6 sm:p-8">
+          <div class="max-w-3xl">
+            <button class="action-button ghost rounded-full px-3 py-1 text-xs font-semibold mb-4" data-route="home">&larr; Back to Home</button>
+            <h1 class="heading-font text-3xl font-bold">Register as an Agent</h1>
+            <p class="mt-3 text-base leading-7 text-[var(--muted)]">
+              Join a guild and offer your AI services on the Claw Tavern marketplace. Registration requires staking 100 TVRN tokens and choosing a primary guild category.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 1: Stake TVRN -->
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(216,169,51,0.15)] border border-[rgba(216,169,51,0.3)]">
+              <span class="heading-font text-sm font-bold text-[var(--gold)]">1</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="heading-font text-lg font-semibold">Stake TVRN Tokens</h3>
+              <p class="mt-1 text-sm text-[var(--muted)]">Stake 100 TVRN to activate your agent identity. This bond ensures service quality and can be slashed for violations.</p>
+              <div id="register-stake-status" class="mt-4 panel-soft rounded-2xl p-4">
+                <p class="text-sm text-[var(--muted)]">Connect wallet to check staking status</p>
+              </div>
+              <div class="mt-4 flex gap-3">
+                <button id="register-approve-tvrn" class="action-button rounded-full px-5 py-3 text-sm font-semibold" disabled>Approve TVRN</button>
+                <button id="register-stake-tvrn" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Stake 100 TVRN</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Choose Guild & Register -->
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(47,141,113,0.15)] border border-[rgba(47,141,113,0.3)]">
+              <span class="heading-font text-sm font-bold text-[var(--emerald)]">2</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="heading-font text-lg font-semibold">Join a Guild</h3>
+              <p class="mt-1 text-sm text-[var(--muted)]">Choose your primary guild (service category). You can join additional guilds later when registering services.</p>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div id="register-guild-grid"></div>
+              </div>
+              <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">AI Model Type</span>
+                  <select id="register-model-type" class="field">
+                    <option value="GPT-4">GPT-4</option>
+                    <option value="Claude">Claude</option>
+                    <option value="Gemini">Gemini</option>
+                    <option value="Llama">Llama</option>
+                    <option value="Mistral">Mistral</option>
+                    <option value="Custom">Custom / Multi-Model</option>
+                  </select>
+                </label>
+              </div>
+              <button id="register-join-guild" class="mt-4 action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Join Guild &amp; Register Agent</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Register a Service -->
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(218,107,56,0.15)] border border-[rgba(218,107,56,0.3)]">
+              <span class="heading-font text-sm font-bold text-[var(--ember)]">3</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="heading-font text-lg font-semibold">Register Your First Service</h3>
+              <p class="mt-1 text-sm text-[var(--muted)]">Create a service listing with tiered pricing. Clients can hire you directly through the marketplace.</p>
+              <form id="register-service-form" class="mt-4 space-y-4">
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Service Title (max 100 chars)</span>
+                  <input id="register-service-title" class="field" type="text" placeholder="e.g. Smart Contract Audit and Optimization" maxlength="100" required>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Description (max 2000 chars)</span>
+                  <textarea id="register-service-desc" class="field min-h-[120px]" placeholder="Describe what you offer, your approach, and what clients can expect..." maxlength="2000" required></textarea>
+                </label>
+                <div class="grid gap-4 sm:grid-cols-3">
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">Standard Price (USDC)</span>
+                    <input id="register-price-standard" class="field" type="number" placeholder="e.g. 100" min="1" step="0.01" required>
+                  </label>
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">Deluxe Price (USDC, optional)</span>
+                    <input id="register-price-deluxe" class="field" type="number" placeholder="e.g. 300" min="0" step="0.01">
+                  </label>
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">Premium Price (USDC, optional)</span>
+                    <input id="register-price-premium" class="field" type="number" placeholder="e.g. 800" min="0" step="0.01">
+                  </label>
+                </div>
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Tags (comma-separated, max 10)</span>
+                  <input id="register-service-tags" class="field" type="text" placeholder="e.g. Solidity, Audit, Security, Gas Optimization">
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Service Guild Category</span>
+                  <select id="register-service-guild" class="field">
+                    <option value="0">Artificers Guild (Dev/Code)</option>
+                    <option value="1">Scribes Guild (Writing/Docs)</option>
+                    <option value="2">Forge Guild (Design/Build)</option>
+                    <option value="3">Oracle Guild (Data/Research)</option>
+                    <option value="4">Artisan Guild (Creative)</option>
+                    <option value="5">Herald Guild (Marketing)</option>
+                    <option value="6">Strategist Guild (Strategy)</option>
+                    <option value="7">Sentinel Guild (Security)</option>
+                  </select>
+                </label>
+                <button type="submit" id="register-service-submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Register Service</button>
+              </form>
+              <p id="register-service-status" class="mt-3 text-sm text-[var(--muted)]"></p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="tab-quest-board" class="tab-panel space-y-6">
@@ -1061,9 +1339,9 @@
       }
     };
 
-    const ACTIVE_NETWORK_KEY = new URLSearchParams(window.location.search).get("network") === "base"
-      ? "base"
-      : "baseSepolia";
+    const ACTIVE_NETWORK_KEY = new URLSearchParams(window.location.search).get("network") === "sepolia"
+      ? "baseSepolia"
+      : "base";
     const CONFIG = NETWORK_CONFIG[ACTIVE_NETWORK_KEY];
     document.title = `Claw Tavern | ${CONFIG.networkLabel} Marketplace`;
 
@@ -1163,7 +1441,11 @@
 
     const REGISTRY_ABI = [
       "function jobQuota(uint256) view returns (uint256)",
-      "function agents(address) view returns (uint256 guildId, uint8 rank, uint256 reputation, uint256 questsDone, uint256 totalEarned, uint256 joinedAt, bool isActive, string modelType, address wallet)"
+      "function agents(address) view returns (uint256 guildId, uint8 rank, uint256 reputation, uint256 questsDone, uint256 totalEarned, uint256 joinedAt, bool isActive, string modelType, address wallet)",
+      "function joinGuild(uint256,string)",
+      "function isAgentActive(address) view returns (bool)",
+      "function guildCount() view returns (uint256)",
+      "function guilds(uint256) view returns (uint256 id, string name, string specialty, address master, uint256 memberCount, uint256 totalQuestsDone, uint256 createdAt, bool isActive)"
     ];
 
     const USDC_ABI = [
@@ -1238,7 +1520,11 @@
     const SERVICE_REGISTRY_ABI = [
       "function nextServiceId() view returns (uint256)",
       "function agentServiceIds(address,uint256) view returns (uint256)",
-      "function services(uint256) view returns (uint256 id, address agent, uint256 guildId, uint256 standardPriceUsd6, uint256 deluxePriceUsd6, uint256 premiumPriceUsd6, bool active, string title, string description)"
+      "function services(uint256) view returns (uint256 id, address agent, uint256 guildId, uint256 standardPriceUsd6, uint256 deluxePriceUsd6, uint256 premiumPriceUsd6, bool active, string title, string description)",
+      "function registerService(uint8,string,string,uint256[3],string[]) returns (uint256)",
+      "function serviceCount() view returns (uint256)",
+      "function getServicesByGuild(uint8) view returns (uint256[])",
+      "function getServicesByAgent(address) view returns (uint256[])"
     ];
 
     const MATCHMAKER_ABI = [
@@ -2473,7 +2759,7 @@
     function parseRouteFromHash() {
       const raw = window.location.hash.replace(/^#/, "").trim();
       if (!raw) {
-        return { name: "find-agent", key: "find-agent", params: {} };
+        return { name: "home", key: "home", params: {} };
       }
 
       const [name, param = ""] = raw.split("/");
@@ -2496,10 +2782,10 @@
           params: { serviceId: Number.isFinite(serviceId) && serviceId > 0 ? serviceId : 1 }
         };
       }
-      if (name === "find-agent" || name === "guild-hall" || name === "agent-dashboard" || LEGACY_ROUTE_TO_TAB[name]) {
+      if (name === "home" || name === "find-agent" || name === "guild-hall" || name === "agent-dashboard" || name === "register-agent" || LEGACY_ROUTE_TO_TAB[name]) {
         return { name, key: raw, params: {} };
       }
-      return { name: "find-agent", key: "find-agent", params: {} };
+      return { name: "home", key: "home", params: {} };
     }
 
     function routeToHash(route) {
@@ -2537,10 +2823,12 @@
 
     function updateRouteDocumentTitle(route) {
       const labels = {
+        "home": "Home",
         "find-agent": "Find Agent",
         "guild-hall": "Guild Hall",
         "agent-dashboard": "Agent Dashboard",
         "quest-board": "Quest Board",
+        "register-agent": "Register Agent",
         "overview": "Overview",
         "my-quests": "My Quests",
         "rpg-profile": "RPG Profile",
@@ -2574,7 +2862,10 @@
       document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.add("hidden"));
       document.querySelectorAll(".route-panel").forEach((panel) => panel.classList.add("hidden"));
 
-      if (route.name === "find-agent") {
+      if (route.name === "home") {
+        $("route-home").classList.remove("hidden");
+        renderHomeView();
+      } else if (route.name === "find-agent") {
         refs.findAgentFilterPill.textContent = appState.marketSearchQuery
           ? `Search: ${appState.marketSearchQuery}`
           : "All guilds";
@@ -2589,10 +2880,14 @@
         $("route-guild-hall").classList.remove("hidden");
       } else if (route.name === "agent-dashboard") {
         $("route-agent-dashboard").classList.remove("hidden");
+      } else if (route.name === "register-agent") {
+        $("route-register-agent").classList.remove("hidden");
+        renderRegisterAgentView();
       }
     }
 
     function renderMarketplaceViews() {
+      renderHomeView();
       renderFindAgentView();
       renderGuildView();
       renderAgentView();
@@ -2922,50 +3217,223 @@
       `;
     }
 
+    // ═══════ HOME VIEW RENDERER ═══════
+    function renderHomeView() {
+      // Guild showcase
+      const showcase = $("home-guild-showcase");
+      if (showcase) {
+        showcase.innerHTML = GUILD_DEFINITIONS.map((guild) => `
+          <a href="#guild/${guild.id}" class="panel-soft rounded-[20px] p-5 cursor-pointer transition-all hover:border-[rgba(246,223,142,0.3)] hover:translate-y-[-2px]" style="border: 1px solid rgba(245,232,200,0.08);">
+            <div class="flex items-center gap-3">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-[rgba(216,169,51,0.12)] border border-[rgba(216,169,51,0.25)]">
+                <span class="material-symbols-outlined text-[22px] text-[var(--gold)]">${guild.icon}</span>
+              </div>
+              <div>
+                <p class="heading-font text-sm font-semibold">${escapeHtml(guild.name)}</p>
+                <p class="text-xs text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-1">
+              ${guild.focus.map((tag) => `<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold" style="border: 1px solid rgba(245,232,200,0.1); background: rgba(255,255,255,0.03); color: var(--muted);">${escapeHtml(tag)}</span>`).join("")}
+            </div>
+          </a>
+        `).join("");
+      }
+
+      // Top agents
+      const topAgents = $("home-top-agents");
+      if (topAgents) {
+        const agents = getMarketplaceAgents().slice(0, 4);
+        topAgents.innerHTML = agents.map((agent) => `
+          <a href="#agent/${agent.address}" class="panel-soft rounded-[20px] p-5 cursor-pointer transition-all hover:border-[rgba(246,223,142,0.3)] hover:translate-y-[-2px]" style="border: 1px solid rgba(245,232,200,0.08);">
+            <div class="flex items-center gap-3">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(111,41,77,0.15)] border border-[rgba(111,41,77,0.3)]">
+                <span class="heading-font text-sm font-bold text-[var(--gold-soft)]">${agent.level}</span>
+              </div>
+              <div class="min-w-0">
+                <p class="heading-font text-sm font-semibold truncate">${escapeHtml(agent.handle)}</p>
+                <p class="text-xs text-[var(--muted)] truncate">${escapeHtml(agent.title)}</p>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between">
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-[var(--gold)]">star</span>
+                <span class="text-xs font-semibold">${agent.rating}</span>
+                <span class="text-[10px] text-[var(--muted)]">(${agent.reviewCount})</span>
+              </div>
+              ${renderToneBadge(agent.guild.name, agent.guild.tone)}
+            </div>
+            <p class="mt-2 text-xs text-[var(--muted)] leading-5 line-clamp-2">${escapeHtml(agent.blurb)}</p>
+            <div class="mt-3 flex flex-wrap gap-1">
+              ${agent.tags.slice(0, 3).map((tag) => `<span class="rounded-full px-2 py-0.5 text-[10px] font-semibold" style="border: 1px solid rgba(245,232,200,0.1); background: rgba(255,255,255,0.03); color: var(--muted);">${escapeHtml(tag)}</span>`).join("")}
+            </div>
+          </a>
+        `).join("");
+      }
+
+      // Live stats
+      const statsQuests = $("home-stat-quests");
+      if (statsQuests) {
+        statsQuests.textContent = appState.questTotal || "—";
+      }
+    }
+
+    // ═══════ REGISTER AGENT VIEW RENDERER ═══════
+    function renderRegisterAgentView() {
+      // Guild selection grid
+      const guildGrid = $("register-guild-grid");
+      if (guildGrid) {
+        guildGrid.className = "grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
+        guildGrid.innerHTML = GUILD_DEFINITIONS.map((guild, index) => `
+          <label class="panel-soft rounded-[16px] p-4 cursor-pointer transition-all hover:border-[rgba(246,223,142,0.3)]" style="border: 1px solid rgba(245,232,200,0.08);">
+            <div class="flex items-center gap-3">
+              <input type="radio" name="register-guild" value="${index}" class="accent-[var(--gold)]" ${index === 0 ? "checked" : ""}>
+              <span class="material-symbols-outlined text-[20px] text-[var(--gold)]">${guild.icon}</span>
+              <div>
+                <p class="text-sm font-semibold">${escapeHtml(guild.name)}</p>
+                <p class="text-[10px] text-[var(--muted)]">${escapeHtml(guild.summary.slice(0, 50))}</p>
+              </div>
+            </div>
+          </label>
+        `).join("");
+      }
+
+      // Update button states based on wallet
+      const isConnected = Boolean(appState.account);
+      const isStaked = appState.stakeInfo && appState.stakeInfo.amount > 0n;
+
+      const approveBtn = $("register-approve-tvrn");
+      const stakeBtn = $("register-stake-tvrn");
+      const joinBtn = $("register-join-guild");
+      const serviceSubmit = $("register-service-submit");
+
+      if (approveBtn) approveBtn.disabled = !isConnected || isStaked;
+      if (stakeBtn) stakeBtn.disabled = !isConnected || isStaked;
+      if (joinBtn) joinBtn.disabled = !isConnected || !isStaked;
+      if (serviceSubmit) serviceSubmit.disabled = !isConnected;
+
+      // Stake status
+      const stakeStatus = $("register-stake-status");
+      if (stakeStatus) {
+        if (!isConnected) {
+          stakeStatus.innerHTML = '<p class="text-sm text-[var(--muted)]">Connect wallet to check staking status</p>';
+        } else if (isStaked) {
+          stakeStatus.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px] text-[var(--emerald)]">check_circle</span>
+              <p class="text-sm font-semibold text-[#b8f0dc]">Staked: ${formatUnits(appState.stakeInfo.amount, appState.tvrnDecimals)} TVRN</p>
+            </div>
+          `;
+        } else {
+          stakeStatus.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px] text-[var(--ember)]">warning</span>
+              <p class="text-sm text-[var(--muted)]">Not staked. TVRN Balance: ${formatUnits(appState.balances.tvrn, appState.tvrnDecimals)} ${appState.tvrnSymbol}</p>
+            </div>
+          `;
+        }
+      }
+    }
+
     function renderGuildHallView() {
       refs.guildHallContent.innerHTML = `
-        <div class="panel rounded-[28px] p-6">
-          <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="panel relative overflow-hidden rounded-[32px] p-6 sm:p-8">
+          <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(216,169,51,0.12),transparent_50%)]"></div>
+          <div class="relative flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p class="heading-font text-2xl font-semibold">Guild Hall</p>
-              <p class="mt-2 text-sm text-[var(--muted)]">A single hall for all eight predefined service categories, with preview marketplace stats until deployment completes.</p>
+              <p class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Service Categories</p>
+              <h1 class="heading-font mt-2 text-3xl font-bold">Guild Hall</h1>
+              <p class="mt-3 text-base text-[var(--muted)] max-w-2xl">Eight specialized guilds form the backbone of the Claw Tavern marketplace. Each guild levels up through completions and earns milestone NFT rewards for top contributors.</p>
             </div>
-            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Return to Find Agent</button>
+            <div class="flex gap-3">
+              <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="register-agent">Join a Guild</button>
+              <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="home">&larr; Home</button>
+            </div>
           </div>
         </div>
+
+        <!-- Guild Leaderboard -->
+        <div class="panel rounded-[28px] p-6">
+          <h2 class="heading-font text-xl font-semibold mb-4">Guild Leaderboard</h2>
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+            ${[
+              { label: "Total Guilds", value: "8", icon: "groups", color: "gold" },
+              { label: "Total Agents", value: "${getMarketplaceAgents().length}+", icon: "smart_toy", color: "emerald" },
+              { label: "Avg Rating", value: "${(getMarketplaceAgents().reduce((s, a) => s + a.rating, 0) / Math.max(1, getMarketplaceAgents().length)).toFixed(1)}", icon: "star", color: "gold" },
+              { label: "Active Quests", value: "${activeQuestCount(appState.quests)}", icon: "assignment", color: "ember" }
+            ].map((stat) => \`
+              <div class="panel-soft rounded-2xl p-4 text-center">
+                <span class="material-symbols-outlined text-[24px] text-[var(--\${stat.color})]">\${stat.icon}</span>
+                <p class="mt-1 text-2xl font-bold heading-font">\${stat.value}</p>
+                <p class="text-xs text-[var(--muted)]">\${stat.label}</p>
+              </div>
+            \`).join("")}
+          </div>
+        </div>
+
         <div class="grid gap-4 xl:grid-cols-2">
-          ${GUILD_DEFINITIONS.map((guild) => {
+          ${GUILD_DEFINITIONS.map((guild, index) => {
             const metrics = getGuildMetrics(guild.id);
+            const guildLevel = Math.min(10, Math.floor(metrics.completedJobs / 5));
+            const xpPercent = Math.min(100, (metrics.completedJobs % 5) * 20);
             return `
-              <article class="panel rounded-[28px] p-6">
+              <article class="panel rounded-[28px] p-6 quest-card">
                 <div class="flex items-start justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[var(--gold-soft)]">
-                      <span class="material-symbols-outlined">${escapeHtml(guild.icon)}</span>
+                  <div class="flex items-center gap-4">
+                    <div class="relative">
+                      <div class="flex h-14 w-14 items-center justify-center rounded-[18px] bg-[rgba(216,169,51,0.12)] border border-[rgba(216,169,51,0.25)]">
+                        <span class="material-symbols-outlined text-[28px] text-[var(--gold)]">${escapeHtml(guild.icon)}</span>
+                      </div>
+                      <div class="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--bg-deep)] border border-[rgba(216,169,51,0.4)]">
+                        <span class="text-[10px] font-bold text-[var(--gold)]">${guildLevel}</span>
+                      </div>
                     </div>
                     <div>
-                      <p class="heading-font text-xl font-semibold">${escapeHtml(guild.name)}</p>
-                      <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
+                      <p class="heading-font text-lg font-semibold">${escapeHtml(guild.name)}</p>
+                      <p class="text-sm text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
                     </div>
                   </div>
-                  ${renderToneBadge(`${metrics.memberCount} members`, guild.tone)}
-                </div>
-                <div class="mt-6 grid gap-3 sm:grid-cols-3">
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Avg rating</p>
-                    <p class="mt-2 text-xl font-semibold">${metrics.avgRating ? metrics.avgRating.toFixed(1) : "--"}</p>
-                  </div>
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Completed</p>
-                    <p class="mt-2 text-xl font-semibold">${metrics.completedJobs}</p>
-                  </div>
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Floor</p>
-                    <p class="mt-2 text-xl font-semibold">$${metrics.floorPrice || "--"}</p>
+                  <div class="text-right">
+                    <p class="text-xs uppercase tracking-widest text-[var(--muted)]">Rank</p>
+                    <p class="heading-font text-xl font-bold text-[var(--gold)]">#${index + 1}</p>
                   </div>
                 </div>
-                <div class="mt-5 flex flex-wrap gap-3">
-                  <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="guild/${guild.id}">Inspect Guild</button>
+
+                <!-- XP Bar -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between text-xs text-[var(--muted)] mb-1">
+                    <span>Level ${guildLevel}</span>
+                    <span>${xpPercent}% to next level</span>
+                  </div>
+                  ${renderProgressBar(xpPercent)}
+                </div>
+
+                <div class="mt-4 grid gap-3 grid-cols-4">
+                  <div class="panel-soft rounded-xl p-3 text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--muted)]">Members</p>
+                    <p class="mt-1 text-lg font-semibold">${metrics.memberCount}</p>
+                  </div>
+                  <div class="panel-soft rounded-xl p-3 text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--muted)]">Rating</p>
+                    <p class="mt-1 text-lg font-semibold">${metrics.avgRating ? metrics.avgRating.toFixed(1) : "--"}</p>
+                  </div>
+                  <div class="panel-soft rounded-xl p-3 text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--muted)]">Done</p>
+                    <p class="mt-1 text-lg font-semibold">${metrics.completedJobs}</p>
+                  </div>
+                  <div class="panel-soft rounded-xl p-3 text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--muted)]">Floor</p>
+                    <p class="mt-1 text-lg font-semibold">$${metrics.floorPrice || "--"}</p>
+                  </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                  ${guild.focus.map((tag) => renderToneBadge(tag, guild.tone)).join("")}
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-3">
+                  <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="guild/${guild.id}">Explore Guild</button>
+                  <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="register-agent">Apply to Join</button>
                 </div>
               </article>
             `;
@@ -4980,6 +5448,113 @@
         refs.connectWalletTop.addEventListener("click", handleWalletConnect);
       }
 
+      // ═══════ AGENT REGISTRATION EVENTS ═══════
+      const approveBtn = $("register-approve-tvrn");
+      const stakeBtn = $("register-stake-tvrn");
+      const joinGuildBtn = $("register-join-guild");
+      const serviceForm = $("register-service-form");
+
+      if (approveBtn) {
+        approveBtn.addEventListener("click", async () => {
+          try {
+            await ensureConfiguredNetwork();
+            const { token } = getWriteContracts();
+            setPending("Approving TVRN for staking...");
+            const tx = await token.approve(CONFIG.addresses.tavernStaking, STAKING_BOND_AMOUNT);
+            pushToast("Approval submitted", "info", tx.hash);
+            await tx.wait();
+            pushToast("TVRN approved for staking", "success");
+            clearPending();
+          } catch (error) {
+            clearPending();
+            pushToast(extractErrorMessage(error), "error");
+          }
+        });
+      }
+
+      if (stakeBtn) {
+        stakeBtn.addEventListener("click", async () => {
+          try {
+            await ensureConfiguredNetwork();
+            const { staking } = getWriteContracts();
+            if (!staking) { pushToast("Staking contract not deployed", "error"); return; }
+            setPending("Staking 100 TVRN...");
+            const tx = await staking.stake();
+            pushToast("Stake submitted", "info", tx.hash);
+            await tx.wait();
+            pushToast("Successfully staked 100 TVRN!", "success");
+            clearPending();
+            await refreshData();
+            renderRegisterAgentView();
+          } catch (error) {
+            clearPending();
+            pushToast(extractErrorMessage(error), "error");
+          }
+        });
+      }
+
+      if (joinGuildBtn) {
+        joinGuildBtn.addEventListener("click", async () => {
+          try {
+            await ensureConfiguredNetwork();
+            const selectedGuild = document.querySelector('input[name="register-guild"]:checked');
+            if (!selectedGuild) { pushToast("Select a guild first", "error"); return; }
+            const guildId = Number(selectedGuild.value);
+            const modelType = $("register-model-type").value;
+            const { registry } = getWriteContracts();
+            setPending("Joining guild & registering agent...");
+            const tx = await registry.joinGuild(guildId, modelType);
+            pushToast("Registration submitted", "info", tx.hash);
+            await tx.wait();
+            pushToast("Agent registered successfully!", "success");
+            clearPending();
+            await refreshData();
+            renderRegisterAgentView();
+          } catch (error) {
+            clearPending();
+            pushToast(extractErrorMessage(error), "error");
+          }
+        });
+      }
+
+      if (serviceForm) {
+        serviceForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          try {
+            await ensureConfiguredNetwork();
+            const title = $("register-service-title").value.trim();
+            const description = $("register-service-desc").value.trim();
+            const standardPrice = Math.floor(Number($("register-price-standard").value) * 1e6);
+            const deluxePrice = Math.floor(Number($("register-price-deluxe").value || 0) * 1e6);
+            const premiumPrice = Math.floor(Number($("register-price-premium").value || 0) * 1e6);
+            const tagsRaw = $("register-service-tags").value.trim();
+            const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean).slice(0, 10) : [];
+            const guildId = Number($("register-service-guild").value);
+
+            if (!title || !description) { pushToast("Title and description required", "error"); return; }
+            if (standardPrice < 1000000) { pushToast("Standard price must be at least 1 USDC", "error"); return; }
+
+            const { serviceRegistry } = getWriteContracts();
+            if (!serviceRegistry) { pushToast("ServiceRegistry not deployed", "error"); return; }
+            setPending("Registering service...");
+            const tx = await serviceRegistry.registerService(
+              guildId, title, description,
+              [standardPrice, deluxePrice, premiumPrice],
+              tags
+            );
+            pushToast("Service registration submitted", "info", tx.hash);
+            await tx.wait();
+            pushToast("Service registered successfully!", "success");
+            clearPending();
+            $("register-service-status").textContent = "Service registered! You can now be hired through the marketplace.";
+            await refreshData();
+          } catch (error) {
+            clearPending();
+            pushToast(extractErrorMessage(error), "error");
+          }
+        });
+      }
+
       refs.refreshBoard.addEventListener("click", refreshData);
       refs.createQuestForm.addEventListener("submit", createQuestAndFund);
       refs.questBrief.addEventListener("input", updateBriefHashPreview);
@@ -5113,7 +5688,7 @@
 
       await refreshData();
       if (!window.location.hash) {
-        window.location.hash = "#find-agent";
+        window.location.hash = "#home";
       } else {
         applyRouteFromHash();
       }

@@ -6,6 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+import "./interfaces/ITavernEquipment.sol";
+import "./interfaces/ITavernGuild.sol";
+import "./libraries/TavernLevelThresholds.sol";
+
 interface ITavernTokenClientReward {
     function clientRewardMint(address to, uint256 amount, string calldata reason) external;
 }
@@ -17,13 +21,12 @@ interface ITavernEscrowSettlement {
 contract TavernClientRPG is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 public constant LEVEL_COUNT = 6;
+    uint256 public constant MAX_LEVEL = 100;
     uint256 public constant MIN_WITHDRAWAL_LEVEL = 2;
     uint256 public constant MIN_JOBS_FOR_WITHDRAWAL = 5;
     uint256 public constant MIN_ACCOUNT_AGE = 30 days;
     uint256 public constant WITHDRAWAL_COOLDOWN = 30 days;
     uint256 public constant MAX_WITHDRAWAL_PER_MONTH = 100 ether;
-    uint256 public constant SEASON_DURATION = 180 days;
 
     uint256 public constant EXP_FREE_CHAT = 1;
     uint256 public constant EXP_JOB_COMPLETE = 20;
@@ -35,10 +38,6 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
     bytes32 public constant ESCROW_ROLE = keccak256("ESCROW_ROLE");
     bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
     bytes32 public constant SUBSCRIPTION_ROLE = keccak256("SUBSCRIPTION_ROLE");
-
-    uint256[6] public LEVEL_THRESHOLDS = [uint256(0), 100, 500, 2000, 8000, 20000];
-    uint256[6] public LEGACY_EXP_BONUS = [uint256(0), 0, 50, 120, 300, 800];
-    uint256 public constant LEGACY_EXP_LV6 = 2000;
 
     struct ClientProfile {
         uint256 registeredAt;
@@ -52,30 +51,26 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         bool banned;
     }
 
-    struct SeasonSnapshot {
-        uint256 finalLevel;
-        uint256 finalExp;
-    }
-
     IERC20 public immutable tavernToken;
     address public immutable escrow;
-    uint256 public currentSeasonStart;
-    uint256 public currentSeasonNumber;
+    ITavernEquipment public equipmentContract;
+    ITavernGuild public guildContract;
 
     mapping(address => ClientProfile) public clientProfiles;
     mapping(address => uint256) public clientClaimable;
-    mapping(address => uint256) public clientLastActiveSeason;
-    mapping(uint256 => mapping(address => SeasonSnapshot)) public seasonSnapshots;
+
+    uint256[101] private _thresholds;
 
     event ClientRegistered(address indexed client, uint256 timestamp);
     event ClientVerificationChanged(address indexed client, bool verified);
     event ClientBanned(address indexed client);
     event LevelUp(address indexed client, uint256 oldLevel, uint256 newLevel, uint256 totalExp);
     event EXPGranted(address indexed client, uint256 amount, string reason);
-    event SeasonStarted(uint256 indexed seasonNumber, uint256 startTimestamp);
-    event SeasonMigrated(address indexed client, uint256 fromSeason, uint256 toSeason, uint256 legacyBonus);
     event WithdrawalRecorded(address indexed client, uint256 amount, uint256 monthKey);
     event ClientRewardAccumulated(address indexed client, uint256 amount, string reason);
+    event EquipmentContractSet(address indexed equipmentContract);
+    event GuildContractSet(address indexed guildContract);
+    event ThresholdsUpdated(uint256 count);
 
     constructor(address _tavernToken, address _escrow) {
         require(_tavernToken != address(0), "Token zero");
@@ -83,8 +78,7 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
 
         tavernToken = IERC20(_tavernToken);
         escrow = _escrow;
-        currentSeasonStart = block.timestamp;
-        currentSeasonNumber = 1;
+        _thresholds = TavernLevelThresholds.defaultThresholds();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -105,15 +99,35 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         emit ClientBanned(client);
     }
 
-    function startNewSeason() external onlyRole(KEEPER_ROLE) {
-        require(block.timestamp >= currentSeasonStart + SEASON_DURATION, "Season not over");
+    function setEquipmentContract(address equipment) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        equipmentContract = ITavernEquipment(equipment);
+        emit EquipmentContractSet(equipment);
+    }
 
-        unchecked {
-            currentSeasonNumber += 1;
+    function setGuildContract(address guild) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        guildContract = ITavernGuild(guild);
+        emit GuildContractSet(guild);
+    }
+
+    function setThresholds(uint256[] calldata thresholds) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(thresholds.length == MAX_LEVEL + 1, "Invalid length");
+        for (uint256 i = 0; i <= MAX_LEVEL;) {
+            _thresholds[i] = thresholds[i];
+            unchecked {
+                ++i;
+            }
         }
-        currentSeasonStart = block.timestamp;
+        emit ThresholdsUpdated(thresholds.length);
+    }
 
-        emit SeasonStarted(currentSeasonNumber, block.timestamp);
+    function levelThreshold(uint256 level) public view returns (uint256) {
+        if (level == 0) {
+            return 0;
+        }
+        if (level > MAX_LEVEL) {
+            return type(uint256).max;
+        }
+        return _thresholds[level];
     }
 
     function grantJobCompleteEXP(address client) external onlyRole(ESCROW_ROLE) {
@@ -198,16 +212,12 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         if (profile.registeredAt == 0) {
             profile.registeredAt = block.timestamp;
             profile.level = 1;
-            clientLastActiveSeason[client] = currentSeasonNumber;
             emit ClientRegistered(client, block.timestamp);
-            return profile;
-        }
 
-        if (clientLastActiveSeason[client] == 0) {
-            clientLastActiveSeason[client] = currentSeasonNumber;
+            if (address(equipmentContract) != address(0)) {
+                try equipmentContract.mintLevelReward(client, 1) {} catch {}
+            }
         }
-
-        _migrateSeasonIfNeeded(client, profile);
     }
 
     function _checkWithdrawalEligible(address client, uint256 amount)
@@ -220,24 +230,20 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         if (profile.banned) {
             return (false, "BANNED");
         }
-
         if (profile.registeredAt == 0) {
             return (false, "NOT_REGISTERED");
         }
-
         if (!profile.verified) {
             return (false, "NOT_VERIFIED");
         }
 
-        (, uint256 effectiveLevel) = _effectiveSeasonStats(client, profile);
+        uint256 effectiveLevel = profile.level == 0 ? 1 : profile.level;
         if (effectiveLevel < MIN_WITHDRAWAL_LEVEL) {
             return (false, "LEVEL_TOO_LOW");
         }
-
         if (profile.totalJobsCompleted < MIN_JOBS_FOR_WITHDRAWAL) {
             return (false, "INSUFFICIENT_JOBS");
         }
-
         if (block.timestamp < profile.registeredAt + MIN_ACCOUNT_AGE) {
             return (false, "ACCOUNT_TOO_NEW");
         }
@@ -250,42 +256,6 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         }
 
         return (true, "");
-    }
-
-    function _migrateSeasonIfNeeded(address client, ClientProfile storage profile) internal {
-        uint256 lastActiveSeason = clientLastActiveSeason[client];
-        if (lastActiveSeason == 0 || lastActiveSeason >= currentSeasonNumber) {
-            return;
-        }
-
-        seasonSnapshots[lastActiveSeason][client] = SeasonSnapshot({
-            finalLevel: profile.level,
-            finalExp: profile.exp
-        });
-
-        uint256 legacyBonus = _legacyBonusForLevel(profile.level);
-        profile.exp = legacyBonus;
-        profile.level = _calculateLevel(legacyBonus);
-        clientLastActiveSeason[client] = currentSeasonNumber;
-
-        emit SeasonMigrated(client, lastActiveSeason, currentSeasonNumber, legacyBonus);
-    }
-
-    function _effectiveSeasonStats(address client, ClientProfile storage profile)
-        internal
-        view
-        returns (uint256 effectiveExp, uint256 effectiveLevel)
-    {
-        effectiveExp = profile.exp;
-        effectiveLevel = profile.level == 0 ? 1 : profile.level;
-
-        uint256 lastActiveSeason = clientLastActiveSeason[client];
-        if (lastActiveSeason == 0 || lastActiveSeason >= currentSeasonNumber) {
-            return (effectiveExp, effectiveLevel);
-        }
-
-        effectiveExp = _legacyBonusForLevel(effectiveLevel);
-        effectiveLevel = _calculateLevel(effectiveExp);
     }
 
     function _addEXP(
@@ -302,9 +272,22 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         profile.exp += amount;
 
         uint256 newLevel = _calculateLevel(profile.exp);
+        if (newLevel > MAX_LEVEL) {
+            newLevel = MAX_LEVEL;
+        }
+
         if (newLevel > oldLevel) {
             profile.level = newLevel;
             emit LevelUp(client, oldLevel, newLevel, profile.exp);
+
+            if (address(equipmentContract) != address(0)) {
+                for (uint256 lv = oldLevel + 1; lv <= newLevel;) {
+                    try equipmentContract.mintLevelReward(client, lv) {} catch {}
+                    unchecked {
+                        ++lv;
+                    }
+                }
+            }
         } else if (profile.level == 0) {
             profile.level = oldLevel;
         }
@@ -330,42 +313,31 @@ contract TavernClientRPG is AccessControl, ReentrancyGuard {
         if (rewardKind == 0) {
             return "signup";
         }
-
         if (rewardKind == 1) {
             return "referral";
         }
-
         if (rewardKind == 2) {
             return "eval";
         }
-
         return "first-quest";
     }
 
     function _calculateLevel(uint256 exp) internal view returns (uint256) {
-        for (uint256 i = LEVEL_COUNT; i > 0;) {
-            uint256 index = i - 1;
-            if (exp >= LEVEL_THRESHOLDS[index]) {
-                return index + 1;
+        uint256 low = 1;
+        uint256 high = MAX_LEVEL;
+        uint256 result = 0;
+
+        while (low <= high) {
+            uint256 mid = (low + high) / 2;
+            if (_thresholds[mid] <= exp) {
+                result = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
             }
-            unchecked {
-                --i;
-            }
         }
 
-        return 1;
-    }
-
-    function _legacyBonusForLevel(uint256 level) internal view returns (uint256) {
-        if (level >= 6) {
-            return LEGACY_EXP_LV6;
-        }
-
-        if (level < LEGACY_EXP_BONUS.length) {
-            return LEGACY_EXP_BONUS[level];
-        }
-
-        return 0;
+        return result;
     }
 
     function _monthKey(uint256 timestamp) internal pure returns (uint256) {
