@@ -8,6 +8,8 @@ node_modules/
 artifacts/
 cache/
 forge-cache/
+dist/
+out/
 
 # Local tool state
 .playwright-cli/
@@ -16,7 +18,31 @@ output/playwright/
 
 # Deployment backups and local runtime files
 deployments/*.backup.json
+deployments/*.v1-backup.json
+deployments/*.task36-backup.json
+deployments/*.nft-system.failed.json
+deployments/*.legacy-cleanup.json
+deployments/*.phase3.*.json
+deployments/*.automation.cancelled.json
+deployments/*.automation.v1-backup.json
+deployments/*.automation.task36-backup.json
+deployments/base.automation.json
+deployments/baseSepolia.automation.json
 *.log
+
+# Claude internal
+.claude/
+
+# Design assets (large binary files)
+design/
+nft-images/
+
+# Codex task docs (internal planning docs)
+CODEX_*.md
+AGENTCRAFT_GDD.docx
+KMONG_BENCHMARK_ANALYSIS.md
+ABUSE_COUNTERMEASURES.md
+BOSS_*.md
 
 # Opaque local bundles
 files.zip
@@ -25,3 +51,5 @@ files.zip
 # OS/editor noise
 .DS_Store
 Thumbs.db
+*.swp
+*~
