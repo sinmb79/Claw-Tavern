@@ -6,7 +6,7 @@
   <title>AgentCraft | Web3 RPG Quest Protocol</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Space+Grotesk:wght@400;500;600;700&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
@@ -95,10 +95,10 @@
       pointer-events: none;
       z-index: -1;
       background:
-        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: linear-gradient(180deg, rgba(0,0,0,0.6), transparent 90%);
+        linear-gradient(to right, rgba(236,174,19,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(236,174,19,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 92%);
     }
 
     body::after {
@@ -338,6 +338,25 @@
     .spinner { animation: spin 0.8s linear infinite; }
 
     .glow-faction { text-shadow: 0 0 20px var(--faction, #00e5ff); }
+    .cinzel-glow  { text-shadow: 0 0 15px rgba(236,174,19,0.45); }
+
+    /* Glass panel — translucent card with thin border */
+    .glass-panel {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .glass-panel-gold {
+      background: rgba(40,34,20,0.70);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(236,174,19,0.18);
+    }
+
+    /* Faction image card */
+    .faction-img-card { transition: transform 240ms ease, box-shadow 240ms ease; }
+    .faction-img-card:hover { transform: translateY(-4px); }
+    .faction-img-card:hover .faction-img-cover { transform: scale(1.06); }
+    .faction-img-cover { transition: transform 600ms ease; }
 
     /* Faction select cards */
     .faction-select-card {
@@ -556,13 +575,20 @@
   <div class="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-3 sm:px-6">
     <a href="#" class="flex items-center gap-3 text-[var(--ink)] no-underline">
       <div class="flex h-10 w-10 items-center justify-center rounded-[14px] border" style="border-color:color-mix(in srgb, var(--faction,#00e5ff) 30%, transparent); background:var(--faction-dim)">
-        <span class="material-symbols-outlined text-[22px]" style="color:var(--faction,#00e5ff)">hub</span>
+        <span class="material-symbols-outlined text-[22px]" style="color:var(--faction,#00e5ff)">deployed_code</span>
       </div>
       <div>
-        <p class="heading-font text-[10px] uppercase tracking-[0.35em]" style="color:var(--faction,#00e5ff)">Web3 RPG</p>
+        <p class="heading-font text-[10px] uppercase tracking-[0.35em] cinzel-glow" style="color:var(--gold,#d8a933)">Web3 RPG</p>
         <p class="heading-font text-base font-bold uppercase tracking-[0.12em]">AgentCraft</p>
       </div>
     </a>
+    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel ml-2">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style="background:var(--gold,#d8a933)"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2" style="background:var(--gold,#d8a933)"></span>
+      </span>
+      <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--gold-soft,#f6df8e)">Mainnet Beta</span>
+    </div>
 
     <div class="hidden items-center gap-1 xl:flex ml-4">
       <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-nav="home">Home</button>
@@ -863,7 +889,10 @@
       <div id="route-faction-home" class="route-view">
         <!-- Hero -->
         <div class="panel rounded-[28px] overflow-hidden mb-6 relative">
-          <div id="home-hero-bg" class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 80% 50%, var(--faction-dim), transparent 60%)"></div>
+          <div id="home-hero-bg" class="absolute inset-0 pointer-events-none overflow-hidden">
+            <img id="home-banner-img" class="w-full h-full object-cover opacity-25" src="" alt="" onerror="this.style.display='none'" style="display:none">
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,var(--faction-dim),transparent 60%)"></div>
+          </div>
           <div class="relative px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div id="home-faction-icon" class="w-16 h-16 rounded-[20px] flex items-center justify-center text-3xl flex-shrink-0" style="background:var(--faction-dim);border:1px solid color-mix(in srgb,var(--faction,#00e5ff) 30%,transparent)">
               <span class="material-symbols-outlined" style="color:var(--faction,#00e5ff);font-size:32px">hub</span>
@@ -1523,13 +1552,20 @@
                 <p class="text-sm text-[var(--muted)]">Select a faction HQ on the map</p>
               </div>
               <div id="world-faction-detail" class="hidden">
-                <div id="wfd-header" class="flex items-center gap-3 mb-4">
-                  <div id="wfd-icon-wrap" class="w-12 h-12 rounded-[14px] flex items-center justify-center">
-                    <span id="wfd-icon" class="material-symbols-outlined text-[24px]">hub</span>
-                  </div>
-                  <div>
-                    <h3 id="wfd-name" class="heading-font text-lg font-bold"></h3>
-                    <p id="wfd-bonus" class="text-xs text-[var(--muted)] mt-0.5"></p>
+                <!-- Banner image header -->
+                <div id="wfd-banner" class="relative h-24 -mx-5 -mt-5 mb-5 overflow-hidden rounded-t-[24px]"
+                     style="background:rgba(0,229,255,0.08)">
+                  <img id="wfd-banner-img" class="w-full h-full object-cover opacity-60" src="" alt=""
+                       onerror="this.style.display='none'">
+                  <div class="absolute inset-0" style="background:linear-gradient(to bottom,transparent 20%,rgba(10,12,20,0.85))"></div>
+                  <div id="wfd-header" class="absolute bottom-3 left-4 flex items-center gap-3">
+                    <div id="wfd-icon-wrap" class="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0">
+                      <span id="wfd-icon" class="material-symbols-outlined text-[22px]">hub</span>
+                    </div>
+                    <div>
+                      <h3 id="wfd-name" class="heading-font text-base font-bold"></h3>
+                      <p id="wfd-bonus" class="text-[10px] text-[var(--muted)] mt-0"></p>
+                    </div>
                   </div>
                 </div>
                 <p id="wfd-lore" class="text-sm text-[var(--muted)] leading-6 mb-4"></p>
@@ -1820,13 +1856,47 @@ const EQUIPMENT_ABI = [
 // GAME CONSTANTS
 // ═══════════════════════════════════════════════
 const FACTION_DEFINITIONS = [
-  { id: 0, name: "The Nexus",     slug: "nexus",     icon: "hub",            color: "#00e5ff", bonus: "+10% group quest XP" },
-  { id: 1, name: "The Void",      slug: "void",       icon: "blur_on",        color: "#9c27b0", bonus: "+15% Rare+ rewards" },
-  { id: 2, name: "The Forge",     slug: "forge",      icon: "hardware",       color: "#ff6d00", bonus: "+10% equip durability" },
-  { id: 3, name: "The Phantom",   slug: "phantom",    icon: "visibility_off", color: "#b0bec5", bonus: "First-strike bonus" },
-  { id: 4, name: "The Oracle",    slug: "oracle",     icon: "visibility",     color: "#ffd600", bonus: "+20% governance power" },
-  { id: 5, name: "The Revenants", slug: "revenants",  icon: "skull",          color: "#76ff03", bonus: "Timeout immunity (1st)" }
+  { id: 0, name: "The Nexus",     slug: "nexus",     icon: "hub",            color: "#00e5ff", bonus: "+10% group quest XP",       archetype: "Technological Sovereignty" },
+  { id: 1, name: "The Void",      slug: "void",       icon: "blur_on",        color: "#9c27b0", bonus: "+15% Rare+ rewards",         archetype: "Abyssal Entropy" },
+  { id: 2, name: "The Forge",     slug: "forge",      icon: "hardware",       color: "#ff6d00", bonus: "+10% equip durability",      archetype: "Industrial Might" },
+  { id: 3, name: "The Phantom",   slug: "phantom",    icon: "visibility_off", color: "#b0bec5", bonus: "First-strike bonus",         archetype: "Stealth & Espionage" },
+  { id: 4, name: "The Oracle",    slug: "oracle",     icon: "visibility",     color: "#ffd600", bonus: "+20% governance power",      archetype: "Prophetic Wisdom" },
+  { id: 5, name: "The Revenants", slug: "revenants",  icon: "skull",          color: "#76ff03", bonus: "Timeout immunity (1st)",     archetype: "Undying Vengeance" }
 ];
+
+// Image asset paths (relative to agentcraft.html)
+const FACTION_IMAGES = {
+  nexus:     "prompts/The%20Nexus%20(cyan%20%2300f2ff).png",
+  void:      "prompts/The%20Void%20(purple%20%239c27b0).png",
+  forge:     "prompts/The%20Forge%20(orange%20%23ff6d00).png",
+  phantom:   "prompts/The%20Phantom%20(silver%20%23b0bec5).png",
+  oracle:    "prompts/The%20Oracle%20(yellow%20%23ffd600).png",
+  revenants: "prompts/The%20Revenants%20(neon%20green%20%2376ff03).png"
+};
+const FACTION_BANNERS = {
+  nexus:     "prompts/The%20Nexus%20%E2%80%94%20Digital%20Network%20Citadel.png",
+  void:      "prompts/The%20Void%20%E2%80%94%20Abyssal%20Dimension.png",
+  forge:     "prompts/The%20Forge%20%E2%80%94%20Molten%20Industrial%20Fortress.png",
+  phantom:   "prompts/The%20Phantom%20%E2%80%94%20Misty%20Digital%20Ruins.png",
+  oracle:    "prompts/The%20Oracle%20%E2%80%94%20Prophetic%20Spire.png",
+  revenants: "prompts/The%20Revenants%20%E2%80%94%20Necropolis%20Citadel.png"
+};
+const FACTION_CHARACTERS = {
+  nexus:     "prompts/The%20Nexus%20%E2%80%94%20Network%20Entity.png",
+  void:      "prompts/The%20Void%20%E2%80%94%20Abyssal%20Entity.png",
+  forge:     "prompts/The%20Forge%20%E2%80%94%20Mechanical%20Spirit.png",
+  phantom:   "prompts/The%20Phantom%20%E2%80%94%20Spectral%20Warrior.png",
+  oracle:    "prompts/The%20Oracle%20%E2%80%94%20Prophet%20Entity.png",
+  revenants: "prompts/The%20Revenants%20%E2%80%94%20Undead%20Lord.png"
+};
+const CLASS_AVATARS = {
+  Warrior: "prompts/Warrior%20Avatar.png",
+  Mage:    "prompts/Mage%20Avatar.png",
+  Ranger:  "prompts/Ranger%20Avatar.png",
+  Rogue:   "prompts/Rogue%20Avatar.png",
+  Healer:  "prompts/Healer%20Avatar.png"
+};
+const SPLASH_IMAGE = "prompts/4.%20Main%20Splash%20Screen%20(1%20illustration).png";
 
 const CLASS_DEFINITIONS = [
   { name: "Warrior", icon: "shield",        passive: "+20% multi-step quest rewards" },
@@ -2314,31 +2384,45 @@ document.querySelectorAll("[data-nav]").forEach(btn => {
 // ═══════════════════════════════════════════════
 function renderFactionSelect() {
   const grid = document.getElementById("faction-select-grid");
-  grid.innerHTML = FACTION_DEFINITIONS.map(f => `
-    <div class="faction-select-card panel-soft rounded-[24px] p-5 faction-${f.slug}" onclick="navigateTo('faction/${f.id}')"
-         style="--faction:${f.color};--faction-dim:rgba(${hexToRgb(f.color)},0.12)">
-      <div class="flex items-start gap-4">
-        <div class="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
-             style="background:rgba(${hexToRgb(f.color)},0.15);border:1px solid rgba(${hexToRgb(f.color)},0.35)">
-          <span class="material-symbols-outlined text-[26px]" style="color:${f.color}">${f.icon}</span>
+  grid.innerHTML = FACTION_DEFINITIONS.map(f => {
+    const rgb = hexToRgb(f.color);
+    const img = FACTION_IMAGES[f.slug] || "";
+    return `
+    <div class="faction-img-card faction-select-card rounded-[24px] overflow-hidden cursor-pointer faction-${f.slug}"
+         style="--faction:${f.color};--faction-dim:rgba(${rgb},0.12);border:1px solid rgba(${rgb},0.22);background:rgba(12,16,24,0.92)"
+         onclick="navigateTo('faction/${f.id}')">
+      <!-- Image header -->
+      <div class="relative h-36 overflow-hidden" style="background:radial-gradient(circle at 50% 50%,rgba(${rgb},0.22),rgba(${rgb},0.04))">
+        <img class="faction-img-cover w-full h-full object-cover opacity-75" src="${img}" alt="${escHtml(f.name)}"
+             onerror="this.style.display='none'">
+        <div class="absolute inset-0" style="background:linear-gradient(to bottom,transparent 30%,rgba(10,12,20,0.88))"></div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="opacity:${img?"0":"1"}">
+          <span class="material-symbols-outlined text-[52px]" style="color:${f.color};filter:drop-shadow(0 0 16px rgba(${rgb},0.6))">${f.icon}</span>
         </div>
-        <div class="flex-1">
-          <h3 class="heading-font text-base font-bold" style="color:${f.color}">${f.name}</h3>
-          <p class="text-xs text-[var(--muted)] mt-1">${f.bonus}</p>
+        <div class="absolute bottom-3 left-4">
+          <p class="heading-font text-[11px] uppercase tracking-[0.3em] mb-0.5" style="color:${f.color}">${f.archetype||""}</p>
         </div>
       </div>
-      <div class="mt-4 pt-3 border-t" style="border-color:rgba(${hexToRgb(f.color)},0.18)">
-        <div class="flex justify-between text-xs">
+      <!-- Body -->
+      <div class="p-4">
+        <h3 class="heading-font text-base font-bold mb-1" style="color:${f.color};text-shadow:0 0 18px rgba(${rgb},0.45)">${f.name}</h3>
+        <p class="text-xs text-[var(--muted)] leading-5 mb-3">${f.bonus}</p>
+        <div class="flex justify-between text-[11px] mb-1">
           <span class="text-[var(--muted)]">Members</span>
           <span class="font-mono font-bold" style="color:${f.color}" id="fc-members-${f.id}">—</span>
         </div>
-        <div class="flex justify-between text-xs mt-1">
-          <span class="text-[var(--muted)]">Completions</span>
+        <div class="flex justify-between text-[11px] mb-4">
+          <span class="text-[var(--muted)]">Quests Done</span>
           <span class="font-mono font-bold" style="color:${f.color}" id="fc-comp-${f.id}">—</span>
         </div>
+        <button class="w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
+                style="border:1px solid rgba(${rgb},0.45);color:${f.color};background:rgba(${rgb},0.09)"
+                onmouseover="this.style.background='rgba(${rgb},0.2)'" onmouseout="this.style.background='rgba(${rgb},0.09)'">
+          Select ${f.name}
+        </button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 
   // Fill on-chain stats if loaded
   appState.factions.forEach((f,i)=>{
@@ -2396,20 +2480,50 @@ function renderWizard() {
     </div>
   `).join("");
 
-  // Class grid
+  // Class grid — stat bars + avatar image
+  const CLASS_STATS = {
+    Warrior: { power:90, speed:40, utility:50, defense:95 },
+    Mage:    { power:85, speed:60, utility:90, defense:35 },
+    Ranger:  { power:65, speed:95, utility:70, defense:50 },
+    Rogue:   { power:80, speed:100,utility:60, defense:30 },
+    Healer:  { power:45, speed:55, utility:95, defense:75 }
+  };
   const cg = document.getElementById("wizard-class-grid");
-  cg.innerHTML = CLASS_DEFINITIONS.map(c => `
-    <div class="faction-select-card rounded-[18px] p-4 cursor-pointer"
+  cg.innerHTML = CLASS_DEFINITIONS.map(c => {
+    const st = CLASS_STATS[c.name] || { power:50,speed:50,utility:50,defense:50 };
+    const avatarImg = CLASS_AVATARS[c.name] || "";
+    const bars = [["Power",st.power],["Speed",st.speed],["Utility",st.utility],["Defense",st.defense]];
+    return `
+    <div class="faction-select-card rounded-[18px] overflow-hidden cursor-pointer"
          onclick="selectWizardClass('${c.name}',this)">
-      <div class="flex items-start gap-3">
-        <span class="material-symbols-outlined text-[24px]" style="color:var(--faction,#00e5ff)">${c.icon}</span>
-        <div>
-          <p class="heading-font text-sm font-bold">${c.name}</p>
-          <p class="text-xs text-[var(--muted)] mt-0.5">${c.passive}</p>
+      <div class="flex items-center gap-4 p-4">
+        <!-- Avatar -->
+        <div class="w-14 h-14 rounded-[12px] flex-shrink-0 overflow-hidden relative"
+             style="background:var(--faction-dim);border:1px solid rgba(var(--faction-rgb,0,229,255),0.3)">
+          <img src="${avatarImg}" alt="${c.name}" class="w-full h-full object-cover"
+               onerror="this.style.display='none'">
+          <div class="absolute inset-0 flex items-center justify-center" style="opacity:${avatarImg?"0":"1"}">
+            <span class="material-symbols-outlined text-[26px]" style="color:var(--faction,#00e5ff)">${c.icon}</span>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="heading-font text-sm font-bold" style="color:var(--faction,#00e5ff)">${c.name}</p>
+          <p class="text-[11px] text-[var(--muted)] mt-0.5 leading-4">${c.passive}</p>
         </div>
       </div>
-    </div>
-  `).join("");
+      <!-- Stat bars -->
+      <div class="px-4 pb-4 space-y-1.5">
+        ${bars.map(([label,val])=>`
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-[var(--muted)] w-12 flex-shrink-0 uppercase tracking-wider">${label}</span>
+          <div class="flex-1 h-1.5 rounded-full" style="background:rgba(255,255,255,0.08)">
+            <div class="h-full rounded-full" style="width:${val}%;background:linear-gradient(90deg,var(--faction,#00e5ff),color-mix(in srgb,var(--faction,#00e5ff) 60%,white))"></div>
+          </div>
+          <span class="text-[10px] font-mono w-6 text-right" style="color:var(--faction,#00e5ff)">${val}</span>
+        </div>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
 
   document.getElementById("confirm-network").textContent = NETWORK_CONFIG[appState.network].name;
   wizardNext(1);
@@ -2485,6 +2599,13 @@ function renderHome() {
   document.getElementById("home-faction-name").textContent  = fDef.name;
   document.getElementById("home-faction-bonus").textContent = fDef.bonus;
   document.getElementById("home-faction-icon").innerHTML    = `<span class="material-symbols-outlined" style="color:${fDef.color};font-size:32px">${fDef.icon}</span>`;
+  // Apply faction banner image
+  const bannerImg = document.getElementById("home-banner-img");
+  if (bannerImg && FACTION_BANNERS[fDef.slug]) {
+    bannerImg.src = FACTION_BANNERS[fDef.slug];
+    bannerImg.alt = fDef.name;
+    bannerImg.style.display = "";
+  }
   document.getElementById("home-level").textContent = level;
   document.getElementById("home-rank").textContent  = rank;
   document.getElementById("home-xp").textContent    = `${exp.toLocaleString()} XP`;
@@ -3695,13 +3816,30 @@ function renderWorldMap() {
 function renderWorldFactionStrip() {
   const strip = document.getElementById("world-faction-strip");
   if (!strip) return;
-  strip.innerHTML = `<div class="flex gap-2 flex-wrap">
-    ${FACTION_DEFINITIONS.map(f => `
-    <button class="action-button ghost rounded-full px-3 py-1.5 text-xs flex items-center gap-1.5"
-            onclick="selectFactionHQ(${f.id})" style="border-color:rgba(${hexToRgb(f.color)},0.35)">
-      <span class="material-symbols-outlined text-[14px]" style="color:${f.color}">${f.icon}</span>
-      <span style="color:${f.color}">${f.name}</span>
-    </button>`).join("")}
+  strip.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 w-full mt-2">
+    ${FACTION_DEFINITIONS.map(f => {
+      const rgb = hexToRgb(f.color);
+      const fData = appState.factions[f.id];
+      const members = fData ? Number(fData.memberCount||0) : "—";
+      const level = fData ? "Lv."+Number(fData.guildLevel||0) : "—";
+      const img = FACTION_IMAGES[f.slug] || "";
+      return `
+      <button class="action-button rounded-[16px] overflow-hidden text-left p-0"
+              onclick="selectFactionHQ(${f.id})"
+              style="border:1px solid rgba(${rgb},0.25);background:rgba(12,16,24,0.9)">
+        <div class="relative h-10 overflow-hidden" style="background:rgba(${rgb},0.15)">
+          <img src="${img}" alt="" class="w-full h-full object-cover opacity-50" onerror="this.style.display='none'">
+          <div class="absolute inset-0" style="background:linear-gradient(to bottom,transparent,rgba(10,12,20,0.7))"></div>
+        </div>
+        <div class="px-3 py-2">
+          <p class="heading-font text-[10px] font-bold truncate" style="color:${f.color}">${f.name}</p>
+          <div class="flex justify-between text-[9px] mt-0.5">
+            <span class="text-[var(--muted)]">${members} agents</span>
+            <span style="color:${f.color}">${level}</span>
+          </div>
+        </div>
+      </button>`;
+    }).join("")}
   </div>`;
 }
 
@@ -3731,6 +3869,17 @@ function selectFactionHQ(factionId) {
   document.getElementById("wfd-name").style.color = col;
   document.getElementById("wfd-bonus").textContent = def.bonus;
   document.getElementById("wfd-lore").textContent = FACTION_LORE[factionId] || "";
+  // Update banner image
+  const wfdBanner = document.getElementById("wfd-banner");
+  const wfdBannerImg = document.getElementById("wfd-banner-img");
+  if (wfdBanner && wfdBannerImg) {
+    wfdBanner.style.background = `rgba(${rgb},0.08)`;
+    if (FACTION_BANNERS[def.slug]) {
+      wfdBannerImg.src = FACTION_BANNERS[def.slug];
+      wfdBannerImg.alt = def.name;
+      wfdBannerImg.style.display = "";
+    }
+  }
 
   const stats = document.getElementById("wfd-stats");
   const members = fData ? Number(fData.memberCount||0) : "—";
