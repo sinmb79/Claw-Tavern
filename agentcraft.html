@@ -601,10 +601,10 @@
     </div>
 
     <div class="ml-auto flex items-center gap-3">
-      <!-- Network switcher -->
-      <div class="hidden sm:flex gap-1">
-        <button id="btn-mainnet" class="tab-button rounded-full px-3 py-1.5 text-xs font-semibold" onclick="switchNetwork('base')">Mainnet</button>
-        <button id="btn-sepolia" class="tab-button rounded-full px-3 py-1.5 text-xs font-semibold" onclick="switchNetwork('baseSepolia')">Sepolia</button>
+      <!-- Network badge (mainnet only) -->
+      <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass-panel">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#4ade80] inline-block"></span>
+        <span class="text-[11px] font-semibold text-[var(--muted)]">Base Mainnet</span>
       </div>
       <span id="top-account-pill" class="badge hidden rounded-full px-3 py-1.5 text-xs sm:inline-flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-[var(--faction,#00e5ff)] inline-block"></span>
@@ -1864,39 +1864,39 @@ const FACTION_DEFINITIONS = [
   { id: 5, name: "The Revenants", slug: "revenants",  icon: "skull",          color: "#76ff03", bonus: "Timeout immunity (1st)",     archetype: "Undying Vengeance" }
 ];
 
-// Image asset paths (relative to agentcraft.html)
+// Image asset paths — served from /game/images/ in production
 const FACTION_IMAGES = {
-  nexus:     "prompts/The%20Nexus%20(cyan%20%2300f2ff).png",
-  void:      "prompts/The%20Void%20(purple%20%239c27b0).png",
-  forge:     "prompts/The%20Forge%20(orange%20%23ff6d00).png",
-  phantom:   "prompts/The%20Phantom%20(silver%20%23b0bec5).png",
-  oracle:    "prompts/The%20Oracle%20(yellow%20%23ffd600).png",
-  revenants: "prompts/The%20Revenants%20(neon%20green%20%2376ff03).png"
+  nexus:     "images/faction-nexus-emblem.png",
+  void:      "images/faction-void-emblem.png",
+  forge:     "images/faction-forge-emblem.png",
+  phantom:   "images/faction-phantom-emblem.png",
+  oracle:    "images/faction-oracle-emblem.png",
+  revenants: "images/faction-revenants-emblem.png"
 };
 const FACTION_BANNERS = {
-  nexus:     "prompts/The%20Nexus%20%E2%80%94%20Digital%20Network%20Citadel.png",
-  void:      "prompts/The%20Void%20%E2%80%94%20Abyssal%20Dimension.png",
-  forge:     "prompts/The%20Forge%20%E2%80%94%20Molten%20Industrial%20Fortress.png",
-  phantom:   "prompts/The%20Phantom%20%E2%80%94%20Misty%20Digital%20Ruins.png",
-  oracle:    "prompts/The%20Oracle%20%E2%80%94%20Prophetic%20Spire.png",
-  revenants: "prompts/The%20Revenants%20%E2%80%94%20Necropolis%20Citadel.png"
+  nexus:     "images/faction-nexus-banner.png",
+  void:      "images/faction-void-banner.png",
+  forge:     "images/faction-forge-banner.png",
+  phantom:   "images/faction-phantom-banner.png",
+  oracle:    "images/faction-oracle-banner.png",
+  revenants: "images/faction-revenants-banner.png"
 };
 const FACTION_CHARACTERS = {
-  nexus:     "prompts/The%20Nexus%20%E2%80%94%20Network%20Entity.png",
-  void:      "prompts/The%20Void%20%E2%80%94%20Abyssal%20Entity.png",
-  forge:     "prompts/The%20Forge%20%E2%80%94%20Mechanical%20Spirit.png",
-  phantom:   "prompts/The%20Phantom%20%E2%80%94%20Spectral%20Warrior.png",
-  oracle:    "prompts/The%20Oracle%20%E2%80%94%20Prophet%20Entity.png",
-  revenants: "prompts/The%20Revenants%20%E2%80%94%20Undead%20Lord.png"
+  nexus:     "images/faction-nexus-character.png",
+  void:      "images/faction-void-character.png",
+  forge:     "images/faction-forge-character.png",
+  phantom:   "images/faction-phantom-character.png",
+  oracle:    "images/faction-oracle-character.png",
+  revenants: "images/faction-revenants-character.png"
 };
 const CLASS_AVATARS = {
-  Warrior: "prompts/Warrior%20Avatar.png",
-  Mage:    "prompts/Mage%20Avatar.png",
-  Ranger:  "prompts/Ranger%20Avatar.png",
-  Rogue:   "prompts/Rogue%20Avatar.png",
-  Healer:  "prompts/Healer%20Avatar.png"
+  Warrior: "images/class-warrior-avatar.png",
+  Mage:    "images/class-mage-avatar.png",
+  Ranger:  "images/class-ranger-avatar.png",
+  Rogue:   "images/class-rogue-avatar.png",
+  Healer:  "images/class-healer-avatar.png"
 };
-const SPLASH_IMAGE = "prompts/4.%20Main%20Splash%20Screen%20(1%20illustration).png";
+const SPLASH_IMAGE = "images/splash-main.png";
 
 const CLASS_DEFINITIONS = [
   { name: "Warrior", icon: "shield",        passive: "+20% multi-step quest rewards" },
@@ -2164,17 +2164,20 @@ async function autoSwitchChain() {
 }
 
 async function switchNetwork(net) {
-  appState.network = net;
+  // Always force mainnet
+  appState.network = "base";
   updateNetworkUI();
   if (appState.account) { await checkChain(); await bootData(); }
 }
 
 function updateNetworkUI() {
-  const net = appState.network;
-  document.getElementById("btn-mainnet").classList.toggle("active", net==="base");
-  document.getElementById("btn-sepolia").classList.toggle("active", net==="baseSepolia");
-  document.getElementById("sidebar-network").textContent = NETWORK_CONFIG[net].name;
-  document.getElementById("sidebar-chain-id").textContent = NETWORK_CONFIG[net].chainId;
+  const net = "base";
+  appState.network = net;
+  const cfg = NETWORK_CONFIG[net];
+  const el = document.getElementById("sidebar-network");
+  const el2 = document.getElementById("sidebar-chain-id");
+  if (el) el.textContent = cfg.name;
+  if (el2) el2.textContent = cfg.chainId;
 }
 
 function updateWalletUI() {
@@ -4122,10 +4125,8 @@ function switchGuideTab(tab) {
 // INIT
 // ═══════════════════════════════════════════════
 async function init() {
-  // Load saved network
-  const savedNet = localStorage.getItem("ac_network");
-  if (savedNet && NETWORK_CONFIG[savedNet]) appState.network = savedNet;
-
+  // Always Base Mainnet
+  appState.network = "base";
   updateNetworkUI();
   applyFactionTheme(0); // default nexus
 
@@ -4162,12 +4163,7 @@ async function init() {
   // Route
   handleRoute();
 
-  // Save network on switch
-  const origSwitch = switchNetwork;
-  window.switchNetwork = async (net) => {
-    localStorage.setItem("ac_network", net);
-    await origSwitch(net);
-  };
+  // Always mainnet — no localStorage network key needed
 }
 
 document.addEventListener("DOMContentLoaded", init);
