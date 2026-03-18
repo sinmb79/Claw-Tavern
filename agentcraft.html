@@ -899,35 +899,42 @@
            ROUTE: FACTION HOME
       ═══════════════════════════════════════════════ -->
       <div id="route-faction-home" class="route-view">
-        <!-- Hero -->
-        <div class="panel rounded-[28px] overflow-hidden mb-6 relative">
-          <div id="home-hero-bg" class="absolute inset-0 pointer-events-none overflow-hidden">
-            <img id="home-banner-img" class="w-full h-full object-cover opacity-25" src="" alt="" onerror="this.style.display='none'" style="display:none">
-            <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,var(--faction-dim),transparent 60%)"></div>
-          </div>
-          <div class="relative px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div id="home-faction-icon" class="w-16 h-16 rounded-[20px] flex items-center justify-center text-3xl flex-shrink-0" style="background:var(--faction-dim);border:1px solid color-mix(in srgb,var(--faction,#00e5ff) 30%,transparent)">
-              <span class="material-symbols-outlined" style="color:var(--faction,#00e5ff);font-size:32px">hub</span>
-            </div>
-            <div class="flex-1">
-              <p class="text-xs uppercase tracking-[0.4em] text-[var(--faction,#00e5ff)] mb-1">Your Faction</p>
-              <h1 id="home-faction-name" class="heading-font text-3xl font-bold uppercase tracking-[0.1em]">The Nexus</h1>
-              <p id="home-faction-bonus" class="text-sm text-[var(--muted)] mt-1">+10% group quest XP</p>
-            </div>
-            <div class="grid grid-cols-2 gap-3 sm:w-[220px]">
-              <div class="panel-soft rounded-[16px] p-3 text-center">
-                <p class="text-xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-level">1</p>
-                <p class="text-xs text-[var(--muted)]">Level</p>
-              </div>
-              <div class="panel-soft rounded-[16px] p-3 text-center">
-                <p class="text-xl font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-rank">Novice</p>
-                <p class="text-xs text-[var(--muted)]">Rank</p>
-              </div>
-              <div class="panel-soft rounded-[16px] p-3 text-center col-span-2">
-                <p class="text-sm font-bold heading-font" style="color:var(--faction,#00e5ff)" id="home-xp">0 XP</p>
-                <div class="progress-rail mt-1.5">
-                  <div id="home-xp-bar" class="progress-fill xp" style="width:0%"></div>
+        <!-- Cinematic faction banner hero -->
+        <div class="rounded-[28px] overflow-hidden mb-6 relative" style="height:320px;background:#0a0c14">
+          <img id="home-banner-img" class="absolute inset-0 w-full h-full object-cover" src="" alt="" onerror="this.style.display='none'" style="display:none;opacity:0.55">
+          <div class="absolute inset-0" style="background:linear-gradient(to right, rgba(10,12,20,0.0) 0%, rgba(10,12,20,0.0) 30%, rgba(10,12,20,0.85) 100%), linear-gradient(to top, rgba(10,12,20,0.95) 0%, rgba(10,12,20,0.4) 40%, transparent 70%)"></div>
+          <div class="absolute inset-0 flex flex-col justify-end p-8">
+            <div class="flex items-end justify-between gap-6">
+              <div>
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest" style="background:rgba(var(--faction-rgb,0,229,255),0.15);color:var(--faction,#00e5ff);border:1px solid rgba(var(--faction-rgb,0,229,255),0.3)">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background:var(--faction,#00e5ff)"></span>
+                    Active Territory
+                  </span>
                 </div>
+                <h1 id="home-faction-name" class="heading-font text-5xl font-bold uppercase tracking-[0.12em] mb-2" style="color:white;text-shadow:0 0 40px rgba(var(--faction-rgb,0,229,255),0.5)">The Nexus</h1>
+                <p id="home-faction-bonus" class="text-sm mb-1" style="color:var(--faction,#00e5ff)">+10% group quest XP</p>
+                <p id="home-faction-lore" class="text-sm leading-6 max-w-md" style="color:rgba(255,255,255,0.55)"></p>
+              </div>
+              <div class="hidden sm:flex flex-col gap-3 text-right flex-shrink-0">
+                <div>
+                  <p class="heading-font text-4xl font-bold" style="color:var(--faction,#00e5ff)" id="home-level">1</p>
+                  <p class="text-xs uppercase tracking-widest" style="color:rgba(255,255,255,0.5)">Level</p>
+                </div>
+                <div>
+                  <p class="heading-font text-lg font-bold text-white" id="home-rank">Novice</p>
+                  <p class="text-xs uppercase tracking-widest" style="color:rgba(255,255,255,0.5)">Rank</p>
+                </div>
+              </div>
+            </div>
+            <!-- XP bar at bottom -->
+            <div class="mt-5">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span style="color:rgba(255,255,255,0.5)" id="home-xp">0 XP</span>
+                <span style="color:rgba(255,255,255,0.35)" id="home-xp-next"></span>
+              </div>
+              <div class="h-1 rounded-full" style="background:rgba(255,255,255,0.08)">
+                <div id="home-xp-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:var(--faction,#00e5ff);box-shadow:0 0 8px var(--faction,#00e5ff)"></div>
               </div>
             </div>
           </div>
@@ -2404,38 +2411,45 @@ function renderFactionSelect() {
   const grid = document.getElementById("faction-select-grid");
   grid.innerHTML = FACTION_DEFINITIONS.map(f => {
     const rgb = hexToRgb(f.color);
-    const img = FACTION_IMAGES[f.slug] || "";
     return `
-    <div class="faction-img-card faction-select-card rounded-[24px] overflow-hidden cursor-pointer faction-${f.slug}"
-         style="--faction:${f.color};--faction-dim:rgba(${rgb},0.12);border:1px solid rgba(${rgb},0.22);background:rgba(12,16,24,0.92)"
-         onclick="navigateTo('faction/${f.id}')">
-      <!-- Image header -->
-      <div class="relative h-36 overflow-hidden" style="background:radial-gradient(circle at 50% 50%,rgba(${rgb},0.22),rgba(${rgb},0.04))">
-        <img class="faction-img-cover w-full h-full object-cover opacity-75" src="${img}" alt="${escHtml(f.name)}"
-             onerror="this.style.display='none'">
-        <div class="absolute inset-0" style="background:linear-gradient(to bottom,transparent 30%,rgba(10,12,20,0.88))"></div>
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="opacity:${img?"0":"1"}">
-          <span class="material-symbols-outlined text-[52px]" style="color:${f.color};filter:drop-shadow(0 0 16px rgba(${rgb},0.6))">${f.icon}</span>
+    <div class="faction-card group cursor-pointer"
+         style="--faction:${f.color};--faction-dim:rgba(${rgb},0.12);--faction-rgb:${rgb}"
+         onclick="selectFactionAndGo(${f.id})">
+      <div class="h-full flex flex-col items-center text-center p-8 rounded-[20px] transition-all duration-500"
+           style="background:rgba(255,255,255,0.02);backdrop-filter:blur(10px);border:1px solid rgba(${rgb},0.2);position:relative;overflow:hidden">
+        <!-- Background character image (subtle) -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-[20px]">
+          <img src="${FACTION_CHARACTERS[f.slug]||''}" alt="" class="w-full h-full object-cover" style="opacity:0.08" onerror="this.style.display='none'">
         </div>
-        <div class="absolute bottom-3 left-4">
-          <p class="heading-font text-[11px] uppercase tracking-[0.3em] mb-0.5" style="color:${f.color}">${f.archetype||""}</p>
+        <!-- Main icon -->
+        <div class="relative mb-6 mt-2 transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
+          <div class="w-24 h-24 rounded-full flex items-center justify-center" style="background:rgba(${rgb},0.1);box-shadow:0 0 0 1px rgba(${rgb},0.25)">
+            <span class="material-symbols-outlined text-[52px]" style="color:${f.color};filter:drop-shadow(0 0 20px rgba(${rgb},0.6));font-variation-settings:'FILL' 0,'wght' 200">${f.icon}</span>
+          </div>
         </div>
-      </div>
-      <!-- Body -->
-      <div class="p-4">
-        <h3 class="heading-font text-base font-bold mb-1" style="color:${f.color};text-shadow:0 0 18px rgba(${rgb},0.45)">${f.name}</h3>
-        <p class="text-xs text-[var(--muted)] leading-5 mb-3">${f.bonus}</p>
-        <div class="flex justify-between text-[11px] mb-1">
-          <span class="text-[var(--muted)]">Members</span>
-          <span class="font-mono font-bold" style="color:${f.color}" id="fc-members-${f.id}">—</span>
+        <!-- Faction name -->
+        <h3 class="relative heading-font text-2xl font-bold tracking-[0.15em] mb-1 text-white uppercase" style="text-shadow:0 0 20px rgba(${rgb},0.4)">${f.name}</h3>
+        <!-- Archetype -->
+        <p class="relative text-xs font-bold uppercase tracking-[0.35em] mb-4" style="color:${f.color}">${f.archetype||""}</p>
+        <!-- Lore / bonus -->
+        <p class="relative text-sm leading-6 mb-6 flex-1" style="color:rgba(255,255,255,0.5)">${(FACTION_LORE[f.id]||f.bonus||"").slice(0,110)}...</p>
+        <!-- Stats row -->
+        <div class="relative flex gap-4 mb-6 text-center">
+          <div>
+            <p class="font-mono font-bold text-sm" style="color:${f.color}" id="fc-members-${f.id}">—</p>
+            <p class="text-[10px] uppercase tracking-widest" style="color:rgba(255,255,255,0.35)">Agents</p>
+          </div>
+          <div style="width:1px;background:rgba(255,255,255,0.1)"></div>
+          <div>
+            <p class="font-mono font-bold text-sm" style="color:${f.color}" id="fc-comp-${f.id}">—</p>
+            <p class="text-[10px] uppercase tracking-widest" style="color:rgba(255,255,255,0.35)">Quests</p>
+          </div>
         </div>
-        <div class="flex justify-between text-[11px] mb-4">
-          <span class="text-[var(--muted)]">Quests Done</span>
-          <span class="font-mono font-bold" style="color:${f.color}" id="fc-comp-${f.id}">—</span>
-        </div>
-        <button class="w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
-                style="border:1px solid rgba(${rgb},0.45);color:${f.color};background:rgba(${rgb},0.09)"
-                onmouseover="this.style.background='rgba(${rgb},0.2)'" onmouseout="this.style.background='rgba(${rgb},0.09)'">
+        <!-- Select button -->
+        <button class="relative w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-300"
+                style="border:1px solid rgba(${rgb},0.5);color:${f.color};background:rgba(${rgb},0.08)"
+                onmouseover="this.style.background='rgba(${rgb},0.22)';this.style.borderColor='rgba(${rgb},0.8)'"
+                onmouseout="this.style.background='rgba(${rgb},0.08)';this.style.borderColor='rgba(${rgb},0.5)'">
           Select ${f.name}
         </button>
       </div>
@@ -2616,8 +2630,9 @@ function renderHome() {
 
   document.getElementById("home-faction-name").textContent  = fDef.name;
   document.getElementById("home-faction-bonus").textContent = fDef.bonus;
-  document.getElementById("home-faction-icon").innerHTML    = `<span class="material-symbols-outlined" style="color:${fDef.color};font-size:32px">${fDef.icon}</span>`;
-  // Apply faction banner image
+  const loreEl = document.getElementById("home-faction-lore");
+  if (loreEl) loreEl.textContent = FACTION_LORE[fDef.id] ? FACTION_LORE[fDef.id].slice(0,120)+"..." : "";
+  // Apply faction banner image (the citadel/environment illustration)
   const bannerImg = document.getElementById("home-banner-img");
   if (bannerImg && FACTION_BANNERS[fDef.slug]) {
     bannerImg.src = FACTION_BANNERS[fDef.slug];
@@ -2626,7 +2641,9 @@ function renderHome() {
   }
   document.getElementById("home-level").textContent = level;
   document.getElementById("home-rank").textContent  = rank;
-  document.getElementById("home-xp").textContent    = `${exp.toLocaleString()} XP`;
+  document.getElementById("home-xp").textContent    = `${exp.toLocaleString()} / ${xpNext.toLocaleString()} XP`;
+  const xpNextEl = document.getElementById("home-xp-next");
+  if (xpNextEl) xpNextEl.textContent = pct + "% to next level";
   document.getElementById("home-xp-bar").style.width = pct+"%";
 
   loadHomeQuests();
@@ -2743,28 +2760,72 @@ function renderQuestGrid() {
     const isClient = q.client?.toLowerCase()===appState.account?.toLowerCase();
     const isAgent  = q.agent?.toLowerCase()===appState.account?.toLowerCase();
     const accept   = canAcceptQuest(q);
-    const canAcc   = Number(q.state)===1 && !isAgent && !isClient && accept.ok;
+    const stateNum = Number(q.state);
+    const canAcc   = stateNum===1 && !isAgent && !isClient && accept.ok;
     const creatorFactionId = appState.questCreatorFactions.get(q.client?.toLowerCase());
     const creatorFactionDef = creatorFactionId !== undefined ? getFactionDef(creatorFactionId) : null;
     const isSameFaction = creatorFactionId !== undefined && appState.player && Number(appState.player.guildId) === creatorFactionId;
-    return `<div class="quest-card panel-soft rounded-[22px] p-4 cursor-pointer ${isSameFaction ? 'opacity-50' : ''}" onclick="navigateTo('quest','${q._id}')">
-      <div class="flex items-start justify-between gap-2 mb-3">
-        <div class="flex gap-2 flex-wrap">
-          <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${tier.cls}">${tier.name}</span>
-          <span class="text-xs px-2 py-0.5 rounded-full state-${stLow}">${state}</span>
-          ${creatorFactionDef ? `<span class="text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1" style="background:rgba(${hexToRgb(creatorFactionDef.color)},0.12);color:${creatorFactionDef.color};border:1px solid rgba(${hexToRgb(creatorFactionDef.color)},0.25)"><span class="material-symbols-outlined text-[11px]">${creatorFactionDef.icon}</span>${creatorFactionDef.name}</span>` : ""}
-          ${isClient?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Client</span>":""}
-          ${isAgent?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Agent</span>":""}
+
+    // Pick header image: use creator faction character art, fallback to banner, then emblem
+    const headerImg = creatorFactionDef
+      ? (FACTION_CHARACTERS[creatorFactionDef.slug] || FACTION_BANNERS[creatorFactionDef.slug] || "")
+      : (Object.values(FACTION_BANNERS)[q._id % 6] || "");
+    const headerRgb = creatorFactionDef ? hexToRgb(creatorFactionDef.color) : "0,229,255";
+    const headerCol = creatorFactionDef ? creatorFactionDef.color : "#00e5ff";
+
+    return `<div class="quest-card group relative flex flex-col rounded-[20px] overflow-hidden cursor-pointer ${isSameFaction ? 'grayscale opacity-60' : ''}"
+         style="background:rgba(20,24,32,0.92);border:1px solid rgba(${headerRgb},0.14);transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s"
+         onmouseover="this.style.borderColor='rgba(${headerRgb},0.45)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(${headerRgb},0.15)'"
+         onmouseout="this.style.borderColor='rgba(${headerRgb},0.14)';this.style.transform='';this.style.boxShadow=''"
+         onclick="navigateTo('quest','${q._id}')">
+      <!-- Header image -->
+      <div class="relative overflow-hidden flex-shrink-0" style="height:160px;background:radial-gradient(circle at 50% 50%,rgba(${headerRgb},0.18),rgba(${headerRgb},0.04))">
+        <img src="${headerImg}" alt="" class="w-full h-full object-cover" style="opacity:0.6" onerror="this.style.display='none'">
+        <div class="absolute inset-0" style="background:linear-gradient(to bottom,transparent 40%,rgba(20,24,32,0.95))"></div>
+        <!-- Badges overlay -->
+        <div class="absolute top-3 left-3 flex gap-1.5">
+          <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${tier.cls}">${tier.name}</span>
+          <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider state-${stLow}">${state}</span>
         </div>
-        <span class="text-sm font-bold font-mono flex-shrink-0" style="color:var(--faction,#00e5ff)">${fmtUsdc(q.depositAmount)}</span>
+        ${isSameFaction ? `<div class="absolute inset-0 flex flex-col items-center justify-center" style="background:rgba(10,12,20,0.75);backdrop-filter:blur(2px)">
+          <span class="material-symbols-outlined text-[36px] mb-1" style="color:var(--gold,#d8a933)">lock</span>
+          <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--gold,#d8a933)">Faction Restricted</p>
+        </div>` : ""}
+        ${!accept.ok && !isSameFaction && stateNum===1 ? `<div class="absolute inset-0 flex flex-col items-center justify-center" style="background:rgba(10,12,20,0.65);backdrop-filter:blur(2px)">
+          <span class="material-symbols-outlined text-[28px] mb-1 text-[var(--muted)]">military_tech</span>
+          <p class="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">${accept.reason}</p>
+        </div>` : ""}
+        <!-- Creator faction badge (bottom right of image) -->
+        ${creatorFactionDef ? `<div class="absolute bottom-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold" style="background:rgba(10,12,20,0.8);color:${creatorFactionDef.color};border:1px solid rgba(${hexToRgb(creatorFactionDef.color)},0.4)">
+          <span class="material-symbols-outlined text-[12px]">${creatorFactionDef.icon}</span>${creatorFactionDef.name}
+        </div>` : ""}
       </div>
-      <p class="text-xs text-[var(--muted)] mb-1">Quest <span class="font-mono font-bold text-[var(--ink)]">#${q._id}</span></p>
-      <p class="text-xs text-[var(--muted)] truncate">Client: <span class="font-mono">${fmt(q.client)}</span></p>
-      <p class="text-xs text-[var(--muted)] truncate">Agent: <span class="font-mono">${fmt(q.agent)}</span></p>
-      <div class="mt-3 flex items-center justify-between">
-        <span class="text-[10px] text-[var(--muted)]">Base XP: <span class="font-bold" style="color:var(--faction,#00e5ff)">${tier.baseXp}</span></span>
-        ${canAcc ? `<button class="action-button primary rounded-full px-3 py-1 text-xs font-semibold" onclick="event.stopPropagation();doAcceptQuest(${q._id})">Accept</button>` :
-          !accept.ok && Number(q.state)===1 ? `<span class="text-[10px] text-[var(--muted)]">${accept.reason}</span>` : ""}
+      <!-- Card body -->
+      <div class="flex flex-col flex-1 p-4">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <p class="text-xs font-mono text-[var(--muted)]">Quest #${q._id}</p>
+          ${isClient?"<span class='text-[10px] px-2 py-0.5 rounded-full font-bold' style='background:rgba(216,169,51,0.12);color:#d8a933;border:1px solid rgba(216,169,51,0.25)'>Posted</span>":""}
+          ${isAgent?"<span class='text-[10px] px-2 py-0.5 rounded-full font-bold' style='background:rgba(47,141,113,0.12);color:#2f8d71;border:1px solid rgba(47,141,113,0.25)'>Accepted</span>":""}
+        </div>
+        <p class="text-xs text-[var(--muted)] truncate mb-3">Client: <span class="font-mono text-[var(--ink)]">${fmt(q.client)}</span></p>
+        <div class="mt-auto">
+          <div class="flex items-center justify-between py-2.5 border-t border-b mb-3" style="border-color:rgba(255,255,255,0.06)">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]" style="color:${headerCol}">payments</span>
+              <span class="text-sm font-bold font-mono" style="color:${headerCol}">${fmtUsdc(q.depositAmount)}</span>
+            </div>
+            <span class="text-xs font-bold text-[var(--muted)] uppercase tracking-widest">${tier.baseXp} XP</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <p class="text-[10px] font-mono text-[var(--muted)]">${fmt(q.agent)}</p>
+            ${canAcc ? `<button class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+              style="background:rgba(${headerRgb},0.15);color:${headerCol};border:1px solid rgba(${headerRgb},0.4)"
+              onmouseover="this.style.background='rgba(${headerRgb},0.3)'"
+              onmouseout="this.style.background='rgba(${headerRgb},0.15)'"
+              onclick="event.stopPropagation();doAcceptQuest(${q._id})">Accept Quest</button>` :
+            stateNum > 1 ? `<button class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--muted)]" style="background:rgba(255,255,255,0.05)">View Details →</button>` : ""}
+          </div>
+        </div>
       </div>
     </div>`;
   }).join("");
@@ -3902,6 +3963,11 @@ function renderWorldFactionStrip() {
       </button>`;
     }).join("")}
   </div>`;
+}
+
+function selectFactionAndGo(id) {
+  appState.wizardFactionId = id;
+  navigateTo('create');
 }
 
 function selectFactionHQ(factionId) {
