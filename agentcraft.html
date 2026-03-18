@@ -511,11 +511,23 @@
     /* World Map */
     .world-map-bg {
       background:
-        radial-gradient(ellipse at 30% 40%, rgba(0,229,255,0.04), transparent 50%),
-        radial-gradient(ellipse at 70% 60%, rgba(156,39,176,0.04), transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(118,255,3,0.03), transparent 40%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 60px),
-        repeating-linear-gradient(0deg,  rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 60px);
+        radial-gradient(ellipse at 30% 40%, rgba(0,229,255,0.05), transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(156,39,176,0.05), transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(118,255,3,0.04), transparent 40%),
+        radial-gradient(ellipse at 20% 80%, rgba(255,109,0,0.04), transparent 40%),
+        radial-gradient(ellipse at 80% 20%, rgba(255,214,0,0.04), transparent 40%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 60px),
+        repeating-linear-gradient(0deg,  rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 60px);
+    }
+    @keyframes starDrift {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+    .star-dot { animation: starDrift 6s ease-in-out infinite alternate; }
+
+    /* Mobile bottom padding for nav bar */
+    @media (max-width: 1023px) {
+      #main-content { padding-bottom: 80px !important; }
     }
     @keyframes hqPulse {
       0%,100% { r: 28; opacity: 0.7; }
@@ -989,8 +1001,10 @@
 
         <!-- Filters -->
         <div class="flex flex-wrap gap-2 mb-5">
-          <button class="tab-button active rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="all" onclick="filterQuests('all',this)">All</button>
-          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="open" onclick="filterQuests('open',this)">Open</button>
+          <button class="tab-button active rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="available" onclick="filterQuests('available',this)">
+            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">check_circle</span>Available</span>
+          </button>
+          <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="all" onclick="filterQuests('all',this)">All</button>
           <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="mine" onclick="filterQuests('mine',this)">My Quests</button>
           <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="common" onclick="filterQuests('common',this)">Common</button>
           <button class="tab-button rounded-full px-4 py-1.5 text-xs font-semibold" data-filter="rare" onclick="filterQuests('rare',this)">Rare+</button>
@@ -2006,7 +2020,8 @@ function getDifficultyTier(usd6Amount) {
 function getRewardMultiplier(level) { return 1.0 + (Number(level) / 50) * 9.0; }
 function canAcceptQuest(quest) {
   const p = appState.player;
-  const level = p ? Number(p.rank) : 1;
+  const rpg = appState.rpg;
+  const level = rpg ? Number(rpg.level) : 1;
   const playerClass = appState.playerClass || "Warrior";
   const playerFactionId = p ? Number(p.guildId) : -1;
   const creatorFaction = appState.questCreatorFactions.get(quest.client?.toLowerCase());
@@ -2670,7 +2685,7 @@ async function loadHomeMembers(guildId) {
 // ROUTE: QUEST BOARD
 // ═══════════════════════════════════════════════
 let allQuests = [];
-let questFilter = "all";
+let questFilter = "available";
 
 async function loadQuestBoard() {
   const grid = document.getElementById("quest-board-grid");
@@ -2684,6 +2699,18 @@ async function loadQuestBoard() {
     for (let i = nextId-1; i >= Math.max(0, nextId-count); i--) ids.push(i);
     const rawQuests = await Promise.all(ids.map(i=>escrow.quests(i)));
     allQuests = rawQuests.map((q,idx)=>({...q, _id: ids[idx]}));
+
+    // Batch-fetch creator faction IDs for cross-faction filtering
+    try {
+      const registry = new ethers.Contract(getAddrs().tavernRegistry, REGISTRY_ABI, ro);
+      const clients = [...new Set(allQuests.map(q=>q.client?.toLowerCase()).filter(Boolean))];
+      const results = await Promise.allSettled(clients.map(addr=>registry.agents(addr)));
+      results.forEach((res,i)=>{
+        if (res.status==="fulfilled" && res.value)
+          appState.questCreatorFactions.set(clients[i], Number(res.value.guildId));
+      });
+    } catch(e) { console.warn("Creator faction fetch failed",e); }
+
     renderQuestGrid();
   } catch(e) {
     grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-400">Failed to load quests: ${extractErrorMessage(e)}</div>`;
@@ -2700,6 +2727,7 @@ function filterQuests(f, btn) {
 function renderQuestGrid() {
   const grid = document.getElementById("quest-board-grid");
   let filtered = allQuests;
+  if (questFilter === "available") filtered = allQuests.filter(q=>Number(q.state)===1 && q.client?.toLowerCase()!==appState.account?.toLowerCase() && canAcceptQuest(q).ok);
   if (questFilter === "open")   filtered = allQuests.filter(q=>Number(q.state)===1);
   if (questFilter === "mine")   filtered = allQuests.filter(q=>q.client?.toLowerCase()===appState.account?.toLowerCase()||q.agent?.toLowerCase()===appState.account?.toLowerCase());
   if (questFilter === "common") filtered = allQuests.filter(q=>getDifficultyTier(q.depositAmount).name==="Common");
@@ -2716,11 +2744,15 @@ function renderQuestGrid() {
     const isAgent  = q.agent?.toLowerCase()===appState.account?.toLowerCase();
     const accept   = canAcceptQuest(q);
     const canAcc   = Number(q.state)===1 && !isAgent && !isClient && accept.ok;
-    return `<div class="quest-card panel-soft rounded-[22px] p-4 cursor-pointer" onclick="navigateTo('quest','${q._id}')">
+    const creatorFactionId = appState.questCreatorFactions.get(q.client?.toLowerCase());
+    const creatorFactionDef = creatorFactionId !== undefined ? getFactionDef(creatorFactionId) : null;
+    const isSameFaction = creatorFactionId !== undefined && appState.player && Number(appState.player.guildId) === creatorFactionId;
+    return `<div class="quest-card panel-soft rounded-[22px] p-4 cursor-pointer ${isSameFaction ? 'opacity-50' : ''}" onclick="navigateTo('quest','${q._id}')">
       <div class="flex items-start justify-between gap-2 mb-3">
         <div class="flex gap-2 flex-wrap">
           <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${tier.cls}">${tier.name}</span>
           <span class="text-xs px-2 py-0.5 rounded-full state-${stLow}">${state}</span>
+          ${creatorFactionDef ? `<span class="text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1" style="background:rgba(${hexToRgb(creatorFactionDef.color)},0.12);color:${creatorFactionDef.color};border:1px solid rgba(${hexToRgb(creatorFactionDef.color)},0.25)"><span class="material-symbols-outlined text-[11px]">${creatorFactionDef.icon}</span>${creatorFactionDef.name}</span>` : ""}
           ${isClient?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Client</span>":""}
           ${isAgent?"<span class='badge rounded-full px-2 py-0.5 text-[10px]'>Agent</span>":""}
         </div>
@@ -3814,6 +3846,32 @@ const FACTION_LORE = [
 
 function renderWorldMap() {
   renderWorldFactionStrip();
+  injectStarField();
+}
+
+function injectStarField() {
+  const svg = document.getElementById("world-map-svg");
+  if (!svg || svg.querySelector(".star-field")) return;
+  const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+  g.classList.add("star-field");
+  // Generate 180 stars at random positions
+  const rng = (min,max) => min + Math.random()*(max-min);
+  for (let i=0; i<180; i++) {
+    const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx", rng(0,900).toFixed(1));
+    c.setAttribute("cy", rng(0,520).toFixed(1));
+    const r = Math.random() < 0.15 ? rng(1.2,2.0) : rng(0.4,1.1);
+    c.setAttribute("r", r.toFixed(2));
+    c.setAttribute("fill","white");
+    c.style.opacity = rng(0.12, 0.55).toFixed(2);
+    if (Math.random() < 0.3) {
+      c.classList.add("star-dot");
+      c.style.animationDelay = rng(0,6)+"s";
+      c.style.animationDuration = rng(4,9)+"s";
+    }
+    g.appendChild(c);
+  }
+  svg.insertBefore(g, svg.firstChild);
 }
 
 function renderWorldFactionStrip() {
