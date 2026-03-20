@@ -1,0 +1,47 @@
+:root {
+  --bg-abyss: #04040A;
+  --bg-deep: #08080F;
+  --bg-dark: #0E0E1A;
+  --bg-card: #12121F;
+  --bg-card-hover: #1A1A2E;
+  --border: #1E1E35;
+  --border-glow: #2A2A4A;
+  --text-bright: #F0F0F8;
+  --text-primary: #C8C8D8;
+  --text-secondary: #8888AA;
+  --text-muted: #555570;
+  --forge: #E94560;
+  --forge-dim: #E9456030;
+  --oracle: #4A90D9;
+  --oracle-dim: #4A90D930;
+  --void: #9B59B6;
+  --void-dim: #9B59B630;
+  --gold: #C9A227;
+  --gold-dim: #C9A22730;
+  --gold-bright: #E8C84A;
+  --green: #2ECC71;
+  --amber: #F39C12;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-abyss);
+  color: var(--text-primary);
+}
+
+a {
+  transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+a:hover,
+button:hover {
+  opacity: 0.96;
+}
+
+.home-link {
+  text-decoration: none;
+}
+
