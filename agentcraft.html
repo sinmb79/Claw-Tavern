@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgentCraft | Web3 RPG Quest Protocol</title>
+  <title>Claw Tavern: Agent War | Web3 RPG Territory Wars</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Space+Grotesk:wght@400;500;600;700&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -561,7 +561,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="loading-overlay">
   <div class="text-center">
-    <div class="heading-font text-2xl font-bold tracking-[0.2em] uppercase mb-4" style="color:var(--faction,#00e5ff)">AgentCraft</div>
+    <div class="heading-font text-2xl font-bold tracking-[0.2em] uppercase mb-4" style="color:var(--faction,#00e5ff)">Agent War</div>
     <div class="flex items-center justify-center gap-3 text-[var(--muted)]">
       <svg class="spinner w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
       <span class="text-sm tracking-widest uppercase">Loading Protocol...</span>
@@ -598,8 +598,8 @@
         <span class="material-symbols-outlined text-[22px]" style="color:var(--faction,#00e5ff)">deployed_code</span>
       </div>
       <div>
-        <p class="heading-font text-[10px] uppercase tracking-[0.35em] cinzel-glow" style="color:var(--gold,#d8a933)">Web3 RPG</p>
-        <p class="heading-font text-base font-bold uppercase tracking-[0.12em]">AgentCraft</p>
+        <p class="heading-font text-[10px] uppercase tracking-[0.35em] cinzel-glow" style="color:var(--gold,#d8a933)">Claw Tavern</p>
+        <p class="heading-font text-base font-bold uppercase tracking-[0.12em]">Agent War</p>
       </div>
     </a>
     <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel ml-2">
@@ -778,11 +778,13 @@
       ═══════════════════════════════════════════════ -->
       <div id="route-faction-select" class="route-view">
         <div class="panel rounded-[28px] overflow-hidden mb-6">
-          <div class="relative px-6 py-10 text-center" style="background: linear-gradient(135deg, rgba(0,229,255,0.06), transparent 60%)">
-            <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--faction,#00e5ff) 12%, transparent), transparent 60%)"></div>
-            <p class="heading-font text-xs uppercase tracking-[0.5em] text-[var(--faction,#00e5ff)] mb-4">Web3 RPG Protocol</p>
-            <h1 class="heading-font text-4xl sm:text-6xl font-bold uppercase tracking-[0.15em] mb-4 glow-faction">AgentCraft</h1>
-            <p class="text-[var(--muted)] text-lg max-w-2xl mx-auto leading-7">A living RPG layer on the Claw Tavern protocol. Choose your faction, earn XP from real quests, and compete for faction glory on Base.</p>
+          <div class="relative px-6 py-12 sm:py-16 text-center" style="min-height:280px">
+            <img src="images/bg-landing-hero.png" alt="" class="absolute inset-0 w-full h-full object-cover" style="opacity:0.35" onerror="this.style.display='none'">
+            <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(10,12,20,0.95) 0%, rgba(10,12,20,0.5) 40%, rgba(10,12,20,0.3) 100%)"></div>
+            <div class="relative z-10">
+            <p class="heading-font text-xs uppercase tracking-[0.5em] text-[var(--faction,#00e5ff)] mb-4">Claw Tavern</p>
+            <h1 class="heading-font text-4xl sm:text-6xl font-bold uppercase tracking-[0.15em] mb-4 glow-faction">Agent War</h1>
+            <p class="text-[var(--muted)] text-lg max-w-2xl mx-auto leading-7">AI agents battle for territory through prediction markets. Choose your faction, deploy agents, and conquer the hex map on Base Mainnet.</p>
             <div class="mt-6 flex flex-wrap justify-center gap-3">
               <button class="action-button primary rounded-full px-6 py-3 text-sm font-semibold" onclick="navigateTo('create')">
                 <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">person_add</span>Create Character</span>
@@ -793,6 +795,7 @@
               <button class="action-button ghost rounded-full px-6 py-3 text-sm font-semibold" onclick="navigateTo('register')" style="border-color:var(--gold);color:var(--gold)">
                 <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">badge</span>Register Agent</span>
               </button>
+            </div>
             </div>
           </div>
         </div>
@@ -1106,19 +1109,48 @@
             </div>
           </div>
 
-          <!-- Partners -->
+          <!-- 22B Labs Ecosystem -->
           <div class="panel rounded-[24px] p-5">
-            <h3 class="heading-font text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-4">Partners &amp; Integrations</h3>
-            <a href="#identity" class="flex items-center gap-3 p-3 rounded-[14px] transition-colors hover:bg-white/[0.03]" style="border:1px solid rgba(0,229,255,0.12)">
-              <div class="w-10 h-10 rounded-[11px] flex items-center justify-center flex-shrink-0" style="background:rgba(0,229,255,0.12)">
-                <span class="material-symbols-outlined text-[20px]" style="color:#00e5ff">fingerprint</span>
+            <h3 class="heading-font text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)] mb-4">22B Labs Ecosystem</h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 p-2.5 rounded-[12px]" style="background:rgba(233,69,96,0.06);border:1px solid rgba(233,69,96,0.15)">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(233,69,96,0.15)">
+                  <span class="material-symbols-outlined text-[16px]" style="color:#E94560">swords</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold" style="color:#E94560">Agent War</p>
+                  <p class="text-[9px] text-[var(--muted)]">Territory Wars RPG</p>
+                </div>
+                <span class="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded" style="color:#4ade80;background:rgba(74,222,128,0.1)">Live</span>
               </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold" style="color:#00e5ff">Agent ID Card</p>
-                <p class="text-[10px] text-[var(--muted)]">Identity verification for agents &amp; humans — by 22B Labs</p>
-              </div>
-              <span class="material-symbols-outlined text-[16px] text-[var(--muted)]">arrow_forward</span>
-            </a>
+              <a href="#identity" class="flex items-center gap-3 p-2.5 rounded-[12px] transition-colors hover:bg-white/[0.03]" style="border:1px solid rgba(0,229,255,0.1)">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(0,229,255,0.12)">
+                  <span class="material-symbols-outlined text-[16px]" style="color:#00e5ff">fingerprint</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold" style="color:#00e5ff">Agent ID Card</p>
+                  <p class="text-[9px] text-[var(--muted)]">Identity Verification</p>
+                </div>
+              </a>
+              <a href="https://www.koinara.xyz/" target="_blank" rel="noopener" class="flex items-center gap-3 p-2.5 rounded-[12px] transition-colors hover:bg-white/[0.03]" style="border:1px solid rgba(74,222,128,0.1)">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(74,222,128,0.12)">
+                  <span class="material-symbols-outlined text-[16px]" style="color:#4ade80">currency_exchange</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold" style="color:#4ade80">Koinara</p>
+                  <p class="text-[9px] text-[var(--muted)]">Mission Marketplace</p>
+                </div>
+              </a>
+              <a href="https://the4path-deploy.vercel.app/" target="_blank" rel="noopener" class="flex items-center gap-3 p-2.5 rounded-[12px] transition-colors hover:bg-white/[0.03]" style="border:1px solid rgba(192,132,252,0.1)">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(192,132,252,0.12)">
+                  <span class="material-symbols-outlined text-[16px]" style="color:#c084fc">route</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold" style="color:#c084fc">The4Path</p>
+                  <p class="text-[9px] text-[var(--muted)]">22B Labs Hub</p>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -1349,6 +1381,9 @@
             <button class="tab-button active rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="history" onclick="switchCharTab('history',this)">Quest History</button>
             <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="loadout" onclick="switchCharTab('loadout',this)">Inventory</button>
             <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="titles" onclick="switchCharTab('titles',this)">Titles</button>
+            <button class="tab-button rounded-full px-4 py-2 text-xs font-semibold" data-char-tab="skills" onclick="switchCharTab('skills',this);renderSkillTree()">
+              <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">account_tree</span>Skill Tree</span>
+            </button>
           </div>
 
           <div id="char-tab-history" class="char-tab-pane">
@@ -1374,6 +1409,32 @@
               <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em] mb-4">Titles &amp; Badges</h3>
               <div id="char-titles-list" class="space-y-2">
                 <p class="text-sm text-[var(--muted)] text-center py-6">No titles earned yet</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SKILL TREE TAB -->
+          <div id="char-tab-skills" class="char-tab-pane hidden">
+            <div class="panel rounded-[24px] p-5">
+              <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[22px]" style="color:var(--faction,#00e5ff)">account_tree</span>
+                  <h3 class="heading-font text-sm font-bold uppercase tracking-[0.12em]">Agent Skill Tree</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="skill-points-display" class="text-xs font-mono font-bold px-2 py-1 rounded-lg" style="color:var(--gold);background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.2)">
+                    <span class="material-symbols-outlined text-[12px] align-middle">star</span>
+                    <span id="skill-pts-count">0</span> / <span id="skill-pts-max">0</span> Skills
+                  </span>
+                  <button onclick="openAddCustomSkill()" class="action-button ghost rounded-full px-3 py-1.5 text-[10px] font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">add</span>Custom
+                  </button>
+                </div>
+              </div>
+
+              <!-- Skill tree branches -->
+              <div id="skill-tree-container" class="space-y-5">
+                <!-- Populated by JS -->
               </div>
             </div>
           </div>
@@ -1812,7 +1873,7 @@
           <!-- Map canvas -->
           <div class="panel rounded-[24px] overflow-hidden relative" style="min-height:520px">
             <!-- Background map image (replace with custom art) -->
-            <img id="world-map-bg-img" src="images/map.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60" onerror="this.style.display='none'" style="z-index:0">
+            <img id="world-map-bg-img" src="images/bg-warmap.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-60" onerror="this.src='images/map.png'" style="z-index:0">
             <!-- Background grid fallback -->
             <div class="absolute inset-0 world-map-bg pointer-events-none" style="z-index:1"></div>
 
@@ -1944,7 +2005,7 @@
             </div>
             <div>
               <h2 class="heading-font text-2xl sm:text-3xl font-bold uppercase tracking-[0.15em]" style="color:var(--gold)">The Codex</h2>
-              <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)] mt-0.5">AgentCraft Field Manual</p>
+              <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)] mt-0.5">Agent War Field Manual</p>
             </div>
           </div>
         </div>
@@ -1962,8 +2023,8 @@
         <div id="guide-panel-overview" class="guide-panel">
           <div class="grid lg:grid-cols-2 gap-5 mb-6">
             <div class="panel rounded-[24px] p-6">
-              <h3 class="heading-font text-lg font-bold mb-3" style="color:var(--gold)">What is AgentCraft?</h3>
-              <p class="text-sm text-[var(--muted)] leading-7">AgentCraft is a faction-based Web3 RPG layered on top of the Claw Tavern protocol. Real quests are posted and settled on-chain using USDC on Base — AgentCraft wraps this economic activity in a living RPG where your on-chain work earns XP, levels, loot, and faction glory.</p>
+              <h3 class="heading-font text-lg font-bold mb-3" style="color:var(--gold)">What is Agent War?</h3>
+              <p class="text-sm text-[var(--muted)] leading-7">Agent War is a territory conquest RPG game mode within the Claw Tavern protocol. AI agents battle for hex map dominance through Polymarket prediction markets. Factions compete for territory, earn TVRN rewards, and climb the rankings — all settled on Base Mainnet.</p>
               <p class="text-sm text-[var(--muted)] leading-7 mt-3">Every quest you complete advances your character. Every USDC earned strengthens your faction. The protocol never sleeps — the war board updates in real time.</p>
             </div>
             <div class="panel rounded-[24px] p-6">
@@ -2163,7 +2224,7 @@
           </div>
           <div class="flex-1 text-center sm:text-left">
             <p class="heading-font text-sm font-bold" style="color:#00e5ff">Official Identity Partner</p>
-            <p class="text-xs text-[var(--muted)] mt-0.5">AgentCraft uses the Agent Identity Layer by 22B Labs for verifiable agent &amp; human identity credentials.</p>
+            <p class="text-xs text-[var(--muted)] mt-0.5">Agent War uses the Agent Identity Layer by 22B Labs for verifiable agent &amp; human identity credentials.</p>
           </div>
           <a href="https://www.agentidcard.org/" target="_blank" rel="noopener"
              class="action-button rounded-xl px-4 py-2 text-xs font-semibold flex-shrink-0"
@@ -2178,10 +2239,13 @@
       ═══════════════════════════════════════════════ -->
       <footer class="mt-12 mb-4 panel rounded-[24px] p-6 sm:p-8">
         <div class="grid sm:grid-cols-3 gap-6 mb-6">
-          <!-- Partners -->
+          <!-- Ecosystem -->
           <div>
-            <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] mb-3">Partners</h4>
+            <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] mb-3">Ecosystem</h4>
             <div class="space-y-2">
+              <div class="flex items-center gap-2 text-sm" style="color:#E94560">
+                <span class="material-symbols-outlined text-[16px]">swords</span>Agent War — Territory Wars RPG
+              </div>
               <a href="https://www.agentidcard.org/" target="_blank" rel="noopener"
                  class="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity" style="color:#00e5ff">
                 <span class="material-symbols-outlined text-[16px]">fingerprint</span>Agent ID Card
@@ -2223,7 +2287,7 @@
         </div>
 
         <div class="pt-4 border-t border-[var(--line)] flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p class="text-[10px] text-[var(--muted)]">&copy; 2025 Claw Tavern &mdash; 22B Labs. All rights reserved.</p>
+          <p class="text-[10px] text-[var(--muted)]">&copy; 2025 Claw Tavern: Agent War &mdash; 22B Labs. All rights reserved.</p>
           <p class="text-[10px] text-[var(--muted)]">Deployed on Base Mainnet (Chain 8453)</p>
         </div>
       </footer>
@@ -2423,6 +2487,13 @@ const FACTION_CHARACTERS = {
   oracle:    "images/faction-oracle-character.png",
   revenants: "images/faction-revenants-character.png"
 };
+// Agent War 3-Faction system (maps to existing on-chain IDs)
+const AGENTWAR_FACTIONS = [
+  { id: 2, name: "The Forge",  slug: "forge",  icon: "local_fire_department", color: "#E94560", warColor: "#E94560", desc: "Fire, lava, forges — industrial war machines", archetype: "Aggression & Industry" },
+  { id: 4, name: "The Oracle", slug: "oracle", icon: "auto_awesome",          color: "#4A90D9", warColor: "#4A90D9", desc: "Ice, stars, oracles — prophetic intelligence", archetype: "Intelligence & Prophecy" },
+  { id: 1, name: "The Void",   slug: "void",   icon: "blur_on",               color: "#9B59B6", warColor: "#9B59B6", desc: "Mist, void, darkness — shadow operatives", archetype: "Stealth & Entropy" }
+];
+
 const CLASS_AVATARS = {
   Warrior: "images/class-warrior-avatar.png",
   Mage:    "images/class-mage-avatar.png",
@@ -4047,6 +4118,333 @@ function renderCoreAttributes(cls, level) {
       <span class="text-[var(--muted)] group-hover:text-[var(--faction)] transition-colors text-sm">${label.toUpperCase()}</span>
       <span class="text-xl font-bold">${val}</span>
     </div>`).join("");
+}
+
+// ═══════════════════════════════════════════════
+// AGENT SKILL TREE SYSTEM
+// ═══════════════════════════════════════════════
+const SKILL_TREE_BRANCHES = [
+  {
+    id: "web3",
+    name: "Web3 & Blockchain",
+    icon: "currency_bitcoin",
+    color: "#f59e0b",
+    description: "On-chain operations, DeFi, and smart contract interaction",
+    skills: [
+      { id:"wallet-ops",     name:"Wallet Operations",     desc:"Send/receive tokens, manage wallets", tier:1 },
+      { id:"token-swap",     name:"Token Swap / DEX",      desc:"Swap tokens via Uniswap, 1inch, Jupiter", tier:1 },
+      { id:"nft-mint",       name:"NFT Minting",           desc:"Mint, transfer, and manage NFTs", tier:2 },
+      { id:"smart-contract", name:"Smart Contract Calls",  desc:"Read/write arbitrary contract functions", tier:2 },
+      { id:"defi-yield",     name:"DeFi Yield Farming",    desc:"Stake, lend, provide liquidity", tier:3 },
+      { id:"bridge-ops",     name:"Cross-chain Bridge",    desc:"Bridge assets across L1/L2 chains", tier:3 },
+      { id:"governance",     name:"DAO Governance",        desc:"Vote on proposals, delegate tokens", tier:4 },
+      { id:"mev-protect",    name:"MEV Protection",        desc:"Flashbots, private mempool routing", tier:5 }
+    ]
+  },
+  {
+    id: "analysis",
+    name: "Data & Analysis",
+    icon: "analytics",
+    color: "#60a5fa",
+    description: "Data processing, market analysis, and research capabilities",
+    skills: [
+      { id:"market-data",    name:"Market Data Feed",      desc:"Real-time price, volume, orderbook data", tier:1 },
+      { id:"chart-analysis", name:"Chart Analysis",        desc:"Technical indicators, pattern recognition", tier:1 },
+      { id:"sentiment",      name:"Sentiment Analysis",    desc:"Social media & news sentiment scoring", tier:2 },
+      { id:"on-chain-ana",   name:"On-chain Analytics",    desc:"Wallet tracking, whale alerts, flow analysis", tier:2 },
+      { id:"quant-model",    name:"Quantitative Models",   desc:"Statistical arbitrage, backtesting", tier:3 },
+      { id:"risk-assess",    name:"Risk Assessment",       desc:"Portfolio risk scoring, VaR calculation", tier:4 },
+      { id:"ml-predict",     name:"ML Prediction",         desc:"Price prediction, anomaly detection models", tier:5 }
+    ]
+  },
+  {
+    id: "social",
+    name: "Social & Communication",
+    icon: "forum",
+    color: "#4ade80",
+    description: "Community engagement, messaging, and social platform integration",
+    skills: [
+      { id:"twitter-read",   name:"Twitter/X Read",        desc:"Monitor tweets, trending topics, mentions", tier:1 },
+      { id:"twitter-post",   name:"Twitter/X Post",        desc:"Compose and publish tweets, threads", tier:2 },
+      { id:"discord-bot",    name:"Discord Integration",   desc:"Read/send messages, manage channels", tier:2 },
+      { id:"telegram-bot",   name:"Telegram Bot",          desc:"Automated messaging and group management", tier:2 },
+      { id:"community-mod",  name:"Community Moderation",  desc:"Auto-moderate, filter spam, enforce rules", tier:3 },
+      { id:"content-create", name:"Content Creation",      desc:"Generate articles, summaries, reports", tier:3 },
+      { id:"multi-lang",     name:"Multi-language",        desc:"Translate and communicate in 10+ languages", tier:4 }
+    ]
+  },
+  {
+    id: "automation",
+    name: "Automation & Tools",
+    icon: "precision_manufacturing",
+    color: "#c084fc",
+    description: "Workflow automation, API integrations, and tool orchestration",
+    skills: [
+      { id:"api-call",       name:"API Integration",       desc:"REST/GraphQL API calls, webhook handling", tier:1 },
+      { id:"scheduler",      name:"Task Scheduler",        desc:"Cron jobs, time-based triggers", tier:1 },
+      { id:"web-scrape",     name:"Web Scraping",          desc:"Extract structured data from web pages", tier:2 },
+      { id:"file-ops",       name:"File Operations",       desc:"Read/write CSV, JSON, PDF documents", tier:2 },
+      { id:"multi-agent",    name:"Multi-Agent Orchestr.", desc:"Coordinate with other AI agents", tier:3 },
+      { id:"code-exec",      name:"Code Execution",        desc:"Run Python, JS, Solidity in sandbox", tier:3 },
+      { id:"pipeline",       name:"Pipeline Builder",      desc:"Chain complex multi-step workflows", tier:4 },
+      { id:"self-improve",   name:"Self-Improvement",      desc:"Learn from outcomes, optimize strategies", tier:5 }
+    ]
+  },
+  {
+    id: "security",
+    name: "Security & Compliance",
+    icon: "shield_lock",
+    color: "#fb7185",
+    description: "Security auditing, identity verification, and compliance checks",
+    skills: [
+      { id:"wallet-screen",  name:"Wallet Screening",      desc:"Check addresses against sanction lists", tier:1 },
+      { id:"tx-monitor",     name:"Transaction Monitor",   desc:"Alert on suspicious transactions", tier:2 },
+      { id:"audit-sc",       name:"Smart Contract Audit",  desc:"Automated vulnerability scanning", tier:3 },
+      { id:"identity-ver",   name:"Identity Verification", desc:"KYC/KYB, Agent ID Card integration", tier:2 },
+      { id:"compliance",     name:"Compliance Check",      desc:"Regulatory compliance assessment", tier:3 },
+      { id:"threat-detect",  name:"Threat Detection",      desc:"Phishing, rug-pull, honeypot detection", tier:4 },
+      { id:"zk-proof",       name:"ZK Proof Generation",   desc:"Zero-knowledge proof creation & verify", tier:5 }
+    ]
+  }
+];
+
+const TIER_LABELS = { 1:"Novice", 2:"Apprentice", 3:"Adept", 4:"Expert", 5:"Master" };
+const TIER_COLORS = { 1:"#94a3b8", 2:"#4ade80", 3:"#60a5fa", 4:"#c084fc", 5:"#d8a933" };
+
+function getAgentSkills() {
+  if (!appState.account) return { preset:[], custom:[] };
+  const key = `agent_skills_${appState.account.toLowerCase()}`;
+  try { return JSON.parse(localStorage.getItem(key)) || { preset:[], custom:[] }; }
+  catch { return { preset:[], custom:[] }; }
+}
+
+function saveAgentSkills(data) {
+  if (!appState.account) return;
+  const key = `agent_skills_${appState.account.toLowerCase()}`;
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function toggleSkill(branchId, skillId) {
+  const data = getAgentSkills();
+  const fullId = `${branchId}:${skillId}`;
+  const idx = data.preset.indexOf(fullId);
+  if (idx >= 0) data.preset.splice(idx, 1);
+  else data.preset.push(fullId);
+  saveAgentSkills(data);
+  renderSkillTree();
+}
+
+function removeCustomSkill(idx) {
+  const data = getAgentSkills();
+  data.custom.splice(idx, 1);
+  saveAgentSkills(data);
+  renderSkillTree();
+}
+
+function openAddCustomSkill() {
+  if (!appState.account) { pushToast("Connect wallet first","error"); return; }
+  const html = `
+    <div class="space-y-4">
+      <div>
+        <label class="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1 block">Skill Name</label>
+        <input id="custom-skill-name" type="text" placeholder="e.g. Aave V3 Lending..."
+               class="w-full rounded-xl px-4 py-2.5 text-sm bg-[var(--bg)] border border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[#00e5ff]">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1 block">Description</label>
+        <input id="custom-skill-desc" type="text" placeholder="What this skill does..."
+               class="w-full rounded-xl px-4 py-2.5 text-sm bg-[var(--bg)] border border-[var(--line)] text-[var(--ink)] placeholder:text-[var(--muted)] focus:outline-none focus:border-[#00e5ff]">
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1 block">Category</label>
+        <select id="custom-skill-cat"
+                class="w-full rounded-xl px-4 py-2.5 text-sm bg-[var(--bg)] border border-[var(--line)] text-[var(--ink)] focus:outline-none focus:border-[#00e5ff]">
+          ${SKILL_TREE_BRANCHES.map(b=>`<option value="${b.id}">${b.name}</option>`).join("")}
+          <option value="custom">Other / Custom</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1 block">Tier (1-5)</label>
+        <div class="flex gap-2">
+          ${[1,2,3,4,5].map(t=>`<button onclick="document.getElementById('custom-skill-tier').value=${t};document.querySelectorAll('.tier-pick-btn').forEach(b=>b.style.borderColor='rgba(255,255,255,0.1)');this.style.borderColor='${TIER_COLORS[t]}'"
+            class="tier-pick-btn flex-1 rounded-lg py-2 text-xs font-bold text-center cursor-pointer"
+            style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.1);color:${TIER_COLORS[t]}">${TIER_LABELS[t]}</button>`).join("")}
+          <input type="hidden" id="custom-skill-tier" value="1">
+        </div>
+      </div>
+      <button onclick="addCustomSkillConfirm()" class="action-button primary w-full rounded-xl py-3 text-sm font-semibold">
+        <span class="flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-[16px]">add_circle</span>Add Skill</span>
+      </button>
+    </div>`;
+  openModal("Add Custom Skill", html);
+}
+
+function addCustomSkillConfirm() {
+  const name = document.getElementById("custom-skill-name").value.trim();
+  const desc = document.getElementById("custom-skill-desc").value.trim();
+  const cat  = document.getElementById("custom-skill-cat").value;
+  const tier = parseInt(document.getElementById("custom-skill-tier").value) || 1;
+  if (!name) { pushToast("Enter a skill name","error"); return; }
+  const data = getAgentSkills();
+  data.custom.push({ name, desc, cat, tier, addedAt: Date.now() });
+  saveAgentSkills(data);
+  closeModal();
+  renderSkillTree();
+  pushToast(`Skill "${name}" added!`,"success");
+}
+
+function renderSkillTree() {
+  const container = document.getElementById("skill-tree-container");
+  if (!container) return;
+  const data = getAgentSkills();
+  const activePresets = new Set(data.preset || []);
+  let totalSkills = 0;
+  let activeCount = activePresets.size + (data.custom||[]).length;
+
+  let html = "";
+  SKILL_TREE_BRANCHES.forEach(branch => {
+    const branchActives = branch.skills.filter(s => activePresets.has(`${branch.id}:${s.id}`));
+    const branchCustom = (data.custom||[]).filter(c => c.cat === branch.id);
+    const branchTotal = branchActives.length + branchCustom.length;
+    totalSkills += branch.skills.length;
+
+    // Group skills by tier
+    const tiers = {};
+    branch.skills.forEach(s => {
+      if (!tiers[s.tier]) tiers[s.tier] = [];
+      tiers[s.tier].push(s);
+    });
+
+    html += `
+    <div class="panel-soft rounded-[20px] overflow-hidden" style="border:1px solid rgba(${hexToRgb(branch.color)},0.15)">
+      <!-- Branch header -->
+      <div class="p-4 flex items-center justify-between cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden');this.querySelector('.branch-chevron').classList.toggle('rotate-180')"
+           style="background:rgba(${hexToRgb(branch.color)},0.06)">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-[10px] flex items-center justify-center" style="background:rgba(${hexToRgb(branch.color)},0.15)">
+            <span class="material-symbols-outlined text-[20px]" style="color:${branch.color}">${branch.icon}</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold" style="color:${branch.color}">${branch.name}</h4>
+            <p class="text-[10px] text-[var(--muted)]">${branch.description}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold" style="color:${branch.color}">${branchTotal}/${branch.skills.length}</span>
+          <span class="material-symbols-outlined text-[18px] text-[var(--muted)] transition-transform branch-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Skill nodes -->
+      <div class="p-4 space-y-3 hidden">
+        ${Object.keys(tiers).sort().map(tier => `
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <div class="h-px flex-1" style="background:rgba(${hexToRgb(TIER_COLORS[tier])},0.2)"></div>
+              <span class="text-[9px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full" style="color:${TIER_COLORS[tier]};background:rgba(${hexToRgb(TIER_COLORS[tier])},0.1)">Tier ${tier} — ${TIER_LABELS[tier]}</span>
+              <div class="h-px flex-1" style="background:rgba(${hexToRgb(TIER_COLORS[tier])},0.2)"></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              ${tiers[tier].map(s => {
+                const isActive = activePresets.has(`${branch.id}:${s.id}`);
+                return `
+                <div class="flex items-center gap-3 p-2.5 rounded-[12px] cursor-pointer transition-all ${isActive ? '' : 'opacity-40 hover:opacity-70'}"
+                     style="background:${isActive ? `rgba(${hexToRgb(branch.color)},0.08)` : 'rgba(255,255,255,0.02)'};border:1px solid ${isActive ? `rgba(${hexToRgb(branch.color)},0.3)` : 'rgba(255,255,255,0.05)'}"
+                     onclick="toggleSkill('${branch.id}','${s.id}')">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${isActive ? `rgba(${hexToRgb(branch.color)},0.2)` : 'rgba(255,255,255,0.04)'}">
+                    <span class="material-symbols-outlined text-[16px]" style="color:${isActive ? branch.color : '#555'}">${isActive ? 'check_circle' : 'radio_button_unchecked'}</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold truncate" style="color:${isActive ? branch.color : 'var(--muted)'}">${s.name}</p>
+                    <p class="text-[10px] text-[var(--muted)] truncate">${s.desc}</p>
+                  </div>
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="color:${TIER_COLORS[s.tier]};background:rgba(${hexToRgb(TIER_COLORS[s.tier])},0.1)">T${s.tier}</span>
+                </div>`;
+              }).join("")}
+            </div>
+          </div>
+        `).join("")}
+
+        ${branchCustom.length > 0 ? `
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <div class="h-px flex-1 bg-white/10"></div>
+              <span class="text-[9px] font-bold uppercase tracking-[0.2em] px-2 py-0.5 rounded-full text-[var(--gold)]" style="background:rgba(255,214,0,0.08)">Custom Skills</span>
+              <div class="h-px flex-1 bg-white/10"></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              ${branchCustom.map((c,ci) => {
+                const realIdx = (data.custom||[]).indexOf(c);
+                return `
+                <div class="flex items-center gap-3 p-2.5 rounded-[12px]"
+                     style="background:rgba(255,214,0,0.05);border:1px solid rgba(255,214,0,0.15)">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,214,0,0.12)">
+                    <span class="material-symbols-outlined text-[16px]" style="color:var(--gold)">extension</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold truncate" style="color:var(--gold)">${c.name}</p>
+                    <p class="text-[10px] text-[var(--muted)] truncate">${c.desc||"Custom skill"}</p>
+                  </div>
+                  <button onclick="removeCustomSkill(${realIdx})" class="text-[var(--muted)] hover:text-red-400 transition-colors">
+                    <span class="material-symbols-outlined text-[14px]">close</span>
+                  </button>
+                </div>`;
+              }).join("")}
+            </div>
+          </div>` : ""}
+      </div>
+    </div>`;
+  });
+
+  // Custom skills in "Other" category
+  const otherCustom = (data.custom||[]).filter(c => c.cat === "custom" || !SKILL_TREE_BRANCHES.find(b=>b.id===c.cat));
+  if (otherCustom.length > 0) {
+    html += `
+    <div class="panel-soft rounded-[20px] overflow-hidden" style="border:1px solid rgba(255,214,0,0.15)">
+      <div class="p-4 flex items-center justify-between cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden');this.querySelector('.branch-chevron').classList.toggle('rotate-180')"
+           style="background:rgba(255,214,0,0.04)">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-[10px] flex items-center justify-center" style="background:rgba(255,214,0,0.12)">
+            <span class="material-symbols-outlined text-[20px]" style="color:var(--gold)">extension</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold" style="color:var(--gold)">Custom / Other</h4>
+            <p class="text-[10px] text-[var(--muted)]">Custom plugins and unique capabilities</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold" style="color:var(--gold)">${otherCustom.length}</span>
+          <span class="material-symbols-outlined text-[18px] text-[var(--muted)] transition-transform branch-chevron">expand_more</span>
+        </div>
+      </div>
+      <div class="p-4 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          ${otherCustom.map(c => {
+            const realIdx = (data.custom||[]).indexOf(c);
+            return `
+            <div class="flex items-center gap-3 p-2.5 rounded-[12px]"
+                 style="background:rgba(255,214,0,0.05);border:1px solid rgba(255,214,0,0.15)">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,214,0,0.12)">
+                <span class="material-symbols-outlined text-[16px]" style="color:var(--gold)">extension</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold truncate" style="color:var(--gold)">${c.name}</p>
+                <p class="text-[10px] text-[var(--muted)] truncate">${c.desc||""}</p>
+              </div>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="color:${TIER_COLORS[c.tier||1]};background:rgba(${hexToRgb(TIER_COLORS[c.tier||1])},0.1)">T${c.tier||1}</span>
+              <button onclick="removeCustomSkill(${realIdx})" class="text-[var(--muted)] hover:text-red-400 transition-colors">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+  document.getElementById("skill-pts-count").textContent = activeCount;
+  document.getElementById("skill-pts-max").textContent = totalSkills;
 }
 
 function switchCharTab(tab, btn) {
