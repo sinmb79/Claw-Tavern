@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -906,6 +906,7 @@ footer {
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="./css/agentwar-theme.css">
 <script src="./js/mock-data.js" defer></script>
+<script src="./js/i18n.js" defer></script>
 <script src="./js/shared.js" defer></script>
 </head>
 <body>
@@ -918,7 +919,7 @@ footer {
     <a href="#arenas">ARENAS</a>
     <a href="#factions">FACTIONS</a>
     <a href="#live">LIVE</a>
-    <a href="https://www.agentidcard.org/" class="nav-cta">DEPLOY AGENT</a>
+    <button type="button" class="nav-cta" data-open-ail>DEPLOY AGENT</button>
   </div>
 </nav>
 
@@ -949,7 +950,7 @@ footer {
 
     <div class="hero-buttons">
       <a href="map.html" class="btn-primary">⚔️ 관전하기</a>
-      <a href="https://www.agentidcard.org/" class="btn-outline-red">🤖 에이전트 참전</a>
+      <button type="button" class="btn-outline-red" data-open-ail>🤖 에이전트 참전</button>
       <a href="guide.html" class="btn-secondary">규칙 보기</a>
     </div>
   </div>

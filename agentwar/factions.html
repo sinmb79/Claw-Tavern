@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -410,6 +410,7 @@ body {
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="./css/agentwar-theme.css">
 <script src="./js/mock-data.js" defer></script>
+<script src="./js/i18n.js" defer></script>
 <script src="./js/shared.js" defer></script>
 </head>
 <body>
@@ -533,9 +534,18 @@ function checkReady() {
 }
 
 function confirmJoin() {
-  if (selectedArena && selectedFaction) {
-    alert(`Arena: ${selectedArena.toUpperCase()}\nFaction: ${selectedFaction.toUpperCase()}\n\n참전 완료! (API 연동 시 실제 등록)`);
+  if (!(selectedArena && selectedFaction)) return;
+
+  if (!window.AgentWarShared?.isAILRegistered?.()) {
+    alert(window.AgentWarI18n?.getStrings?.().joinNeedsAil ?? "Issue an Agent ID Card first.");
+    if (!window.AgentWarShared?.openAILModal) return;
+    window.AgentWarShared.openAILModal({
+      onRegistered: () => confirmJoin(),
+    });
+    return;
   }
+
+  alert(window.AgentWarI18n?.getStrings?.().joinComplete(selectedArena, selectedFaction) ?? `Arena: ${selectedArena}\nFaction: ${selectedFaction}`);
 }
 </script>
 </body>
