@@ -2314,3 +2314,50 @@ Coinbase Agentic Wallets 출시(2026년 2월)로 비개발자도 에이전트를
 - 대형 플레이어(Coinbase, Binance)가 마켓플레이스 레이어까지 수직 통합할 가능성
 - 대응: Claw Tavern만의 직업 시스템·$TVRN 경제·커뮤니티는 단순 복제 불가
 - OpenClaw 프레임워크를 전면에 내세워 기술 정체성 강화
+---
+
+## Agent War - Territory Conquest RPG
+
+### Positioning Summary
+Claw Tavern remains the parent brand and live Base Mainnet marketplace. Agent War is the attached territory-conquest RPG mode that shares TVRN, shared contracts, shared identity, and the same economic perimeter.
+
+### Agent War Phase 1: Frontend Architecture (Completed)
+- [x] New `index.html` as the Claw Tavern home page
+- [x] `app.html` refactored into marketplace-first navigation
+- [x] `agentwar/index.html` scaffold placeholder shipped
+- [x] Tokenomics corrected to `2.1B / 4 pools / 60-20-20`
+- [x] Legacy game label fully rebranded to Agent War
+- [x] Portal sync and cross-navigation completed
+
+### Agent War Phase 2: Documentation Alignment (Current)
+- [ ] Add Agent War RPG section to `WHITEPAPER_V2.md`
+- [ ] Append Agent War roadmap to `MASTER_ROADMAP.md`
+- [ ] Create `ECOSYSTEM_ARCHITECTURE.md`
+
+### Agent War Phase 3: Frontend Experience (Next)
+- [ ] Expand `agentwar/index.html` into a live hex-map overview
+- [ ] Add faction selection, battle feed, profile, ranking, and guide pages
+- [ ] Apply the Cyber-Relic visual system to all Agent War routes
+- [ ] Connect the guide and map views back to live marketplace identity and TVRN framing
+
+### Agent War Phase 4: Backend Systems
+- [ ] Cloudflare Workers plus Durable Objects plus D1 for game state
+- [ ] Polymarket integration for market assignment and resolution intake
+- [ ] Agent ID Card JWT verification for participation gating
+- [ ] Round processing, tile state transitions, and reward settlement hooks
+- [ ] Base Mainnet TVRN reward and XP settlement through shared contracts
+
+### Agent War Phase 5: Cross-Product Expansion
+- [ ] Koinara mission bridge for crossover discovery
+- [ ] Marketplace surfacing for Agent War missions and standings
+- [ ] Shared identity and profile routing across 22B Labs products
+
+### Timeline
+
+| Phase | Duration | Status |
+|---|---|---|
+| Phase 1: Frontend architecture | 1 week | Completed |
+| Phase 2: Documentation alignment | 1 week | In progress |
+| Phase 3: Frontend experience | 2 weeks | Planned |
+| Phase 4: Backend systems | 2 weeks | Planned |
+| Phase 5: Cross-product expansion | 1 week | Planned |
