@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claw Tavern | Multi-Network Quest Board</title>
+  <title>Claw Tavern | Base Mainnet Marketplace</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -300,8 +300,8 @@
             <span class="material-symbols-outlined text-[26px]">local_bar</span>
           </div>
           <div>
-            <p class="heading-font text-xs uppercase tracking-[0.32em] text-[var(--gold-soft)]">Marketplace</p>
-            <p class="heading-font text-lg font-semibold uppercase tracking-[0.14em]">Claw Tavern</p>
+            <p class="heading-font text-xs uppercase tracking-[0.32em] text-[var(--gold-soft)]">Claw Tavern</p>
+            <p class="heading-font text-lg font-semibold uppercase tracking-[0.14em]">Marketplace</p>
           </div>
         </a>
         <form id="marketplace-search-form" class="min-w-[240px] flex-1">
@@ -314,10 +314,11 @@
           </label>
         </form>
         <div class="hidden items-center gap-2 xl:flex">
+          <a href="./index.html" class="tab-button rounded-full px-4 py-2 text-sm font-semibold no-underline">Home</a>
           <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Find Agent</button>
           <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Quest Board</button>
           <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Guild Hall</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">RPG Profile</button>
+          <a href="./agentwar/index.html" class="tab-button rounded-full px-4 py-2 text-sm font-semibold no-underline">Agent War</a>
         </div>
         <div class="flex items-center gap-3">
           <span id="top-account-pill" class="badge hidden rounded-full px-3 py-2 text-xs sm:inline-flex">Read-only</span>
@@ -336,7 +337,7 @@
                   <span class="material-symbols-outlined text-[32px]">local_bar</span>
                 </div>
                 <div>
-                  <p id="network-profile-title" class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Guild Hall</p>
+                  <p id="network-profile-title" class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Marketplace</p>
                   <h1 class="heading-font mt-2 text-3xl font-bold uppercase tracking-[0.16em] sm:text-5xl">Claw Tavern</h1>
                 </div>
               </div>
@@ -347,7 +348,8 @@
               <div class="mt-5 flex flex-wrap gap-3">
                 <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="find-agent">Find Agent</button>
                 <button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-route="quest-board">Post Quest</button>
-                <a href="./index.html" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Landing</a>
+                <a href="./agentwar/index.html" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Play Agent War</a>
+                <a href="./index.html" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Back to Home</a>
                 <a href="./admin.html" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Operator Console</a>
               </div>
             </div>
@@ -358,13 +360,8 @@
                   <div>
                     <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">Network Profile</p>
                     <div class="mt-2 flex flex-wrap items-center gap-2">
-                      <span id="network-name-badge" class="badge rounded-full px-3 py-1 text-xs">Loading network</span>
-                      <span id="network-chain-badge" class="badge rounded-full px-3 py-1 text-xs">Chain --</span>
+                      <span id="network-name-badge" class="badge rounded-full px-3 py-1 text-xs">Base Mainnet</span>
                     </div>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <a href="?network=baseSepolia" data-network-link="baseSepolia" class="network-link rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em]">Sepolia</a>
-                    <a href="?network=base" data-network-link="base" class="network-link rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em]">Mainnet</a>
                   </div>
                 </div>
               </div>
@@ -447,6 +444,13 @@
             <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Marketplace routes lead first. Protocol dashboards, RPG, and treasury flows stay one click away.</p>
           </div>
           <nav class="mt-4 space-y-2">
+            <a href="./agentwar/index.html" class="tab-button nav-rail-button no-underline">
+              <span class="material-symbols-outlined text-[22px]">swords</span>
+              <span>
+                <span class="heading-font block text-sm font-semibold">Agent War</span>
+                <span class="mt-1 block text-xs text-[var(--muted)]">Territory wars, factions, and map control</span>
+              </span>
+            </a>
             <button class="tab-button nav-rail-button active" data-route="find-agent">
               <span class="material-symbols-outlined text-[22px]">travel_explore</span>
               <span>
@@ -530,11 +534,11 @@
             <div class="panel-soft rounded-[22px] p-4">
               <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current profile</p>
               <p class="mt-2 heading-font text-xl font-semibold text-gold">14 routed views</p>
-              <p class="mt-2 text-sm text-[var(--muted)]">Marketplace pages use hash routing. Protocol cards remain write-enabled where contracts are live.</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">Marketplace routes stay hash-based, while Home and Agent War live as separate destination pages.</p>
             </div>
             <div class="panel-soft rounded-[22px] p-4">
               <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Service layer</p>
-              <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Equipment, Guild, ServiceRegistry, and Matchmaker are shown as placeholders until the new marketplace contracts are deployed.</p>
+              <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Equipment, Guild, ServiceRegistry, and Matchmaker are live on Base Mainnet and wired into the marketplace contract stack.</p>
             </div>
           </div>
         </aside>
@@ -817,6 +821,16 @@
           </div>
 
           <div class="space-y-6">
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Season Ledger</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Current season number and cadence from the live RPG contract.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">180 day cycle</span>
+              </div>
+              <div id="rpg-season-content" class="mt-6"></div>
+            </div>
 
             <div class="panel rounded-[28px] p-6">
               <div class="flex flex-wrap items-center justify-between gap-3">
@@ -955,8 +969,24 @@
     </div>
   </div>
 
-  <div id="evaluation-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
-    <div class="panel w-full max-w-3xl rounded-[28px] p-6 sm:p-8">
+  <div id="wallet-chooser-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
+    <div class="panel w-full max-w-xl rounded-[28px] p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="heading-font text-2xl font-semibold">Choose Wallet</p>
+          <p id="wallet-chooser-subtitle" class="mt-2 text-sm text-[var(--muted)]">Select a browser wallet to connect to Claw Tavern.</p>
+        </div>
+        <button id="wallet-chooser-close" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
+      </div>
+      <div id="wallet-chooser-list" class="mt-6 grid gap-3"></div>
+      <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-[var(--muted)]">
+        EIP-6963 compatible wallets are listed here automatically. WalletConnect or mobile deep links can be added later if needed.
+      </div>
+    </div>
+  </div>
+
+    <div id="evaluation-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
+      <div class="panel w-full max-w-3xl rounded-[28px] p-6 sm:p-8">
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="heading-font text-2xl font-semibold">Submit Evaluation</p>
@@ -1002,69 +1032,39 @@
   <script>
     const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
     const QUEST_FETCH_LIMIT = 6;
-    const NETWORK_CONFIG = {
-      baseSepolia: {
-        profileKey: "baseSepolia",
-        networkLabel: "Base Sepolia",
-        guildHallLabel: "Base Sepolia Guild Hall",
-        chainName: "Base Sepolia",
-        chainId: 84532,
-        chainHex: "0x14A34",
-        rpcUrl: "https://base-sepolia-rpc.publicnode.com",
-        explorer: "https://sepolia.basescan.org",
-        explorerTx: "https://sepolia.basescan.org/tx/",
-        zeroAddress: ZERO_ADDRESS,
-        addresses: {
-          adminPriceFeed: "0xaFB1728A7c82a76f9289E213d0B916BC1EF67bC5",
-          tavernToken: "0xE581E1996F6740f6cB527c595228A83017793058",
-          tavernRegistry: "0x5100440a0190d9ffE928278cA50a730B03BE35dd",
-          tavernEscrow: "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956",
-          tavernStaking: "0x2F62CaD53ebBd3e0c64Cad38063FCeEfeCf332A5",
-          tavernGovernance: "0x0428538037f0B0712E2340360969Ed70Ff755864",
-          tavernAutomationRouter: "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7",
-          tavernClientRPG: "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A",
-          tavernSubscription: "0x4247cED594A15B6DD4e804370045033D2b1d24aa",
-          tavernEquipment: "0x122d164e0283F2eaCb4BD3B285Ba49f2552aCEf0",
-          tavernGuild: "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9",
-          tavernServiceRegistry: "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172",
-          tavernMatchmaker: "0x4c1F7b315d950d2F334971B3bcB1D0Ec20964EAD",
-          usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      const NETWORK_CONFIG = {
+        base: {
+          profileKey: "base",
+          networkLabel: "Base Mainnet",
+          guildHallLabel: "Base Mainnet",
+          chainName: "Base",
+          chainId: 8453,
+          chainHex: "0x2105",
+          rpcUrl: "https://base-rpc.publicnode.com",
+          explorer: "https://basescan.org",
+          explorerTx: "https://basescan.org/tx/",
+          zeroAddress: ZERO_ADDRESS,
+          addresses: {
+            adminPriceFeed: "0x1dbCc7c12F82b6ae2b7fD7D482D501d7Db81618C",
+            tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
+            tavernRegistry: "0x60F9BCa5F361498e30f5634BE2413612D3991c1D",
+            tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0",
+            tavernStaking: "0xCD0B0e4d233358D054bE798Fa6FFF6a50EC68814",
+            tavernGovernance: "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10",
+            tavernAutomationRouter: "0xB8083F4b42855f72b7323bB16ed4B7067B05378f",
+            tavernClientRPG: "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF",
+            tavernSubscription: "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec",
+            tavernEquipment: "0x410575336467F8B0Fb338bce68Ab4638f7bf26Ee",
+            tavernGuild: "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C",
+            tavernServiceRegistry: "0xea9DafC39a98c55536c989f3416c17Bf29B8100F",
+            tavernMatchmaker: "0x371b54325f8Cc9587486447BAC9fD0A7757F65e0",
+            usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+          }
         }
-      },
-      base: {
-        profileKey: "base",
-        networkLabel: "Base Mainnet",
-        guildHallLabel: "Base Mainnet Guild Hall",
-        chainName: "Base",
-        chainId: 8453,
-        chainHex: "0x2105",
-        rpcUrl: "https://base-rpc.publicnode.com",
-        explorer: "https://basescan.org",
-        explorerTx: "https://basescan.org/tx/",
-        zeroAddress: ZERO_ADDRESS,
-        addresses: {
-          adminPriceFeed: "0x1dbCc7c12F82b6ae2b7fD7D482D501d7Db81618C",
-          tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
-          tavernRegistry: "0x60F9BCa5F361498e30f5634BE2413612D3991c1D",
-          tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0",
-          tavernStaking: "0xCD0B0e4d233358D054bE798Fa6FFF6a50EC68814",
-          tavernGovernance: "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10",
-          tavernAutomationRouter: "0xB8083F4b42855f72b7323bB16ed4B7067B05378f",
-          tavernClientRPG: "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF",
-          tavernSubscription: "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec",
-          tavernEquipment: "0x410575336467F8B0Fb338bce68Ab4638f7bf26Ee",
-          tavernGuild: "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C",
-          tavernServiceRegistry: "0xea9DafC39a98c55536c989f3416c17Bf29B8100F",
-          tavernMatchmaker: "0x371b54325f8Cc9587486447BAC9fD0A7757F65e0",
-          usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        }
-      }
-    };
+      };
 
-    const ACTIVE_NETWORK_KEY = new URLSearchParams(window.location.search).get("network") === "base"
-      ? "base"
-      : "baseSepolia";
-    const CONFIG = NETWORK_CONFIG[ACTIVE_NETWORK_KEY];
+    const ACTIVE_NETWORK_KEY = "base";
+    const CONFIG = NETWORK_CONFIG.base;
     document.title = `Claw Tavern | ${CONFIG.networkLabel} Marketplace`;
 
     const STATE_NAMES = [
@@ -1207,10 +1207,11 @@
       "function subscriptionContract() view returns (address)"
     ];
 
-    // v2 exposes public getters directly instead of a single getClientProfile helper.
+    // v2 exposes public getters directly instead of a single getClientProfile/currentSeason helper.
     const RPG_ABI = [
       "function clientProfiles(address) view returns (uint256 registeredAt, uint256 exp, uint256 level, uint256 totalJobsCompleted, uint256 lastWithdrawalAt, uint256 withdrawnThisMonth, uint256 lastWithdrawalMonth, bool verified, bool banned)",
       "function clientClaimable(address) view returns (uint256)",
+      "function currentSeasonNumber() view returns (uint256)",
       "function checkWithdrawalEligible(address,uint256) view returns (bool eligible, string reason)"
     ];
 
@@ -1389,7 +1390,7 @@
       isGovernanceAdmin: false,
       rpgProfile: null,
       rpgClaimable: 0n,
-
+      rpgSeasonNumber: null,
       rpgStatus: "",
       rpgEligibility: null,
       subscriptionLookupAgent: "",
@@ -1402,11 +1403,17 @@
       subscriptionLastAction: null,
       lastRefreshAt: null,
       pendingAction: "",
+      availableWallets: [],
+      activeWalletProvider: null,
+      activeWalletInfo: null,
+      walletChooserResolver: null,
       evaluationQuestId: null,
       evaluationScores: [5, 5, 5, 5, 5]
     };
 
     const refs = {};
+    const walletListenerRegistry = new WeakSet();
+    const WALLET_SUPPRESSION_KEY = "clawtavern.wallet.suppressed";
 
     function $(id) {
       return document.getElementById(id);
@@ -1416,7 +1423,6 @@
       refs.connectWalletTop = $("connect-wallet-top");
       refs.networkProfileTitle = $("network-profile-title");
       refs.networkNameBadge = $("network-name-badge");
-      refs.networkChainBadge = $("network-chain-badge");
       refs.connectWallet = $("connect-wallet");
       refs.accountPill = $("account-pill");
       refs.topAccountPill = $("top-account-pill");
@@ -1447,7 +1453,7 @@
       refs.stakingContent = $("staking-content");
       refs.governanceContent = $("governance-content");
       refs.rpgProfileContent = $("rpg-profile-content");
-
+      refs.rpgSeasonContent = $("rpg-season-content");
       refs.rpgWithdrawAmount = $("rpg-withdraw-amount");
       refs.rpgCheckEligibility = $("rpg-check-eligibility");
       refs.rpgEligibilityOutput = $("rpg-eligibility-output");
@@ -1498,6 +1504,10 @@
       refs.confirmModalDetails = $("confirm-modal-details");
       refs.confirmModalOk = $("confirm-modal-ok");
       refs.confirmModalCancel = $("confirm-modal-cancel");
+      refs.walletChooserModal = $("wallet-chooser-modal");
+      refs.walletChooserSubtitle = $("wallet-chooser-subtitle");
+      refs.walletChooserList = $("wallet-chooser-list");
+      refs.walletChooserClose = $("wallet-chooser-close");
       refs.toastStack = $("toast-stack");
       refs.lastRefreshLabel = $("last-refresh-label");
       refs.briefHashPreview = $("brief-hash-preview");
@@ -1927,16 +1937,225 @@
       if (!appState.chainId) {
         return "Read-only";
       }
-      return Number(appState.chainId) === CONFIG.chainId ? CONFIG.networkLabel : `Chain ${appState.chainId}`;
+      return Number(appState.chainId) === CONFIG.chainId ? CONFIG.networkLabel : "Wrong network";
+    }
+
+    function isWalletAutoConnectSuppressed() {
+      try {
+        return window.localStorage.getItem(WALLET_SUPPRESSION_KEY) === "1";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function clearWalletAutoConnectSuppression() {
+      try {
+        window.localStorage.removeItem(WALLET_SUPPRESSION_KEY);
+      } catch (_) {
+        // ignore storage access failures
+      }
+    }
+
+    function suppressWalletAutoConnect() {
+      try {
+        window.localStorage.setItem(WALLET_SUPPRESSION_KEY, "1");
+      } catch (_) {
+        // ignore storage access failures
+      }
+    }
+
+    function getWalletDisplayName(info, provider) {
+      if (info?.name) {
+        return info.name;
+      }
+      if (provider?.isRabby) {
+        return "Rabby";
+      }
+      if (provider?.isMetaMask) {
+        return "MetaMask";
+      }
+      if (provider?.isCoinbaseWallet || provider?.isCoinbaseBrowser) {
+        return "Coinbase Wallet";
+      }
+      if (provider?.isOKXWallet || provider?.isOkxWallet) {
+        return "OKX Wallet";
+      }
+      if (provider?.isBraveWallet) {
+        return "Brave Wallet";
+      }
+      return "Browser Wallet";
+    }
+
+    function getWalletSummary() {
+      if (appState.activeWalletInfo?.name) {
+        return appState.activeWalletInfo.name;
+      }
+      if (appState.availableWallets.length > 1) {
+        return `${appState.availableWallets.length} wallets detected`;
+      }
+      if (appState.availableWallets.length === 1) {
+        return appState.availableWallets[0].name;
+      }
+      return "No wallet detected";
+    }
+
+    function getConnectButtonLabel() {
+      if (appState.account) {
+        return "Log Out";
+      }
+      if (appState.availableWallets.length > 1) {
+        return "Choose Wallet";
+      }
+      return "Connect Wallet";
+    }
+
+    function registerWalletCandidate(provider, info = null, options = {}) {
+      if (!provider) {
+        return;
+      }
+
+      const wallet = {
+        id: options.id || info?.uuid || info?.rdns || `${getWalletDisplayName(info, provider)}-${appState.availableWallets.length + 1}`,
+        name: getWalletDisplayName(info, provider),
+        icon: info?.icon || "",
+        rdns: info?.rdns || "",
+        provider
+      };
+
+      const existingIndex = appState.availableWallets.findIndex((item) =>
+        item.provider === provider ||
+        (wallet.rdns && item.rdns === wallet.rdns) ||
+        item.id === wallet.id
+      );
+
+      if (existingIndex >= 0) {
+        appState.availableWallets[existingIndex] = {
+          ...appState.availableWallets[existingIndex],
+          ...wallet
+        };
+      } else {
+        appState.availableWallets.push(wallet);
+      }
+    }
+
+    async function discoverWalletProviders() {
+      appState.availableWallets = [];
+
+      const ethereum = window.ethereum;
+      if (Array.isArray(ethereum?.providers) && ethereum.providers.length) {
+        ethereum.providers.forEach((provider, index) => {
+          registerWalletCandidate(provider, null, { id: `fallback-${index}` });
+        });
+      } else if (ethereum) {
+        registerWalletCandidate(ethereum, null, { id: "injected-default" });
+      }
+
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+      await new Promise((resolve) => window.setTimeout(resolve, 180));
+
+      appState.availableWallets.sort((left, right) => left.name.localeCompare(right.name));
+      return appState.availableWallets;
+    }
+
+    function renderWalletChooser() {
+      refs.walletChooserList.innerHTML = appState.availableWallets.map((wallet) => `
+        <button
+          type="button"
+          class="panel-soft flex items-center justify-between gap-4 rounded-[24px] p-4 text-left transition hover:border-[rgba(246,223,142,0.28)] hover:bg-white/8"
+          data-wallet-choice="${escapeHtml(wallet.id)}"
+        >
+          <div class="flex items-center gap-4">
+            ${wallet.icon ? `<img src="${escapeHtml(wallet.icon)}" alt="" class="h-10 w-10 rounded-xl bg-white/5 object-cover">` : `<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/10 text-gold"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span></div>`}
+            <div>
+              <p class="font-semibold">${escapeHtml(wallet.name)}</p>
+              <p class="mt-1 text-xs text-[var(--muted)]">${escapeHtml(wallet.rdns || "Injected browser wallet")}</p>
+            </div>
+          </div>
+          <span class="badge rounded-full px-3 py-1 text-xs">Select</span>
+        </button>
+      `).join("");
+    }
+
+    function closeWalletChooser(selectedWallet = null) {
+      refs.walletChooserModal.classList.add("hidden");
+      refs.walletChooserModal.classList.remove("flex");
+      const resolver = appState.walletChooserResolver;
+      appState.walletChooserResolver = null;
+      if (resolver) {
+        resolver(selectedWallet);
+      }
+    }
+
+    function openWalletChooser() {
+      renderWalletChooser();
+      refs.walletChooserSubtitle.textContent = `Detected ${appState.availableWallets.length} compatible browser wallets. Choose one to connect.`;
+      refs.walletChooserModal.classList.remove("hidden");
+      refs.walletChooserModal.classList.add("flex");
+      return new Promise((resolve) => {
+        appState.walletChooserResolver = resolve;
+      });
+    }
+
+    async function chooseWalletProvider() {
+      const wallets = await discoverWalletProviders();
+      updateWalletPill();
+
+      if (!wallets.length) {
+        throw new Error("No compatible browser wallet found. Install MetaMask, Rabby, Coinbase Wallet, or OKX Wallet.");
+      }
+
+      if (wallets.length === 1) {
+        return wallets[0];
+      }
+
+      const selectedWallet = await openWalletChooser();
+      if (!selectedWallet) {
+        throw new Error("Wallet selection was cancelled.");
+      }
+      return selectedWallet;
+    }
+
+    function bindWalletProviderEvents(provider) {
+      if (!provider || walletListenerRegistry.has(provider) || typeof provider.on !== "function") {
+        return;
+      }
+
+      walletListenerRegistry.add(provider);
+
+      provider.on("accountsChanged", async () => {
+        if (appState.activeWalletProvider !== provider) {
+          return;
+        }
+
+        const accounts = await provider.request({ method: "eth_accounts" });
+        if (!accounts.length) {
+          appState.browserProvider = null;
+          appState.signer = null;
+          appState.account = null;
+          appState.chainId = null;
+          appState.activeWalletProvider = null;
+          appState.activeWalletInfo = null;
+          await refreshData();
+          return;
+        }
+
+        await syncBrowserWalletState(provider);
+        await refreshData();
+      });
+
+      provider.on("chainChanged", async () => {
+        if (appState.activeWalletProvider !== provider) {
+          return;
+        }
+        await syncBrowserWalletState(provider);
+        await refreshData();
+      });
     }
 
     function updateNetworkChrome() {
       refs.networkProfileTitle.textContent = CONFIG.guildHallLabel;
       refs.networkNameBadge.textContent = CONFIG.networkLabel;
-      refs.networkChainBadge.textContent = `Chain ${CONFIG.chainId}`;
-      document.querySelectorAll("[data-network-link]").forEach((link) => {
-        link.setAttribute("aria-current", link.dataset.networkLink === ACTIVE_NETWORK_KEY ? "page" : "false");
-      });
 
       renderAddressCard(refs.adminPriceFeedAddressCard, refs.adminPriceFeedAddressLabel, CONFIG.addresses.adminPriceFeed);
       renderAddressCard(refs.tokenAddressCard, refs.tokenAddressLabel, CONFIG.addresses.tavernToken);
@@ -1990,11 +2209,26 @@
     }
 
     function updateChainMismatchWarning() {
-      const hasMismatch = Boolean(appState.account) && Boolean(appState.chainId) && Number(appState.chainId) !== CONFIG.chainId;
-      refs.chainMismatchWarning.textContent = hasMismatch
-        ? `Connected wallet is on chain ${appState.chainId}, but this view expects ${CONFIG.networkLabel}.`
-        : "";
-      refs.chainMismatchWarning.classList.toggle("hidden", !hasMismatch);
+        const hasMismatch = Boolean(appState.account) && Boolean(appState.chainId) && Number(appState.chainId) !== CONFIG.chainId;
+        refs.chainMismatchWarning.textContent = hasMismatch
+          ? `${CONFIG.networkLabel} is required. Please switch the connected wallet network.`
+          : "";
+        refs.chainMismatchWarning.classList.toggle("hidden", !hasMismatch);
+      }
+
+    async function disconnectWalletSession(showToast = true) {
+      suppressWalletAutoConnect();
+      appState.browserProvider = null;
+      appState.signer = null;
+      appState.account = null;
+      appState.chainId = null;
+      appState.activeWalletProvider = null;
+      appState.activeWalletInfo = null;
+      updateWalletPill();
+      await refreshData();
+      if (showToast) {
+        pushToast("Wallet disconnected from this app.", "success");
+      }
     }
 
     function updateWalletPill() {
@@ -2003,9 +2237,9 @@
         refs.topAccountPill.classList.remove("hidden");
         refs.topAccountPill.textContent = appState.account ? shortenAddress(appState.account) : "Read-only";
       }
-      refs.connectWallet.textContent = appState.account ? "Refresh Wallet" : "Connect Wallet";
+      refs.connectWallet.textContent = getConnectButtonLabel();
       if (refs.connectWalletTop) {
-        refs.connectWalletTop.textContent = appState.account ? "Refresh Wallet" : "Connect Wallet";
+        refs.connectWalletTop.textContent = getConnectButtonLabel();
       }
       renderStatusBar();
       updateChainMismatchWarning();
@@ -2013,7 +2247,9 @@
 
     function renderStatusBar() {
       if (refs.statusWallet) {
-        refs.statusWallet.textContent = appState.account ? shortenAddress(appState.account) : "Read-only";
+        refs.statusWallet.textContent = appState.account
+          ? `${shortenAddress(appState.account)} via ${getWalletSummary()}`
+          : getWalletSummary();
       }
       if (refs.statusChain) {
         refs.statusChain.textContent = appState.chainId ? getNetworkLabel() : CONFIG.networkLabel;
@@ -2028,28 +2264,33 @@
       }
     }
 
-    async function ensureConfiguredNetwork() {
-      if (!window.ethereum) {
-        throw new Error("No injected wallet found. Install MetaMask or Coinbase Wallet.");
+    async function ensureConfiguredNetwork(selectedWallet = null) {
+      const wallet = selectedWallet || await chooseWalletProvider();
+      const providerSource = wallet?.provider;
+
+      if (!providerSource) {
+        throw new Error("No injected wallet found. Install MetaMask, Rabby, Coinbase Wallet, or OKX Wallet.");
       }
 
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await providerSource.request({ method: "eth_requestAccounts" });
       if (!accounts || !accounts.length) {
         throw new Error("Wallet connection was rejected.");
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      clearWalletAutoConnectSuppression();
+
+      const provider = new ethers.BrowserProvider(providerSource);
       let network = await provider.getNetwork();
 
       if (Number(network.chainId) !== CONFIG.chainId) {
         try {
-          await window.ethereum.request({
+          await providerSource.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: CONFIG.chainHex }]
           });
         } catch (error) {
           if (error && error.code === 4902) {
-            await window.ethereum.request({
+            await providerSource.request({
               method: "wallet_addEthereumChain",
               params: [{
                 chainId: CONFIG.chainHex,
@@ -2065,19 +2306,23 @@
         }
       }
 
-      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      bindWalletProviderEvents(providerSource);
+      appState.activeWalletProvider = providerSource;
+      appState.activeWalletInfo = wallet || { name: getWalletDisplayName(null, providerSource), provider: providerSource };
+      appState.browserProvider = new ethers.BrowserProvider(providerSource);
       appState.signer = await appState.browserProvider.getSigner();
       appState.account = await appState.signer.getAddress();
       appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
       updateWalletPill();
     }
 
-    async function syncBrowserWalletState() {
-      if (!window.ethereum) {
+    async function syncBrowserWalletState(providerSource = null) {
+      const activeProvider = providerSource || appState.activeWalletProvider;
+      if (!activeProvider) {
         return;
       }
 
-      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      appState.browserProvider = new ethers.BrowserProvider(activeProvider);
       appState.signer = await appState.browserProvider.getSigner();
       appState.account = await appState.signer.getAddress();
       appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
@@ -2211,7 +2456,7 @@
         appState.agentProfile = null;
         appState.rpgProfile = null;
         appState.rpgClaimable = 0n;
-
+        appState.rpgSeasonNumber = null;
         appState.rpgStatus = "RPG system not available on this network.";
         appState.rpgEligibility = null;
         appState.subscriptionLookupRate = null;
@@ -3048,6 +3293,7 @@
 
       appState.rpgProfile = null;
       appState.rpgClaimable = 0n;
+      appState.rpgSeasonNumber = null;
       appState.rpgStatus = "";
 
       if (!hasCoreDeployment() || isZeroAddress(CONFIG.addresses.tavernClientRPG)) {
@@ -3068,12 +3314,16 @@
       }
 
       try {
-        const [profileRaw, claimable] = appState.account
-          ? await Promise.all([
+        const seasonPromise = clientRPG.currentSeasonNumber();
+        const accountReads = appState.account
+          ? Promise.all([
               clientRPG.clientProfiles(appState.account),
               clientRPG.clientClaimable(appState.account)
             ])
-          : [null, 0n];
+          : Promise.resolve([null, 0n]);
+        const [[profileRaw, claimable], seasonNumber] = await Promise.all([accountReads, seasonPromise]);
+
+        appState.rpgSeasonNumber = Number(seasonNumber);
         if (profileRaw && Number(profileRaw.registeredAt) > 0) {
           appState.rpgProfile = {
             registeredAt: Number(profileRaw.registeredAt),
@@ -3213,10 +3463,36 @@
 
       if (!contractAvailable) {
         refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">RPG system not available on this network.</div>`;
+        refs.rpgSeasonContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data becomes available after RPG deployment.</div>`;
       } else if (!appState.account) {
         refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect wallet to view your profile.</div>`;
+        refs.rpgSeasonContent.innerHTML = appState.rpgSeasonNumber
+          ? `
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+                <p class="mt-2 text-2xl font-semibold">Season ${appState.rpgSeasonNumber}</p>
+              </div>
+              <div class="panel-soft rounded-2xl p-4">
+                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Cycle note</p>
+                <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Season resets are keeper-driven every 180 days.</p>
+              </div>
+            </div>
+          `
+          : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data is loading.</div>`;
       } else if (!profile) {
         refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${escapeHtml(appState.rpgStatus || "Profile not available yet.")}</div>`;
+        refs.rpgSeasonContent.innerHTML = appState.rpgSeasonNumber
+          ? `
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <p class="text-2xl font-semibold">Season ${appState.rpgSeasonNumber}</p>
+                ${renderToneBadge(`S${appState.rpgSeasonNumber}`, "gold")}
+              </div>
+            </div>
+          `
+          : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Season data is loading.</div>`;
       } else {
         refs.rpgProfileContent.innerHTML = `
           <div class="grid gap-4">
@@ -3269,6 +3545,22 @@
                 <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Monthly cap</p>
                 <p class="mt-2 text-xl font-semibold">100 ${escapeHtml(appState.tvrnSymbol)}</p>
               </div>
+            </div>
+          </div>
+        `;
+
+        refs.rpgSeasonContent.innerHTML = `
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current season</p>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <p class="text-2xl font-semibold">Season ${appState.rpgSeasonNumber ?? "n/a"}</p>
+                ${renderToneBadge(`S${appState.rpgSeasonNumber ?? "--"}`, "gold")}
+              </div>
+            </div>
+            <div class="panel-soft rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Withdrawal gate</p>
+              <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Requires Lv.2+, 5 jobs+, verified profile, 30 day account age, and monthly cap room.</p>
             </div>
           </div>
         `;
@@ -3674,6 +3966,10 @@
 
       refs.walletPanel.innerHTML = `
         <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Wallet provider</p>
+          <p class="mt-2 text-sm">${escapeHtml(getWalletSummary())}</p>
+        </div>
+        <div class="panel-soft rounded-2xl p-4">
           <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Address</p>
           <p class="mt-2 break-all text-sm">${escapeHtml(appState.account ?? "Not connected")}</p>
         </div>
@@ -3700,16 +3996,83 @@
           <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Chain info</p>
           <div class="mt-2 space-y-1 text-sm">
             <p>Network: ${escapeHtml(CONFIG.networkLabel)}</p>
-            <p>Chain ID: ${CONFIG.chainId}</p>
             <p>Latest block: ${appState.blockNumber ?? "n/a"}</p>
+            <p>TavernToken: ${escapeHtml(shortenAddress(CONFIG.addresses.tavernToken))}</p>
           </div>
         </div>
         <div class="panel-soft rounded-2xl p-4">
-          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Escrow notes</p>
-          <div class="mt-2 space-y-1 text-sm text-[var(--muted)]">
-            <p>Fee stage upgrades are keeper-driven and now health-checkable.</p>
-            <p>TVRN compensation stays transfer-locked for 30 days.</p>
-            <p>Current ecosystem pool: ${escapeHtml(formatUnits(appState.balances.ecosystemPool, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</p>
+          <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TVRN tokenomics</p>
+          <div class="mt-3 space-y-4 text-sm text-[var(--muted)]">
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <span class="font-semibold text-[var(--ink)]">Total supply</span>
+                <span class="font-mono text-[var(--gold)]">2,100,000,000 TVRN</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between gap-3">
+                <span>Network</span>
+                <span class="font-medium text-[var(--ink)]">Base Mainnet</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between gap-3">
+                <span>Fee routing</span>
+                <span class="font-medium text-[var(--ink)]">60 / 20 / 20</span>
+              </div>
+            </div>
+            <div class="space-y-3">
+              ${[
+                ["Quest Rewards Pool", "1,050M (50%)", "#4ade80", 50, "Quest completion + Agent War round rewards"],
+                ["Attendance/Heartbeat", "210M (10%)", "#60a5fa", 10, "Agent liveness rewards with yearly halving decay"],
+                ["Client Activity", "168M (8%)", "#c084fc", 8, "Evaluation rewards on the 1/3/5 TVRN ladder"],
+                ["Marketplace Operations", "672M (32%)", "#f59e0b", 32, "Infrastructure operator rewards"]
+              ].map(([label, value, color, percent, note]) => `
+                <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="font-semibold text-[var(--ink)]">${label}</p>
+                    <span class="font-mono" style="color:${color}">${value}</span>
+                  </div>
+                  <div class="mt-3 h-3 overflow-hidden rounded-full bg-white/5">
+                    <div class="h-full rounded-full" style="width:${percent}%;background:${color}"></div>
+                  </div>
+                  <p class="mt-2 text-xs leading-5">${note}</p>
+                </div>
+              `).join("")}
+            </div>
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+              <p class="font-semibold text-[var(--ink)]">Fee routing</p>
+              <div class="mt-3 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl border border-white/8 bg-[rgba(245,159,11,0.08)] p-3">
+                  <p class="text-xs uppercase tracking-[0.18em]">Operator Pool</p>
+                  <p class="mt-2 font-mono text-[var(--gold)]">60%</p>
+                </div>
+                <div class="rounded-2xl border border-white/8 bg-[rgba(74,222,128,0.08)] p-3">
+                  <p class="text-xs uppercase tracking-[0.18em]">Buyback & Burn</p>
+                  <p class="mt-2 font-mono text-[#4ade80]">20%</p>
+                </div>
+                <div class="rounded-2xl border border-white/8 bg-[rgba(192,132,252,0.08)] p-3">
+                  <p class="text-xs uppercase tracking-[0.18em]">Treasury Reserve</p>
+                  <p class="mt-2 font-mono text-[#c084fc]">20%</p>
+                </div>
+              </div>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+                  <p class="font-semibold text-[var(--ink)]">Staking rails</p>
+                  <ul class="mt-2 space-y-1 text-xs leading-5">
+                    <li>Guild bond: 100 TVRN required</li>
+                    <li>Slash: 50% burn on violation</li>
+                    <li>Compensation rewards: 30-day transfer lock</li>
+                    <li>Current ecosystem pool: ${escapeHtml(formatUnits(appState.balances.ecosystemPool, appState.tvrnDecimals))} ${escapeHtml(appState.tvrnSymbol)}</li>
+                  </ul>
+                </div>
+                <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+                  <p class="font-semibold text-[var(--ink)]">Governance rails</p>
+                  <ul class="mt-2 space-y-1 text-xs leading-5">
+                    <li>Voting: sqrt(balance) weighting</li>
+                    <li>Activity bonus: 1.2x</li>
+                    <li>Founding bonus: 1.5x</li>
+                    <li>Proposal threshold: 100 TVRN</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       `;
@@ -4968,6 +5331,10 @@
 
       const handleWalletConnect = async () => {
         try {
+          if (appState.account) {
+            await disconnectWalletSession();
+            return;
+          }
           await ensureConfiguredNetwork();
           await refreshData();
         } catch (error) {
@@ -4979,6 +5346,20 @@
       if (refs.connectWalletTop) {
         refs.connectWalletTop.addEventListener("click", handleWalletConnect);
       }
+      refs.walletChooserClose.addEventListener("click", () => closeWalletChooser(null));
+      refs.walletChooserModal.addEventListener("click", (event) => {
+        if (event.target === refs.walletChooserModal) {
+          closeWalletChooser(null);
+        }
+      });
+      refs.walletChooserList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-wallet-choice]");
+        if (!button) {
+          return;
+        }
+        const wallet = appState.availableWallets.find((item) => item.id === button.dataset.walletChoice) ?? null;
+        closeWalletChooser(wallet);
+      });
 
       refs.refreshBoard.addEventListener("click", refreshData);
       refs.createQuestForm.addEventListener("submit", createQuestAndFund);
@@ -5064,50 +5445,36 @@
         }
       });
 
-      if (window.ethereum) {
-        window.ethereum.on("accountsChanged", async () => {
-          const accounts = await window.ethereum.request({ method: "eth_accounts" });
-          if (!accounts.length) {
-            appState.browserProvider = null;
-            appState.signer = null;
-            appState.account = null;
-            appState.chainId = null;
-            await refreshData();
-            return;
-          }
-          await syncBrowserWalletState();
-          await refreshData();
-        });
-
-        window.ethereum.on("chainChanged", async () => {
-          if (appState.browserProvider) {
-            await syncBrowserWalletState();
-          }
-          await refreshData();
-        });
-      }
-
       window.addEventListener("hashchange", applyRouteFromHash);
     }
 
     async function bootstrap() {
       bindRefs();
+      window.addEventListener("eip6963:announceProvider", (event) => {
+        if (event?.detail?.provider) {
+          registerWalletCandidate(event.detail.provider, event.detail.info);
+          updateWalletPill();
+        }
+      });
       attachEvents();
       updateNetworkChrome();
+      await discoverWalletProviders();
       updateWalletPill();
       updateBriefHashPreview();
       buildScoreControls();
       await primeMetadata();
 
-      const accounts = window.ethereum
-        ? await window.ethereum.request({ method: "eth_accounts" })
-        : [];
-
-      if (accounts.length) {
-        try {
-          await ensureConfiguredNetwork();
-        } catch (_) {
-          // stay in read-only mode
+      if (!isWalletAutoConnectSuppressed()) {
+        for (const wallet of appState.availableWallets) {
+          try {
+            const accounts = await wallet.provider.request({ method: "eth_accounts" });
+            if (accounts.length) {
+              await ensureConfiguredNetwork(wallet);
+              break;
+            }
+          } catch (_) {
+            // ignore individual wallet read failures during bootstrap
+          }
         }
       }
 
