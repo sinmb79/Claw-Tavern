@@ -180,11 +180,9 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.match(brandHome, /agentwar\.ail\.registered/);
+  assert.match(brandHome, /fetch\("\/api\/identity\/session"/);
+  assert.doesNotMatch(brandHome, /agentwar\.ail\.registered/);
   assert.match(brandHome, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(brandHome, /async function ensureIdentityGate\(/);
-  assert.match(
-    brandHome,
-    /const identityReady = await ensureIdentityGate\(\);\s*if \(!identityReady\) \{\s*return;\s*\}\s*await discoverWallets\(\);/s
-  );
+  assert.match(brandHome, /async function submitAilJwt\(/);
+  assert.match(brandHome, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
 });

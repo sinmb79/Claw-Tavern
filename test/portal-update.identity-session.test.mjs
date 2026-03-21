@@ -1,9 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import session from "../portal-update/functions/api/identity/session.js";
-import sessionCookie from "../portal-update/functions/_lib/session-cookie.js";
-import ailVerifier from "../portal-update/functions/_lib/ail-verifier.js";
+import {
+  onRequestGet,
+  onRequestPost,
+  onRequestDelete
+} from "../portal-update/functions/api/identity/session.js";
+import {
+  issueSessionCookie,
+  readSessionCookie,
+  clearSessionCookie
+} from "../portal-update/functions/_lib/session-cookie.js";
+import { verifyAilJwt } from "../portal-update/functions/_lib/ail-verifier.js";
 
 function makeContext({
   method = "GET",
@@ -37,17 +45,17 @@ function makeContext({
 }
 
 test("exports remain importable", () => {
-  assert.equal(typeof session.onRequestGet, "function");
-  assert.equal(typeof session.onRequestPost, "function");
-  assert.equal(typeof session.onRequestDelete, "function");
-  assert.equal(typeof sessionCookie.issueSessionCookie, "function");
-  assert.equal(typeof sessionCookie.readSessionCookie, "function");
-  assert.equal(typeof sessionCookie.clearSessionCookie, "function");
-  assert.equal(typeof ailVerifier.verifyAilJwt, "function");
+  assert.equal(typeof onRequestGet, "function");
+  assert.equal(typeof onRequestPost, "function");
+  assert.equal(typeof onRequestDelete, "function");
+  assert.equal(typeof issueSessionCookie, "function");
+  assert.equal(typeof readSessionCookie, "function");
+  assert.equal(typeof clearSessionCookie, "function");
+  assert.equal(typeof verifyAilJwt, "function");
 });
 
 test("POST issues a signed cookie after verifier success", async () => {
-  const response = await session.onRequestPost(
+  const response = await onRequestPost(
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
@@ -61,7 +69,7 @@ test("POST issues a signed cookie after verifier success", async () => {
 });
 
 test("POST rejects invalid JWTs", async () => {
-  const response = await session.onRequestPost(
+  const response = await onRequestPost(
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
@@ -74,7 +82,7 @@ test("POST rejects invalid JWTs", async () => {
 });
 
 test("POST rejects expired JWTs", async () => {
-  const response = await session.onRequestPost(
+  const response = await onRequestPost(
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
@@ -87,7 +95,7 @@ test("POST rejects expired JWTs", async () => {
 });
 
 test("POST fails closed when the session secret is missing", async () => {
-  const response = await session.onRequestPost(
+  const response = await onRequestPost(
     makeContext({
       method: "POST",
       body: { jwt: "valid.jwt.token" }
@@ -99,14 +107,14 @@ test("POST fails closed when the session secret is missing", async () => {
 });
 
 test("GET reports unverified when no valid cookie is present", async () => {
-  const response = await session.onRequestGet(makeContext({ method: "GET" }));
+  const response = await onRequestGet(makeContext({ method: "GET" }));
 
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { verified: false });
 });
 
 test("GET reports verified when a valid cookie is present", async () => {
-  const cookie = await sessionCookie.issueSessionCookie(
+  const cookie = await issueSessionCookie(
     {
       ail_id: "AIL-2026-00001",
       display_name: "ClaudeCoder",
@@ -116,7 +124,7 @@ test("GET reports verified when a valid cookie is present", async () => {
     "test-secret"
   );
 
-  const response = await session.onRequestGet(
+  const response = await onRequestGet(
     makeContext({
       method: "GET",
       cookie: `ct_ail_session=${cookie}`
@@ -128,7 +136,7 @@ test("GET reports verified when a valid cookie is present", async () => {
 });
 
 test("DELETE clears the session cookie", async () => {
-  const response = await session.onRequestDelete(
+  const response = await onRequestDelete(
     makeContext({
       method: "DELETE",
       cookie: "ct_ail_session=existing"

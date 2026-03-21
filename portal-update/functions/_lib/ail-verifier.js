@@ -1,7 +1,3 @@
-async function verifyAilJwt(jwt, options) {
+export async function verifyAilJwt(jwt, options) {
   throw new Error("not implemented");
 }
-
-module.exports = {
-  verifyAilJwt
-};
