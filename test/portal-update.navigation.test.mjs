@@ -176,7 +176,10 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.match(ensureConfiguredNetwork, /if \(!skipIdentityCheck && !appState\.account\)/);
   assert.match(html, /function resolveIdentityErrorMessage\(/);
   assert.match(html, /case "verification-unavailable":/);
-  assert.match(html, /Agent ID Card opened in a new tab\. Finish verification there, then return here and press "I already completed it"\./);
+  assert.match(html, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
+  assert.match(html, /If wallet access does not unlock automatically, return here and press "I already completed it"\./);
+  assert.match(html, /window\.open\(AIL_REGISTER_URL, "_blank"\);/);
+  assert.doesNotMatch(html, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
   assert.match(html, /Agent ID Card verification expired\. Please issue a new card and try again\./);
   assert.match(html, /Verification is temporarily unavailable\. Please try again later\./);
 });
@@ -191,7 +194,10 @@ test("brand home wallet flow also requires Agent ID Card before connection", () 
   assert.ok(brandHome.includes('e.origin === "https://www.agentidcard.org"'));
   assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
   assert.match(brandHome, /case "verification-unavailable":/);
-  assert.match(brandHome, /Agent ID Card opened in a new tab\. Finish verification there, then return here and press "I already completed it"\./);
+  assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
+  assert.match(brandHome, /If wallet access does not unlock automatically, return here and press "I already completed it"\./);
+  assert.match(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank"\);/);
+  assert.doesNotMatch(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
   assert.match(brandHome, /Agent ID Card verification service is temporarily unavailable\. Please try again later\./);
   assert.match(brandHome, /Verification is temporarily unavailable\. Please try again later\./);
 });

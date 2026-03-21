@@ -2378,7 +2378,7 @@
     function resolveIdentityErrorMessage(error) {
       switch (error?.identityCode) {
         case "identity-popup-fallback":
-          return 'Agent ID Card opened in a new tab. Finish verification there, then return here and press "I already completed it".';
+          return 'Agent ID Card opened in a new tab. Keep this tab open while you finish verification there. If wallet access does not unlock automatically, return here and press "I already completed it".';
         case "identity-message-missing-jwt":
           return "Agent ID Card did not return a verification token. Please retry.";
         case "expired-jwt":
@@ -2486,8 +2486,9 @@
       }
 
       pushToast(resolveIdentityErrorMessage({ identityCode: "identity-popup-fallback" }), "info");
-      window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
-      return null;
+      const fallbackTab = window.open(AIL_REGISTER_URL, "_blank");
+      fallbackTab?.focus?.();
+      return fallbackTab;
     }
 
     async function ensureMarketplaceIdentityGate() {

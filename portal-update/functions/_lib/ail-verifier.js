@@ -34,6 +34,49 @@ function normalizeTimestamp(value) {
   return null;
 }
 
+function decodeBase64Url(value) {
+  if (typeof value !== "string" || value === "") {
+    return null;
+  }
+
+  const normalizedValue = value.replace(/-/g, "+").replace(/_/g, "/");
+  const paddedValue = normalizedValue.padEnd(Math.ceil(normalizedValue.length / 4) * 4, "=");
+
+  try {
+    if (typeof Buffer !== "undefined") {
+      return Buffer.from(paddedValue, "base64").toString("utf8");
+    }
+
+    if (typeof atob === "function") {
+      const binary = atob(paddedValue);
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+
+      return new TextDecoder().decode(bytes);
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function decodeJwtPayload(jwt) {
+  const parts = typeof jwt === "string" ? jwt.split(".") : [];
+
+  if (parts.length < 2) {
+    return null;
+  }
+
+  try {
+    const payloadText = decodeBase64Url(parts[1]);
+    const payload = payloadText ? JSON.parse(payloadText) : null;
+
+    return payload && typeof payload === "object" ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
 function isExpiredTimestamp(isoTimestamp) {
   return typeof isoTimestamp === "string" && Date.parse(isoTimestamp) <= Date.now();
 }
@@ -49,7 +92,7 @@ function normalizeFailure(detail) {
   };
 }
 
-function normalizeSuccess(rawResult) {
+function normalizeSuccess(rawResult, jwtPayload = null) {
   const ailId = pickFirstString(rawResult, ["ail_id"]);
   const displayName = pickFirstString(rawResult, ["display_name"]);
   const verifiedAt =
@@ -61,7 +104,8 @@ function normalizeSuccess(rawResult) {
   const expiresAt =
     normalizeTimestamp(rawResult?.expires_at) ??
     normalizeTimestamp(rawResult?.expires) ??
-    normalizeTimestamp(rawResult?.exp);
+    normalizeTimestamp(rawResult?.exp) ??
+    normalizeTimestamp(jwtPayload?.exp);
 
   if (!ailId || !displayName || !expiresAt) {
     return normalizeFailure("invalid verification payload");
@@ -80,7 +124,7 @@ function normalizeSuccess(rawResult) {
   };
 }
 
-function normalizeVerificationResult(rawResult) {
+function normalizeVerificationResult(rawResult, jwtPayload = null) {
   if (!rawResult || typeof rawResult !== "object") {
     return normalizeFailure("empty verification result");
   }
@@ -91,7 +135,7 @@ function normalizeVerificationResult(rawResult) {
     );
   }
 
-  return normalizeSuccess(rawResult);
+  return normalizeSuccess(rawResult, jwtPayload);
 }
 
 async function loadSdk(providedSdk) {
@@ -153,6 +197,7 @@ async function verifyWithHttp(jwt, options = {}) {
 
 export async function verifyAilJwt(jwt, options = {}) {
   const normalizedJwt = normalizeString(jwt);
+  const jwtPayload = decodeJwtPayload(normalizedJwt);
 
   if (!normalizedJwt) {
     return normalizeFailure("invalid jwt");
@@ -162,7 +207,7 @@ export async function verifyAilJwt(jwt, options = {}) {
     const sdkResult = await verifyWithSdk(normalizedJwt, options);
 
     if (sdkResult) {
-      return normalizeVerificationResult(sdkResult);
+      return normalizeVerificationResult(sdkResult, jwtPayload);
     }
   } catch (error) {
     if (error?.status === 400 || error?.status === 401) {
@@ -173,7 +218,7 @@ export async function verifyAilJwt(jwt, options = {}) {
   try {
     const httpResult = await verifyWithHttp(normalizedJwt, options);
 
-    return normalizeVerificationResult(httpResult);
+    return normalizeVerificationResult(httpResult, jwtPayload);
   } catch (error) {
     if (error?.status === 400 || error?.status === 401) {
       return normalizeFailure(error.message);

@@ -62,6 +62,13 @@ function forgeSignedSessionCookie(payload, secret) {
   return `ct_ail_session=${payloadPart}.${signaturePart}`;
 }
 
+function forgeJwt(payload) {
+  const headerPart = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const payloadPart = Buffer.from(JSON.stringify(payload)).toString("base64url");
+
+  return `${headerPart}.${payloadPart}.signature`;
+}
+
 test("exports remain importable", () => {
   assert.equal(typeof createIdentitySessionHandlers, "function");
   assert.equal(typeof onRequestGet, "function");
@@ -88,6 +95,38 @@ test("verifyAilJwt normalizes successful SDK verification results", async () => 
   }
 
   const result = await verifyAilJwt("opaque-jwt", {
+    sdk: { AilClient: FakeAilClient }
+  });
+
+  assert.deepEqual(result, {
+    valid: true,
+    ail_id: "AIL-2026-00001",
+    display_name: "ClaudeCoder",
+    verified_at: "2026-03-21T00:00:00.000Z",
+    expires_at: "2026-03-22T00:00:00.000Z"
+  });
+});
+
+test("verifyAilJwt derives expiry from JWT claims when the verifier omits expiry fields", async () => {
+  class FakeAilClient {
+    async verify(token) {
+      assert.equal(token, jwt);
+      return {
+        valid: true,
+        ail_id: "AIL-2026-00001",
+        display_name: "ClaudeCoder",
+        owner_org: "22B Labs",
+        issued: "2026-03-21T00:00:00.000Z",
+        revoked: false
+      };
+    }
+  }
+
+  const jwt = forgeJwt({
+    sub: "AIL-2026-00001",
+    exp: Math.floor(Date.parse("2026-03-22T00:00:00.000Z") / 1000)
+  });
+  const result = await verifyAilJwt(jwt, {
     sdk: { AilClient: FakeAilClient }
   });
 
