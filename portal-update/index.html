@@ -416,7 +416,7 @@
         <button id="identity-close" class="rounded-full border border-white/10 px-3 py-2 text-xs text-muted">Close</button>
       </div>
       <div class="panel-soft mt-5 rounded-[24px] p-4 text-sm leading-7 text-muted">
-        This uses the same browser-local Agent ID Card completion flag as Agent War. If you already completed it there, confirm it once here and continue.
+        If you already completed Agent ID Card in another tab, re-check the secure identity session here before wallet access continues.
       </div>
       <div class="mt-5 flex flex-wrap gap-3">
         <button id="identity-open" class="rounded-full border border-gold/30 bg-gold px-5 py-3 text-sm font-semibold text-bg-deep transition hover:brightness-110">Issue Agent ID Card</button>
@@ -435,7 +435,6 @@
       tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0"
     };
     const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
-    const AIL_COMPLETION_STORAGE_KEY = "agentwar.ail.registered";
 
     const ESCROW_ABI = [
       "function activeAgentCount() view returns (uint256)",
@@ -476,20 +475,23 @@
 
     function setStat(el, value) { el.textContent = value; }
 
-    function isIdentityRegistered() {
-      try {
-        return localStorage.getItem(AIL_COMPLETION_STORAGE_KEY) === "true";
-      } catch (_) {
-        return false;
-      }
+    async function fetchIdentitySession() {
+      const response = await fetch("/api/identity/session", {
+        credentials: "same-origin"
+      });
+      return response.json();
     }
 
-    function markIdentityRegistered() {
-      try {
-        localStorage.setItem(AIL_COMPLETION_STORAGE_KEY, "true");
-      } catch (_) {
-        // ignore storage access failures
-      }
+    async function submitAilJwt(jwt) {
+      const response = await fetch("/api/identity/session", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ jwt })
+      });
+      return response.json();
     }
 
     function openIdentityModal() {
@@ -536,7 +538,8 @@
     }
 
     async function ensureIdentityGate() {
-      if (isIdentityRegistered()) {
+      const session = await fetchIdentitySession();
+      if (session?.verified) {
         return true;
       }
 
@@ -698,6 +701,31 @@
       updateWalletChrome();
     });
 
+    window.addEventListener("message", async (e) => {
+      if (e.origin === "https://www.agentidcard.org" && e.data?.type === "ail-registered") {
+        const jwt = typeof e.data?.jwt === "string" ? e.data.jwt.trim() : "";
+        if (!jwt) {
+          refs.walletMode.textContent = "Identity verification missing";
+          return;
+        }
+
+        try {
+          const session = await submitAilJwt(jwt);
+          if (session?.verified) {
+            closeIdentityModal();
+            refs.walletMode.textContent = state.account ? "Connected" : "Identity ready";
+            return;
+          }
+          refs.walletMode.textContent = "Identity verification failed";
+          openIdentityModal();
+        } catch (error) {
+          console.error(error);
+          refs.walletMode.textContent = "Identity verification error";
+          openIdentityModal();
+        }
+      }
+    });
+
     refs.connectWallet.addEventListener("click", async () => {
       try {
         await toggleWalletSession();
@@ -716,10 +744,21 @@
     refs.identityOpen.addEventListener("click", () => {
       openIdentityPopup();
     });
-    refs.identityComplete.addEventListener("click", () => {
-      markIdentityRegistered();
-      closeIdentityModal();
-      refs.walletMode.textContent = "Identity ready";
+    refs.identityComplete.addEventListener("click", async () => {
+      try {
+        const session = await fetchIdentitySession();
+        if (session?.verified) {
+          closeIdentityModal();
+          refs.walletMode.textContent = state.account ? "Connected" : "Identity ready";
+          return;
+        }
+        refs.walletMode.textContent = "Verification still pending";
+        openIdentityModal();
+      } catch (error) {
+        console.error(error);
+        refs.walletMode.textContent = "Verification check failed";
+        openIdentityModal();
+      }
     });
     refs.walletModalClose.addEventListener("click", closeWalletModal);
     refs.walletModal.addEventListener("click", (event) => {
