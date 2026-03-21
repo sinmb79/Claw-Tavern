@@ -111,7 +111,7 @@ async function verifyWithSdk(jwt, options = {}) {
     return options.client.verify(jwt);
   }
 
-  const sdk = await loadSdk(options.sdk);
+  const sdk = await (options.loadSdk ? options.loadSdk(options.sdk) : loadSdk(options.sdk));
 
   if (!sdk?.AilClient) {
     return null;
@@ -155,7 +155,7 @@ export async function verifyAilJwt(jwt, options = {}) {
   const normalizedJwt = normalizeString(jwt);
 
   if (!normalizedJwt) {
-    return normalizeFailure("missing jwt");
+    return normalizeFailure("invalid jwt");
   }
 
   try {

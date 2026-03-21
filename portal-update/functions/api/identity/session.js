@@ -87,18 +87,6 @@ export function createIdentitySessionHandlers(deps = {}) {
         );
       }
 
-      const verification = await verifyAilJwt(jwt);
-
-      if (!verification?.valid) {
-        return jsonResponse(
-          {
-            verified: false,
-            error: verification?.error ?? "invalid-jwt"
-          },
-          mapVerificationStatus(verification?.error)
-        );
-      }
-
       const sessionSecret = getSessionSecret(context.env);
 
       if (!sessionSecret) {
@@ -108,6 +96,18 @@ export function createIdentitySessionHandlers(deps = {}) {
             error: "server-misconfigured"
           },
           500
+        );
+      }
+
+      const verification = await verifyAilJwt(jwt);
+
+      if (!verification?.valid) {
+        return jsonResponse(
+          {
+            verified: false,
+            error: verification?.error ?? "invalid-jwt"
+          },
+          mapVerificationStatus(verification?.error)
         );
       }
 

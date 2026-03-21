@@ -120,6 +120,68 @@ test("verifyAilJwt normalizes expired verifier failures", async () => {
   });
 });
 
+test("verifyAilJwt treats missing jwt input as invalid at the verifier boundary", async () => {
+  const result = await verifyAilJwt("");
+
+  assert.deepEqual(result, {
+    valid: false,
+    error: "invalid-jwt"
+  });
+});
+
+test("verifyAilJwt falls back to HTTP verification when the SDK is unavailable", async () => {
+  let requestUrl = null;
+  let requestBody = null;
+
+  const result = await verifyAilJwt("opaque-jwt", {
+    loadSdk: async () => null,
+    fetchImpl: async (url, init) => {
+      requestUrl = url;
+      requestBody = JSON.parse(init.body);
+
+      return new Response(
+        JSON.stringify({
+          valid: true,
+          ail_id: "AIL-2026-00001",
+          display_name: "ClaudeCoder",
+          issued: "2026-03-21T00:00:00.000Z",
+          expires: "2026-03-22T00:00:00.000Z"
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" }
+        }
+      );
+    }
+  });
+
+  assert.equal(requestUrl, "https://api.agentidcard.org/verify");
+  assert.deepEqual(requestBody, { token: "opaque-jwt" });
+  assert.deepEqual(result, {
+    valid: true,
+    ail_id: "AIL-2026-00001",
+    display_name: "ClaudeCoder",
+    verified_at: "2026-03-21T00:00:00.000Z",
+    expires_at: "2026-03-22T00:00:00.000Z"
+  });
+});
+
+test("verifyAilJwt normalizes HTTP fallback failures when the SDK is unavailable", async () => {
+  const result = await verifyAilJwt("expired-jwt", {
+    loadSdk: async () => null,
+    fetchImpl: async () =>
+      new Response(JSON.stringify({ error: "jwt expired" }), {
+        status: 401,
+        headers: { "content-type": "application/json" }
+      })
+  });
+
+  assert.deepEqual(result, {
+    valid: false,
+    error: "expired-jwt"
+  });
+});
+
 test("issueSessionCookie signs payload and caps expiry at 24 hours", async () => {
   const nowMs = Date.now();
   const setCookie = await issueSessionCookie(
@@ -402,8 +464,12 @@ test("POST rejects expired JWTs", async () => {
 });
 
 test("POST fails closed when the session secret is missing", async () => {
+  let verifierCalled = false;
   const { onRequestPost: post } = makeHandlers({
-    verifyAilJwt: async () => ({ valid: true, ail_id: "AIL-2026-00001" })
+    verifyAilJwt: async () => {
+      verifierCalled = true;
+      return { valid: false, error: "invalid-jwt" };
+    }
   });
 
   const response = await post(
@@ -418,6 +484,7 @@ test("POST fails closed when the session secret is missing", async () => {
     verified: false,
     error: "server-misconfigured"
   });
+  assert.equal(verifierCalled, false);
   assert.equal(response.headers.get("set-cookie"), null);
 });
 
