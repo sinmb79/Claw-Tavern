@@ -166,12 +166,23 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 
   assert.ok(html.includes('id="marketplace-identity-modal"'));
   assert.ok(html.includes('id="marketplace-identity-open"'));
+  assert.ok(html.includes('id="marketplace-identity-existing"'));
   assert.ok(html.includes('id="marketplace-identity-complete"'));
   assert.ok(html.includes("https://www.agentidcard.org/register"));
   assert.ok(html.includes('fetch("/api/identity/session"'));
   assert.ok(html.includes("async function submitAilJwt("));
   assert.ok(html.includes("async function continueWalletConnectAfterIdentity()"));
-  assert.ok(html.includes('e.origin === "https://www.agentidcard.org"'));
+  assert.match(html, /const TRUSTED_AIL_ORIGINS = new Set\(/);
+  assert.match(html, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(html, /https:\/\/www\.agentidcard\.org/);
+  assert.match(html, /https:\/\/api\.agentidcard\.org/);
+  assert.match(
+    html,
+    /Complete Agent ID Card verification before connecting a wallet\. If you already have an Agent ID Card, you can sign in with it and continue\./
+  );
+  assert.match(html, />Get New Agent ID Card</);
+  assert.match(html, />Use Existing Agent ID Card</);
+  assert.match(html, />I already completed it</);
   assert.match(html, /await ensureConfiguredNetwork\(null, \{ skipIdentityCheck: true \}\);/);
   assert.match(html, /await ensureConfiguredNetwork\(wallet, \{ skipIdentityCheck: true \}\);/);
   assert.match(html, /refs\.marketplaceIdentityComplete\.addEventListener\("click", async \(\) => \{[\s\S]*await continueWalletConnectAfterIdentity\(\);/);
@@ -187,21 +198,43 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.match(html, /Verification is temporarily unavailable\. Please try again later\./);
 });
 
-test("marketplace layout width matches the brand home shell", () => {
-  assert.match(html, /<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/);
-  assert.match(html, /<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">/);
+test("marketplace layout width uses the new 1200px target", () => {
+  assert.match(html, /max-w-\[1200px\]/);
+  assert.doesNotMatch(html, /max-w-7xl/);
   assert.doesNotMatch(html, /max-w-\[1600px\]/);
   assert.doesNotMatch(html, /max-w-\[1400px\]/);
 });
 
-test("brand home wallet flow also requires Agent ID Card before connection", () => {
+test("brand home identity modal matches the three-intent reauth copy", () => {
   assert.ok(brandHome.includes('id="identity-modal"'));
   assert.ok(brandHome.includes('id="identity-open"'));
+  assert.ok(brandHome.includes('id="identity-existing"'));
   assert.ok(brandHome.includes('id="identity-complete"'));
+  assert.match(
+    brandHome,
+    /Complete Agent ID Card verification before connecting a wallet\. If you already have an Agent ID Card, you can sign in with it and continue\./
+  );
+  assert.match(brandHome, />Get New Agent ID Card</);
+  assert.match(brandHome, />Use Existing Agent ID Card</);
+  assert.match(brandHome, />I already completed it</);
+});
+
+test("trusted Agent ID Card origins allow both upstream hosts on both entry points", () => {
+  assert.match(html, /const TRUSTED_AIL_ORIGINS = new Set\(/);
+  assert.match(html, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(html, /https:\/\/www\.agentidcard\.org/);
+  assert.match(html, /https:\/\/api\.agentidcard\.org/);
+
+  assert.match(brandHome, /const TRUSTED_AIL_ORIGINS = new Set\(/);
+  assert.match(brandHome, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(brandHome, /https:\/\/www\.agentidcard\.org/);
+  assert.match(brandHome, /https:\/\/api\.agentidcard\.org/);
+});
+
+test("brand home wallet flow also requires Agent ID Card before connection", () => {
   assert.ok(brandHome.includes("https://www.agentidcard.org/register"));
   assert.ok(brandHome.includes('fetch("/api/identity/session"'));
   assert.ok(brandHome.includes("async function submitAilJwt("));
-  assert.ok(brandHome.includes('e.origin === "https://www.agentidcard.org"'));
   assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
   assert.match(brandHome, /case "verification-unavailable":/);
   assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
