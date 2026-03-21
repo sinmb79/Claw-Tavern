@@ -162,8 +162,10 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.match(html, /id="marketplace-identity-open"/);
   assert.match(html, /id="marketplace-identity-complete"/);
   assert.match(html, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(html, /agentwar\.ail\.registered/);
-  assert.match(html, /async function ensureMarketplaceIdentityGate\(/);
+  assert.match(html, /fetch\("\/api\/identity\/session"/);
+  assert.doesNotMatch(html, /agentwar\.ail\.registered[^]*ensureConfiguredNetwork/);
+  assert.match(html, /async function submitAilJwt\(/);
+  assert.match(html, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
 
   const attachEvents = extractBetween(
     html,
