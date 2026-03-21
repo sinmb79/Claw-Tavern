@@ -95,6 +95,7 @@ Portal rule for this task:
 - always open `https://api.agentidcard.org/register`
 - the upstream page already exposes both `New Account` and `Login`
 - modal copy in Claw Tavern must explain that this same upstream page supports existing-owner login as well as new-card issuance
+- regardless of whether the user chooses `New Account` or `Login`, the Claw Tavern callback contract stays the same: the upstream flow must return a JWT that the portal submits through `submitAilJwt(jwt)`
 
 The portal side does not need a separate verification contract for existing users. It only needs a way to receive a fresh JWT after the upstream login flow finishes.
 
@@ -134,6 +135,20 @@ This button must not pretend to authenticate the user by itself.
 6. Portal sends JWT to `submitAilJwt(jwt)`
 7. Verified session is created
 8. Portal continues directly into wallet chooser / wallet connect
+
+## JWT Handoff Rule
+
+For this task, the portal must treat both of these as valid upstream Agent ID Card message origins:
+
+- `https://www.agentidcard.org`
+- `https://api.agentidcard.org`
+
+Portal rule:
+
+- only accept `postMessage` events from those allowed origins
+- require the same message shape for both new-card and existing-card flows: `{ type: "ail-registered", jwt: "<token>" }`
+- both flows must end in the same client path: `submitAilJwt(jwt)`
+- if the upstream flow does not return a JWT to the opener, `I already completed it` remains the manual recovery path that re-checks the server session
 
 ### Completed-in-another-tab flow
 
