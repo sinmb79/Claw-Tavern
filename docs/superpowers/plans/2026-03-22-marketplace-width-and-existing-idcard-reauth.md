@@ -12,22 +12,22 @@
 
 ## File Structure
 
-- Modify: `C:\Users\sinmb\claw-tavern\portal-update\app\index.html`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\app\index.html`
   - tighten Marketplace shell width to `max-w-[1200px]`
   - add `Get New Agent ID Card` and `Use Existing Agent ID Card` CTAs
   - update helper copy for the three user intents
   - allow Agent ID Card callback `postMessage` from both `https://www.agentidcard.org` and `https://api.agentidcard.org`
   - keep `submitAilJwt(jwt)` as the single session-creation path
-- Modify: `C:\Users\sinmb\claw-tavern\portal-update\index.html`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\index.html`
   - keep current shell width
   - mirror the new modal CTA/copy structure and widened allowed origins
-- Modify: `C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
   - add failing static expectations for width, CTA labels, copy, and accepted origins
 
 ## Task 1: Lock the New Width + Re-Auth Requirements in Tests
 
 **Files:**
-- Modify: `C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 - [ ] **Step 1: Add failing Marketplace width assertions**
 
@@ -48,22 +48,26 @@ assert.match(html, /If you already have an Agent ID Card, you can sign in with i
 - [ ] **Step 3: Add failing allowed-origin assertions for both portal entry points**
 
 ```js
-assert.match(html, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
-assert.match(html, /e\.origin === "https:\/\/api\.agentidcard\.org"/);
-assert.match(brandHome, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
-assert.match(brandHome, /e\.origin === "https:\/\/api\.agentidcard\.org"/);
+assert.match(html, /TRUSTED_AIL_ORIGINS = new Set/);
+assert.match(html, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+assert.match(html, /https:\/\/www\.agentidcard\.org/);
+assert.match(html, /https:\/\/api\.agentidcard\.org/);
+assert.match(brandHome, /TRUSTED_AIL_ORIGINS = new Set/);
+assert.match(brandHome, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+assert.match(brandHome, /https:\/\/www\.agentidcard\.org/);
+assert.match(brandHome, /https:\/\/api\.agentidcard\.org/);
 ```
 
 - [ ] **Step 4: Run the navigation suite to verify RED**
 
-Run: `node --test C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+Run: `node --test C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 Expected: FAIL on missing CTA labels, copy, width, and/or origin support
 
 - [ ] **Step 5: Commit the red-state test changes**
 
 ```bash
-git add C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs
+git add C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs
 git commit -m "test: add width and id card reauth coverage"
 ```
 
@@ -72,8 +76,8 @@ git commit -m "test: add width and id card reauth coverage"
 ## Task 2: Implement the Marketplace Width and Three-Intent Identity Modal
 
 **Files:**
-- Modify: `C:\Users\sinmb\claw-tavern\portal-update\app\index.html`
-- Test: `C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\app\index.html`
+- Test: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 - [ ] **Step 1: Replace the Marketplace shell width**
 
@@ -155,14 +159,14 @@ if (session?.verified) {
 
 - [ ] **Step 8: Run the navigation suite to verify GREEN**
 
-Run: `node --test C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+Run: `node --test C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 Expected: PASS
 
 - [ ] **Step 9: Commit the Marketplace implementation**
 
 ```bash
-git add C:\Users\sinmb\claw-tavern\portal-update\app\index.html C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs
+git add C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\app\index.html C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs
 git commit -m "feat: tighten marketplace shell and add existing id card reauth"
 ```
 
@@ -171,8 +175,8 @@ git commit -m "feat: tighten marketplace shell and add existing id card reauth"
 ## Task 3: Mirror the Identity Modal Behavior on Brand Home
 
 **Files:**
-- Modify: `C:\Users\sinmb\claw-tavern\portal-update\index.html`
-- Modify: `C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\index.html`
+- Modify: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 - [ ] **Step 1: Update the home identity modal to match the new three-intent CTA structure**
 
@@ -206,14 +210,14 @@ Keep:
 
 - [ ] **Step 5: Re-run the navigation suite**
 
-Run: `node --test C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+Run: `node --test C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 Expected: PASS with `/` and `/app/` expectations aligned
 
 - [ ] **Step 6: Commit the home parity update**
 
 ```bash
-git add C:\Users\sinmb\claw-tavern\portal-update\index.html C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs
+git add C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\index.html C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs
 git commit -m "feat: align home id card reauth modal with marketplace"
 ```
 
@@ -222,18 +226,18 @@ git commit -m "feat: align home id card reauth modal with marketplace"
 ## Task 4: Full Verification and Browser QA
 
 **Files:**
-- Test: `C:\Users\sinmb\claw-tavern\test\portal-update.identity-session.test.mjs`
-- Test: `C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+- Test: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.identity-session.test.mjs`
+- Test: `C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 - [ ] **Step 1: Run the identity-session suite**
 
-Run: `node --test C:\Users\sinmb\claw-tavern\test\portal-update.identity-session.test.mjs`
+Run: `node --test C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.identity-session.test.mjs`
 
 Expected: PASS (`25/25` or current total if expanded)
 
 - [ ] **Step 2: Run the navigation suite**
 
-Run: `node --test C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs`
+Run: `node --test C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs`
 
 Expected: PASS
 
@@ -255,7 +259,6 @@ Verify:
 - [ ] **Step 5: Commit the final verification snapshot if code changed during QA**
 
 ```bash
-git add C:\Users\sinmb\claw-tavern\portal-update\app\index.html C:\Users\sinmb\claw-tavern\portal-update\index.html C:\Users\sinmb\claw-tavern\test\portal-update.navigation.test.mjs
+git add C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\app\index.html C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\portal-update\index.html C:\Users\sinmb\claw-tavern\.worktrees\codex-deploy-task40-41-main\test\portal-update.navigation.test.mjs
 git commit -m "test: verify width and id card reauth flow"
 ```
-
