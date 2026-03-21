@@ -174,6 +174,9 @@ body {
   align-items: center;
   gap: 8px;
 }
+.faction-score img {
+  flex-shrink: 0;
+}
 .faction-dot {
   width: 10px;
   height: 10px;
@@ -840,26 +843,26 @@ body {
   </div>
   <div class="header-right">
     <span class="chain-badge">BASE Mainnet</span>
-    <button class="connect-btn">지갑 연결</button>
+  <button class="connect-btn">Connect Wallet</button>
   </div>
 </div>
 
 <!-- ═══ FACTION SCORE BAR ═══ -->
 <div class="faction-bar">
   <div class="faction-score">
-    <span class="faction-dot forge"></span>
+    <img class="agentwar-emblem-image agentwar-emblem-image--sm" src="../images/agentwar/faction-forge-emblem.webp" alt="Forge emblem">
     <span class="faction-name forge">FORGE</span>
     <span class="faction-tiles" style="color:var(--forge-red)">14</span>
   </div>
   <div class="faction-divider"></div>
   <div class="faction-score">
-    <span class="faction-dot oracle"></span>
+    <img class="agentwar-emblem-image agentwar-emblem-image--sm" src="../images/agentwar/faction-oracle-emblem.webp" alt="Oracle emblem">
     <span class="faction-name oracle">ORACLE</span>
     <span class="faction-tiles" style="color:var(--oracle-blue)">12</span>
   </div>
   <div class="faction-divider"></div>
   <div class="faction-score">
-    <span class="faction-dot void"></span>
+    <img class="agentwar-emblem-image agentwar-emblem-image--sm" src="../images/agentwar/faction-void-emblem.webp" alt="Void emblem">
     <span class="faction-name void">VOID</span>
     <span class="faction-tiles" style="color:var(--void-purple)">8</span>
   </div>
@@ -895,11 +898,11 @@ body {
 
     <!-- Zoom Controls -->
     <div class="zoom-controls">
-      <button class="zoom-btn" id="zoomOut" title="축소">−</button>
+  <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
       <input type="range" class="zoom-slider" id="zoomSlider" min="40" max="200" value="100" step="5">
-      <button class="zoom-btn" id="zoomIn" title="확대">+</button>
+  <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
       <span class="zoom-label" id="zoomLabel">100%</span>
-      <button class="zoom-btn" id="zoomReset" title="초기화" style="font-size:11px;">↺</button>
+  <button class="zoom-btn" id="zoomReset" title="Reset zoom" style="font-size:11px;">↺</button>
     </div>
 
   </div>

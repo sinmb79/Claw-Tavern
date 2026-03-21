@@ -1,47 +1,35 @@
 (() => {
   const BASE_CHAIN_HEX = "0x2105";
-  const AIL_ORIGIN = "https://www.agentidcard.org";
-  const AIL_REGISTER_URL = `${AIL_ORIGIN}/register`;
+  const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
   const STORAGE_KEYS = {
     wallet: "agentwar.wallet.address",
-    locale: "agentwar.locale.v3",
     legalAccepted: "agentwar.legal.accepted",
     ailRegistered: "agentwar.ail.registered",
   };
 
-  let ailRegisteredCallback = null;
   let pendingLegalAction = null;
 
   function strings() {
-    return window.AgentWarI18n?.getStrings?.() ?? {
-      languageLabel: "Language",
-      connectWallet: "Connect Wallet",
-      walletMissing: "No browser wallet was detected.",
-      walletError: "Wallet connection failed. Confirm that Base Mainnet is available in your wallet.",
-      legalTitle: "Jurisdiction Notice",
-      legalEyebrow: "BEFORE YOU ENTER THE WAR",
-      legalLead: "",
-      legalItems: [],
-      legalFootnote: "",
-      legalAccept: "I Understand",
-      legalExit: "Leave Page",
-      ailTitle: "Issue Agent ID Card",
-      ailNote: "",
-      ailPrimary: "I've Completed Registration",
-      ailSecondary: "Open in New Tab",
-      registeredToast: "Registration marked as complete.",
-      popupBlocked: "The registration popup was blocked. A new tab will open instead.",
-    };
+    return window.AgentWarI18n?.getStrings?.() ?? {};
   }
 
   function shortAddress(address) {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   }
 
-  function ensureBase(provider) {
-    if (!provider?.request) return Promise.resolve();
+  function applyWalletLabel(address) {
+    const label = address ? shortAddress(address) : strings().connectWallet || "Connect Wallet";
+    document.querySelectorAll(".connect-btn,[data-wallet-action]").forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      button.textContent = label;
+      button.dataset.connected = address ? "true" : "false";
+    });
+  }
 
-    return provider.request({
+  async function ensureBase(provider) {
+    if (!provider?.request) return;
+
+    await provider.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: BASE_CHAIN_HEX }],
     }).catch(async (error) => {
@@ -60,18 +48,9 @@
     });
   }
 
-  function applyWalletLabel(address) {
-    const label = address ? shortAddress(address) : strings().connectWallet;
-    document.querySelectorAll(".connect-btn,[data-wallet-action]").forEach((button) => {
-      if (!(button instanceof HTMLElement)) return;
-      button.textContent = label;
-      button.dataset.connected = address ? "true" : "false";
-    });
-  }
-
   async function connectWallet() {
     if (!window.ethereum?.request) {
-      window.alert(strings().walletMissing);
+      window.alert(strings().walletMissing || "No browser wallet was detected.");
       return null;
     }
 
@@ -98,85 +77,10 @@
           await connectWallet();
         } catch (error) {
           console.error("Agent War wallet connect failed", error);
-          window.alert(strings().walletError);
+          window.alert(strings().walletError || "Wallet connection failed.");
         }
       });
     });
-  }
-
-  function languageToggleMarkup(locale) {
-    return `
-      <div class="agentwar-lang-toggle" aria-label="${strings().languageLabel}">
-        <button type="button" data-locale-toggle="en" class="${locale === "en" ? "active" : ""}">EN</button>
-        <button type="button" data-locale-toggle="ko" class="${locale === "ko" ? "active" : ""}">KO</button>
-      </div>
-    `;
-  }
-
-  function injectLanguageToggle() {
-    const locale = window.AgentWarI18n?.getLocale?.() ?? "en";
-    const existing = document.querySelector(".agentwar-lang-toggle");
-    if (existing) {
-      existing.outerHTML = languageToggleMarkup(locale);
-      return;
-    }
-
-    const headerRight = document.querySelector(".header-right");
-    if (headerRight) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "agentwar-header-tools";
-      wrapper.innerHTML = languageToggleMarkup(locale);
-      headerRight.appendChild(wrapper);
-      return;
-    }
-
-    const navLinks = document.querySelector("nav .nav-links");
-    if (navLinks) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "agentwar-nav-tools";
-      wrapper.innerHTML = languageToggleMarkup(locale);
-      navLinks.appendChild(wrapper);
-    }
-  }
-
-  function bindLanguageToggle() {
-    document.querySelectorAll("[data-locale-toggle]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const locale = button.getAttribute("data-locale-toggle");
-        if (!locale || !window.AgentWarI18n?.setLocale) return;
-        window.AgentWarI18n.setLocale(locale);
-      });
-    });
-  }
-
-  function ensureAILModal() {
-    if (document.getElementById("agentwar-ail-modal")) return;
-
-    const modal = document.createElement("div");
-    modal.id = "agentwar-ail-modal";
-    modal.className = "agentwar-modal";
-    modal.hidden = true;
-    modal.innerHTML = `
-      <div class="agentwar-modal__backdrop" data-close-ail></div>
-      <div class="agentwar-modal__card" role="dialog" aria-modal="true" aria-labelledby="agentwar-ail-title">
-        <div class="agentwar-modal__header">
-          <div class="agentwar-modal__title" id="agentwar-ail-title"></div>
-          <button type="button" class="agentwar-modal__close" data-close-ail aria-label="Close modal">Close</button>
-        </div>
-        <div class="agentwar-modal__body">
-          <div class="agentwar-modal__frame-wrap">
-            <iframe class="agentwar-modal__frame" title="Agent ID Card" src="${AIL_REGISTER_URL}"></iframe>
-          </div>
-          <div class="agentwar-modal__note" id="agentwar-ail-note"></div>
-        </div>
-        <div class="agentwar-modal__footer">
-          <button type="button" class="agentwar-modal__button" id="agentwar-ail-fallback"></button>
-          <button type="button" class="agentwar-modal__button agentwar-modal__button--primary" id="agentwar-ail-complete"></button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
   }
 
   function ensureLegalModal() {
@@ -195,7 +99,7 @@
             <div class="agentwar-modal__title" id="agentwar-legal-title"></div>
           </div>
         </div>
-        <div class="agentwar-modal__body">
+        <div class="agentwar-modal__body agentwar-legal-modal__body">
           <div class="agentwar-legal-modal__lead" id="agentwar-legal-lead"></div>
           <div class="agentwar-legal-modal__list" id="agentwar-legal-items"></div>
           <div class="agentwar-legal-modal__footnote" id="agentwar-legal-footnote"></div>
@@ -210,110 +114,35 @@
     document.body.appendChild(modal);
   }
 
-  function syncModalCopy() {
+  function syncLegalCopy() {
     const copy = strings();
-
-    const ailTitle = document.getElementById("agentwar-ail-title");
-    if (ailTitle) ailTitle.textContent = copy.ailTitle;
-
-    const ailNote = document.getElementById("agentwar-ail-note");
-    if (ailNote) ailNote.textContent = copy.ailNote;
-
-    const fallback = document.getElementById("agentwar-ail-fallback");
-    if (fallback) fallback.textContent = copy.ailSecondary;
-
-    const complete = document.getElementById("agentwar-ail-complete");
-    if (complete) complete.textContent = copy.ailPrimary;
-
-    const legalTitle = document.getElementById("agentwar-legal-title");
-    if (legalTitle) legalTitle.textContent = copy.legalTitle;
-
-    const legalEyebrow = document.getElementById("agentwar-legal-eyebrow");
-    if (legalEyebrow) legalEyebrow.textContent = copy.legalEyebrow;
-
-    const legalLead = document.getElementById("agentwar-legal-lead");
-    if (legalLead) legalLead.textContent = copy.legalLead;
-
-    const legalItems = document.getElementById("agentwar-legal-items");
-    if (legalItems) {
-      legalItems.innerHTML = copy.legalItems
+    const items = document.getElementById("agentwar-legal-items");
+    if (items) {
+      items.innerHTML = (copy.legalItems || [])
         .map((item) => `<div class="agentwar-legal-modal__item">${item}</div>`)
         .join("");
     }
 
-    const legalFootnote = document.getElementById("agentwar-legal-footnote");
-    if (legalFootnote) legalFootnote.textContent = copy.legalFootnote;
+    const mappings = [
+      ["agentwar-legal-title", copy.legalTitle],
+      ["agentwar-legal-eyebrow", copy.legalEyebrow],
+      ["agentwar-legal-lead", copy.legalLead],
+      ["agentwar-legal-footnote", copy.legalFootnote],
+      ["agentwar-legal-accept", copy.legalAccept],
+      ["agentwar-legal-exit", copy.legalExit],
+    ];
 
-    const legalExit = document.getElementById("agentwar-legal-exit");
-    if (legalExit) legalExit.textContent = copy.legalExit;
-
-    const legalAccept = document.getElementById("agentwar-legal-accept");
-    if (legalAccept) legalAccept.textContent = copy.legalAccept;
-  }
-
-  function closeAILModal() {
-    const modal = document.getElementById("agentwar-ail-modal");
-    if (modal) modal.hidden = true;
-    ailRegisteredCallback = null;
-  }
-
-  function markAILRegistered() {
-    localStorage.setItem(STORAGE_KEYS.ailRegistered, "true");
-    window.alert(strings().registeredToast);
-    closeAILModal();
-
-    if (typeof ailRegisteredCallback === "function") {
-      const callback = ailRegisteredCallback;
-      ailRegisteredCallback = null;
-      callback();
-    }
-  }
-
-  function openAILPopup(options = {}) {
-    ailRegisteredCallback = typeof options.onRegistered === "function" ? options.onRegistered : null;
-
-    const width = 560;
-    const height = 820;
-    const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
-    const dualScreenTop = window.screenTop ?? window.screenY ?? 0;
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || screen.width || width;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || screen.height || height;
-    const left = Math.max(0, Math.round(dualScreenLeft + (viewportWidth - width) / 2));
-    const top = Math.max(0, Math.round(dualScreenTop + (viewportHeight - height) / 2));
-    const features = [
-      "popup=yes",
-      `width=${width}`,
-      `height=${height}`,
-      `left=${left}`,
-      `top=${top}`,
-      "resizable=yes",
-      "scrollbars=yes",
-    ].join(",");
-
-    const popup = window.open(AIL_REGISTER_URL, "agentwar_ail_card", features);
-
-    if (popup) {
-      popup.focus?.();
-      return popup;
-    }
-
-    window.alert(strings().popupBlocked);
-    window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
-    return null;
-  }
-
-  function openAILModal(options = {}) {
-    return openAILPopup(options);
-  }
-
-  function isAILRegistered() {
-    return localStorage.getItem(STORAGE_KEYS.ailRegistered) === "true";
+    mappings.forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element && typeof value === "string") {
+        element.textContent = value;
+      }
+    });
   }
 
   function openLegalModal() {
     ensureLegalModal();
-    syncModalCopy();
-
+    syncLegalCopy();
     const modal = document.getElementById("agentwar-legal-modal");
     if (modal) modal.hidden = false;
   }
@@ -333,30 +162,49 @@
     openLegalModal();
   }
 
-  function bindAILModal() {
-    document.querySelectorAll("[data-open-ail]").forEach((trigger) => {
-      trigger.addEventListener("click", (event) => {
-        event.preventDefault();
-        runAfterLegalAcceptance(() => openAILPopup());
-      });
-    });
+  function openAILPopup() {
+    const width = 560;
+    const height = 820;
+    const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
+    const dualScreenTop = window.screenTop ?? window.screenY ?? 0;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || screen.width || width;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || screen.height || height;
+    const left = Math.max(0, Math.round(dualScreenLeft + (viewportWidth - width) / 2));
+    const top = Math.max(0, Math.round(dualScreenTop + (viewportHeight - height) / 2));
+    const features = [
+      "popup=yes",
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      "resizable=yes",
+      "scrollbars=yes",
+    ].join(",");
 
-    document.querySelectorAll("[data-close-ail]").forEach((trigger) => {
-      trigger.addEventListener("click", closeAILModal);
-    });
+    const popup = window.open(AIL_REGISTER_URL, "agentwar_ail_card", features);
+    if (popup) {
+      popup.focus?.();
+      return popup;
+    }
 
-    document.getElementById("agentwar-ail-fallback")?.addEventListener("click", () => {
-      openAILPopup();
-    });
+    window.alert(strings().popupBlocked || "The registration popup was blocked. A new tab will open instead.");
+    window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+    return null;
+  }
 
-    document.getElementById("agentwar-ail-complete")?.addEventListener("click", markAILRegistered);
+  function markAILRegistered() {
+    localStorage.setItem(STORAGE_KEYS.ailRegistered, "true");
+    window.alert(strings().registeredToast || "Agent ID Card registration has been marked as complete for this browser.");
+  }
+
+  function isAILRegistered() {
+    return localStorage.getItem(STORAGE_KEYS.ailRegistered) === "true";
   }
 
   function bindLegalModal() {
     document.getElementById("agentwar-legal-accept")?.addEventListener("click", () => {
       localStorage.setItem(STORAGE_KEYS.legalAccepted, "true");
       closeLegalModal();
-
       if (typeof pendingLegalAction === "function") {
         const action = pendingLegalAction;
         pendingLegalAction = null;
@@ -370,39 +218,22 @@
     });
   }
 
-  function bindEscClose() {
-    document.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return;
-      closeAILModal();
-    });
-  }
-
-  function bindIframeMessages() {
-    window.addEventListener("message", (event) => {
-      if (event.origin !== AIL_ORIGIN) return;
-      const serialized = typeof event.data === "string" ? event.data : JSON.stringify(event.data ?? {});
-
-      if (/registered|complete|success|issued/i.test(serialized)) {
-        markAILRegistered();
-      }
-    });
-  }
-
-  function bindLocaleRefresh() {
-    document.addEventListener("agentwar:localechange", () => {
-      injectLanguageToggle();
-      bindLanguageToggle();
-      syncModalCopy();
-      restoreWalletLabel();
+  function bindJoinButtons() {
+    document.querySelectorAll("[data-open-ail],[data-agent-join]").forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        runAfterLegalAcceptance(() => openAILPopup());
+      });
     });
   }
 
   window.AgentWarShared = {
     connectWallet,
     restoreWalletLabel,
-    openAILModal,
+    openAILModal: openAILPopup,
     openAILPopup,
     openLegalModal,
+    markAILRegistered,
     isAILRegistered,
     requestAgentJoin() {
       runAfterLegalAcceptance(() => openAILPopup());
@@ -410,18 +241,12 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
-    window.AgentWarI18n?.applyPage?.(localStorage.getItem(STORAGE_KEYS.locale) || "en");
-    injectLanguageToggle();
-    bindLanguageToggle();
-    ensureAILModal();
+    window.AgentWarI18n?.applyPage?.();
     ensureLegalModal();
-    syncModalCopy();
+    syncLegalCopy();
     bindWalletButtons();
     restoreWalletLabel();
-    bindAILModal();
     bindLegalModal();
-    bindEscClose();
-    bindIframeMessages();
-    bindLocaleRefresh();
+    bindJoinButtons();
   });
 })();

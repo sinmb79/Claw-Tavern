@@ -49,52 +49,6 @@ button {
   font: inherit;
 }
 
-.agentwar-lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: rgba(8, 8, 15, 0.86);
-  backdrop-filter: blur(12px);
-}
-
-.agentwar-lang-toggle button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.agentwar-lang-toggle button.active {
-  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
-  color: var(--bg-abyss);
-}
-
-.agentwar-lang-toggle button:not(.active):hover {
-  color: var(--text-bright);
-}
-
-.agentwar-header-tools,
-.agentwar-nav-tools {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.agentwar-nav-tools {
-  margin-left: 12px;
-}
-
 .agentwar-modal[hidden] {
   display: none !important;
 }
@@ -181,26 +135,6 @@ button {
   padding: 0;
 }
 
-.agentwar-modal__frame-wrap {
-  min-height: min(72vh, 760px);
-  background: rgba(4, 4, 10, 0.8);
-}
-
-.agentwar-modal__frame {
-  width: 100%;
-  height: min(72vh, 760px);
-  border: 0;
-  background: #05050b;
-}
-
-.agentwar-modal__note {
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
 .agentwar-legal-modal .agentwar-modal__card {
   width: min(720px, 100%);
 }
@@ -251,6 +185,86 @@ button {
   line-height: 1.7;
 }
 
+.agentwar-emblem-image {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(201, 162, 39, 0.28));
+}
+
+.agentwar-emblem-image--sm {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.22));
+}
+
+.agentwar-avatar-image {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.3);
+}
+
+.agentwar-avatar-image--lg {
+  width: 156px;
+  height: 156px;
+  border-radius: 22px;
+}
+
+.agentwar-icon-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 16px rgba(201, 162, 39, 0.28));
+}
+
+.agentwar-tier-image {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.agentwar-card-banner {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.agentwar-card-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 4, 10, 0.2) 0%, rgba(4, 4, 10, 0.86) 100%);
+}
+
+.agentwar-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.agentwar-character-art {
+  width: min(100%, 220px);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 18px auto 0;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.38));
+}
+
+.agentwar-character-art--sm {
+  width: min(100%, 160px);
+}
+
 @media (max-width: 768px) {
   .agentwar-modal {
     padding: 12px;
@@ -263,17 +277,6 @@ button {
 
   .agentwar-modal__title {
     font-size: 17px;
-  }
-
-  .agentwar-modal__frame,
-  .agentwar-modal__frame-wrap {
-    height: min(68vh, 620px);
-    min-height: min(68vh, 620px);
-  }
-
-  .agentwar-header-tools,
-  .agentwar-nav-tools {
-    gap: 8px;
   }
 }
 

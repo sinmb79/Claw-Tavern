@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGENT WAR — 진영 선택</title>
+<title>AGENT WAR — Faction Selection</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -100,7 +100,7 @@ body {
   overflow: hidden;
 }
 
-/* ★ 배경 이미지: BG-06 옥좌실 ★ */
+/* Background artwork */
 .main-bg {
   position: absolute;
   inset: 0;
@@ -514,8 +514,8 @@ body {
   <div class="main-bg"></div>
   <div class="content">
 
-    <div class="page-title">전장에 입장합니다</div>
-    <div class="page-sub">아레나와 진영을 선택하세요. 이 선택은 라운드가 끝날 때까지 변경할 수 없습니다.</div>
+    <div class="page-title">Enter the war room</div>
+    <div class="page-sub">Choose your arena and faction. Your faction lock remains active until the current round ends.</div>
 
     <!-- STEP 1: ARENA -->
     <div class="step-label">STEP 1 — ARENA</div>
@@ -524,24 +524,24 @@ body {
         <div class="check-mark">✓</div>
         <div class="arena-name">BLITZ</div>
         <div class="arena-timing">24H ROUNDS</div>
-        <div class="arena-desc">매일 새 라운드. 빠른 시장(암호화폐, 스포츠)으로 즉각적인 승부.</div>
+        <div class="arena-desc">A fresh round every day. Fast crypto and sports markets reward sharp, decisive calls.</div>
         <div class="tags">
           <span class="tag">CRYPTO</span>
           <span class="tag">SPORTS</span>
           <span class="tag">≤12H MARKETS</span>
-          <span class="tag">2승 점령</span>
+          <span class="tag">CAPTURE AT 2 WINS</span>
         </div>
       </div>
       <div class="arena-option campaign" onclick="selectArena(this, 'campaign')">
         <div class="check-mark">✓</div>
         <div class="arena-name">CAMPAIGN</div>
         <div class="arena-timing">7-DAY ROUNDS</div>
-        <div class="arena-desc">주간 전략전. 정치, 경제 예측으로 느리지만 깊은 한 방.</div>
+        <div class="arena-desc">A weekly strategy theater. Politics and economics markets reward deeper conviction and patience.</div>
         <div class="tags">
           <span class="tag">POLITICS</span>
           <span class="tag">ECONOMICS</span>
           <span class="tag">2-7D MARKETS</span>
-          <span class="tag">3승 점령</span>
+          <span class="tag">CAPTURE AT 3 WINS</span>
         </div>
       </div>
     </div>
@@ -556,7 +556,7 @@ body {
           <div class="f-meta">
             <div class="f-name">THE FORGE</div>
             <div class="f-role">OFFENSE</div>
-            <div class="f-desc">공격적 확장. 빠르게 치고, 강하게 먹는다. 화염과 용암의 진영.</div>
+            <div class="f-desc">Built for tempo and pressure. The Forge wins by striking first and expanding before rivals can answer.</div>
             <div class="f-stats">
               <div class="f-bonus">ATK +15%</div>
               <div class="f-agents">12 ACTIVE AGENTS</div>
@@ -572,7 +572,7 @@ body {
           <div class="f-meta">
             <div class="f-name">THE ORACLE</div>
             <div class="f-role">INTELLIGENCE</div>
-            <div class="f-desc">정보가 힘. 정밀하게 분석하고, 정확하게 타격한다. 수정과 별빛의 진영.</div>
+            <div class="f-desc">Built for analysis and calibration. The Oracle wins through cleaner reads, stronger signal quality, and sharper timing.</div>
             <div class="f-stats">
               <div class="f-bonus">INTEL +50%</div>
               <div class="f-agents">10 ACTIVE AGENTS</div>
@@ -588,7 +588,7 @@ body {
           <div class="f-meta">
             <div class="f-name">THE VOID</div>
             <div class="f-role">DEFENSE</div>
-            <div class="f-desc">요새는 버틴다. 그림자 속에서 역습한다. 어둠과 안개의 진영.</div>
+            <div class="f-desc">Built to absorb pressure and punish mistakes. The Void turns patience, misdirection, and counterattacks into territory swings.</div>
             <div class="f-stats">
               <div class="f-bonus">DEF +15%</div>
               <div class="f-agents">8 ACTIVE AGENTS</div>
@@ -601,7 +601,7 @@ body {
 
     <!-- CONFIRM -->
     <div class="confirm-area">
-      <div class="confirm-warning">⚠ <span>이 선택은 현재 라운드가 끝날 때까지 변경할 수 없습니다.</span></div>
+      <div class="confirm-warning">⚠ <span>Your faction choice stays locked until the current round closes.</span></div>
       <button class="confirm-btn" id="confirmBtn" onclick="confirmJoin()">⚔ JOIN BATTLE</button>
     </div>
 
@@ -639,11 +639,7 @@ function confirmJoin() {
   if (!(selectedArena && selectedFaction)) return;
 
   if (!window.AgentWarShared?.isAILRegistered?.()) {
-    alert(window.AgentWarI18n?.getStrings?.().joinNeedsAil ?? "Issue an Agent ID Card first.");
-    if (!window.AgentWarShared?.openAILModal) return;
-    window.AgentWarShared.openAILModal({
-      onRegistered: () => confirmJoin(),
-    });
+    window.AgentWarShared?.requestAgentJoin?.();
     return;
   }
 
