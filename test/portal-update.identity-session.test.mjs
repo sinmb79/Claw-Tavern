@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 
 import {
   createIdentitySessionHandlers,
@@ -49,6 +50,18 @@ function makeHandlers(deps = {}) {
   return createIdentitySessionHandlers(deps);
 }
 
+function extractCookieValue(setCookieHeader) {
+  return setCookieHeader.match(/^ct_ail_session=([^;]+)/)?.[1] ?? null;
+}
+
+function forgeSignedSessionCookie(payload, secret) {
+  const serializedPayload = JSON.stringify(payload);
+  const payloadPart = Buffer.from(serializedPayload).toString("base64url");
+  const signaturePart = createHmac("sha256", secret).update(serializedPayload).digest("base64url");
+
+  return `ct_ail_session=${payloadPart}.${signaturePart}`;
+}
+
 test("exports remain importable", () => {
   assert.equal(typeof createIdentitySessionHandlers, "function");
   assert.equal(typeof onRequestGet, "function");
@@ -84,6 +97,87 @@ test("issueSessionCookie signs payload and caps expiry at 24 hours", async () =>
   const maxAge = Number(maxAgeMatch[1]);
   assert.ok(maxAge <= 24 * 60 * 60, `Expected cap at 24 hours, got ${maxAge}`);
   assert.ok(maxAge >= 24 * 60 * 60 - 30, `Expected near 24 hours, got ${maxAge}`);
+});
+
+test("issueSessionCookie keeps a still-valid cookie alive for subsecond expiry windows", async () => {
+  const now = 1_700_000_000_000;
+  const originalNow = Date.now;
+  Date.now = () => now;
+
+  try {
+    const setCookie = await issueSessionCookie(
+      {
+        ail_id: "AIL-2026-00001",
+        display_name: "ClaudeCoder",
+        verified_at: new Date(now).toISOString(),
+        expires_at: new Date(now + 500).toISOString()
+      },
+      "test-secret"
+    );
+
+    const maxAge = Number(setCookie.match(/Max-Age=(\d+)/)?.[1]);
+    assert.equal(maxAge, 1);
+  } finally {
+    Date.now = originalNow;
+  }
+});
+
+test("issueSessionCookie rejects payloads missing required claims", async () => {
+  await assert.rejects(
+    () =>
+      issueSessionCookie(
+        {
+          ail_id: "AIL-2026-00001",
+          display_name: "ClaudeCoder",
+          verified_at: "2026-03-21T00:00:00.000Z"
+        },
+        "test-secret"
+      ),
+    /required/i
+  );
+});
+
+test("readSessionCookie strips unsupported claims from the emitted session payload", async () => {
+  const setCookie = await issueSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z",
+      roles: ["admin"],
+      source: "browser"
+    },
+    "test-secret"
+  );
+  const cookieValue = extractCookieValue(setCookie);
+
+  assert.ok(cookieValue, "Expected session cookie value");
+
+  const session = await readSessionCookie(`ct_ail_session=${cookieValue}`, "test-secret");
+
+  assert.deepEqual(session, {
+    ail_id: "AIL-2026-00001",
+    display_name: "ClaudeCoder",
+    verified_at: "2026-03-21T00:00:00.000Z",
+    expires_at: "2026-03-22T00:00:00.000Z"
+  });
+  assert.equal(Object.hasOwn(session ?? {}, "roles"), false);
+  assert.equal(Object.hasOwn(session ?? {}, "source"), false);
+});
+
+test("readSessionCookie rejects cookies missing required claims", async () => {
+  const cookie = forgeSignedSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z"
+    },
+    "test-secret"
+  );
+
+  const session = await readSessionCookie(cookie, "test-secret");
+
+  assert.equal(session, null);
 });
 
 test("readSessionCookie returns payload for a valid signed cookie", async () => {

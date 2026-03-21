@@ -1,4 +1,6 @@
 {
+  // Generated from `npx wrangler pages download config clawtavern-portal`.
+  // Cloudflare Pages treats this file as the source of truth for Pages settings.
   "name": "clawtavern-portal",
   "compatibility_date": "2026-03-21",
   "pages_build_output_dir": ".",

@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 const COOKIE_NAME = "ct_ail_session";
 const COOKIE_MAX_AGE_SECONDS = 24 * 60 * 60;
+const SESSION_KEYS = ["ail_id", "display_name", "verified_at", "expires_at"];
 
 function encodeBase64Url(value) {
   return Buffer.from(value).toString("base64url");
@@ -47,6 +48,26 @@ function normalizeSessionExpiry(payload, nowMs) {
   return cappedExpiryMs;
 }
 
+function normalizeSessionClaims(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Missing required session claims");
+  }
+
+  const session = {};
+
+  for (const key of SESSION_KEYS) {
+    const value = payload[key];
+
+    if (typeof value !== "string" || value.trim() === "") {
+      throw new Error("Missing required session claims");
+    }
+
+    session[key] = value;
+  }
+
+  return session;
+}
+
 function validateSecret(secret) {
   if (typeof secret !== "string" || secret.trim() === "") {
     throw new Error("Missing session secret");
@@ -71,16 +92,17 @@ function isSignatureValid(serializedPayload, signatureValue, secret) {
 export async function issueSessionCookie(payload, secret) {
   validateSecret(secret);
 
+  const sessionClaims = normalizeSessionClaims(payload);
   const nowMs = Date.now();
-  const expiresAtMs = normalizeSessionExpiry(payload, nowMs);
+  const expiresAtMs = normalizeSessionExpiry(sessionClaims, nowMs);
   const sessionPayload = {
-    ...payload,
+    ...sessionClaims,
     expires_at: new Date(expiresAtMs).toISOString()
   };
   const serializedPayload = JSON.stringify(sessionPayload);
   const signedPayload = encodeBase64Url(serializedPayload);
   const signature = encodeBase64Url(sign(serializedPayload, secret));
-  const maxAgeSeconds = Math.max(0, Math.floor((expiresAtMs - nowMs) / 1000));
+  const maxAgeSeconds = Math.max(1, Math.ceil((expiresAtMs - nowMs) / 1000));
 
   return `${COOKIE_NAME}=${signedPayload}.${signature}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}; Expires=${new Date(expiresAtMs).toUTCString()}`;
 }
@@ -122,13 +144,21 @@ export async function readSessionCookie(cookieHeader, secret) {
     return null;
   }
 
+  let sessionClaims;
+
+  try {
+    sessionClaims = normalizeSessionClaims(payload);
+  } catch {
+    return null;
+  }
+
   const expiresAtMs = Date.parse(payload?.expires_at);
 
   if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
     return null;
   }
 
-  return payload;
+  return sessionClaims;
 }
 
 export function clearSessionCookie() {
