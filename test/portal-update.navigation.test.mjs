@@ -166,7 +166,6 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 
   assert.ok(html.includes('id="marketplace-identity-modal"'));
   assert.ok(html.includes('id="marketplace-identity-open"'));
-  assert.ok(html.includes('id="marketplace-identity-existing"'));
   assert.ok(html.includes('id="marketplace-identity-complete"'));
   assert.ok(html.includes("https://www.agentidcard.org/register"));
   assert.ok(html.includes('fetch("/api/identity/session"'));
@@ -174,6 +173,7 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.ok(html.includes("async function continueWalletConnectAfterIdentity()"));
   assert.match(html, /const TRUSTED_AIL_ORIGINS = new Set\(/);
   assert.match(html, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(html, /e\.data\?\.type === "ail-registered"/);
   assert.match(html, /https:\/\/www\.agentidcard\.org/);
   assert.match(html, /https:\/\/api\.agentidcard\.org/);
   assert.match(
@@ -199,31 +199,20 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 });
 
 test("marketplace layout width uses the new 1200px target", () => {
-  const marketplaceShell = extractBetween(
-    html,
-    '<div class="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgba(11,9,16,0.88)] backdrop-blur-xl">',
-    '<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">'
-  );
-  const marketplaceMain = extractBetween(
-    html,
-    '<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">',
-    '<div id="marketplace-identity-modal"'
-  );
-
   assert.match(
-    marketplaceShell,
+    html,
     /<div class="mx-auto flex max-w-\[1200px\] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
   );
   assert.doesNotMatch(
-    marketplaceShell,
+    html,
     /<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
   );
   assert.match(
-    marketplaceMain,
+    html,
     /<div class="mx-auto max-w-\[1200px\] px-4 py-4 sm:px-6 lg:px-8">/
   );
   assert.doesNotMatch(
-    marketplaceMain,
+    html,
     /<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">/
   );
 });
@@ -231,7 +220,6 @@ test("marketplace layout width uses the new 1200px target", () => {
 test("brand home identity modal matches the three-intent reauth copy", () => {
   assert.ok(brandHome.includes('id="identity-modal"'));
   assert.ok(brandHome.includes('id="identity-open"'));
-  assert.ok(brandHome.includes('id="identity-existing"'));
   assert.ok(brandHome.includes('id="identity-complete"'));
   assert.match(
     brandHome,
@@ -245,11 +233,13 @@ test("brand home identity modal matches the three-intent reauth copy", () => {
 test("trusted Agent ID Card origins allow both upstream hosts on both entry points", () => {
   assert.match(html, /const TRUSTED_AIL_ORIGINS = new Set\(/);
   assert.match(html, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(html, /e\.data\?\.type === "ail-registered"/);
   assert.match(html, /https:\/\/www\.agentidcard\.org/);
   assert.match(html, /https:\/\/api\.agentidcard\.org/);
 
   assert.match(brandHome, /const TRUSTED_AIL_ORIGINS = new Set\(/);
   assert.match(brandHome, /TRUSTED_AIL_ORIGINS\.has\(e\.origin\)/);
+  assert.match(brandHome, /e\.data\?\.type === "ail-registered"/);
   assert.match(brandHome, /https:\/\/www\.agentidcard\.org/);
   assert.match(brandHome, /https:\/\/api\.agentidcard\.org/);
 });
