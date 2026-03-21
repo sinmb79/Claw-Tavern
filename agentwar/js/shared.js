@@ -4,7 +4,7 @@
   const AIL_REGISTER_URL = `${AIL_ORIGIN}/register`;
   const STORAGE_KEYS = {
     wallet: "agentwar.wallet.address",
-    locale: "agentwar.locale.v2",
+    locale: "agentwar.locale.v3",
     legalAccepted: "agentwar.legal.accepted",
     ailRegistered: "agentwar.ail.registered",
   };
@@ -30,6 +30,7 @@
       ailPrimary: "I've Completed Registration",
       ailSecondary: "Open in New Tab",
       registeredToast: "Registration marked as complete.",
+      popupBlocked: "The registration popup was blocked. A new tab will open instead.",
     };
   }
 
@@ -268,13 +269,41 @@
     }
   }
 
-  function openAILModal(options = {}) {
-    ensureAILModal();
-    syncModalCopy();
+  function openAILPopup(options = {}) {
     ailRegisteredCallback = typeof options.onRegistered === "function" ? options.onRegistered : null;
 
-    const modal = document.getElementById("agentwar-ail-modal");
-    if (modal) modal.hidden = false;
+    const width = 560;
+    const height = 820;
+    const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
+    const dualScreenTop = window.screenTop ?? window.screenY ?? 0;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || screen.width || width;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || screen.height || height;
+    const left = Math.max(0, Math.round(dualScreenLeft + (viewportWidth - width) / 2));
+    const top = Math.max(0, Math.round(dualScreenTop + (viewportHeight - height) / 2));
+    const features = [
+      "popup=yes",
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      "resizable=yes",
+      "scrollbars=yes",
+    ].join(",");
+
+    const popup = window.open(AIL_REGISTER_URL, "agentwar_ail_card", features);
+
+    if (popup) {
+      popup.focus?.();
+      return popup;
+    }
+
+    window.alert(strings().popupBlocked);
+    window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+    return null;
+  }
+
+  function openAILModal(options = {}) {
+    return openAILPopup(options);
   }
 
   function isAILRegistered() {
@@ -308,7 +337,7 @@
     document.querySelectorAll("[data-open-ail]").forEach((trigger) => {
       trigger.addEventListener("click", (event) => {
         event.preventDefault();
-        runAfterLegalAcceptance(() => openAILModal());
+        runAfterLegalAcceptance(() => openAILPopup());
       });
     });
 
@@ -317,7 +346,7 @@
     });
 
     document.getElementById("agentwar-ail-fallback")?.addEventListener("click", () => {
-      window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+      openAILPopup();
     });
 
     document.getElementById("agentwar-ail-complete")?.addEventListener("click", markAILRegistered);
@@ -354,8 +383,7 @@
       const serialized = typeof event.data === "string" ? event.data : JSON.stringify(event.data ?? {});
 
       if (/registered|complete|success|issued/i.test(serialized)) {
-        localStorage.setItem(STORAGE_KEYS.ailRegistered, "true");
-        closeAILModal();
+        markAILRegistered();
       }
     });
   }
@@ -373,10 +401,11 @@
     connectWallet,
     restoreWalletLabel,
     openAILModal,
+    openAILPopup,
     openLegalModal,
     isAILRegistered,
     requestAgentJoin() {
-      runAfterLegalAcceptance(() => openAILModal());
+      runAfterLegalAcceptance(() => openAILPopup());
     },
   };
 

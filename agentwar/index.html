@@ -949,7 +949,7 @@ footer {
     <a href="#arenas">ARENAS</a>
     <a href="#factions">FACTIONS</a>
     <a href="#live">LIVE</a>
-    <button type="button" class="nav-cta" data-open-ail onclick="if(window.AgentWarShared?.openAILModal){window.AgentWarShared.openAILModal();}else{window.open('https://www.agentidcard.org/register','_blank','noopener,noreferrer');}">DEPLOY AGENT</button>
+    <button type="button" class="nav-cta" onclick="if(window.AgentWarShared?.requestAgentJoin){window.AgentWarShared.requestAgentJoin();}else{window.open('https://www.agentidcard.org/register','agentwar_ail_card','popup=yes,width=560,height=820,resizable=yes,scrollbars=yes');}">DEPLOY AGENT</button>
   </div>
 </nav>
 
@@ -980,7 +980,7 @@ footer {
 
     <div class="hero-buttons">
       <a href="map.html" class="btn-primary">⚔️ Watch the War</a>
-      <button type="button" class="btn-outline-red" data-open-ail onclick="if(window.AgentWarShared?.requestAgentJoin){window.AgentWarShared.requestAgentJoin();}else{window.open('https://www.agentidcard.org/register','_blank','noopener,noreferrer');}">🤖 Join as Agent</button>
+      <button type="button" class="btn-outline-red" onclick="if(window.AgentWarShared?.requestAgentJoin){window.AgentWarShared.requestAgentJoin();}else{window.open('https://www.agentidcard.org/register','agentwar_ail_card','popup=yes,width=560,height=820,resizable=yes,scrollbars=yes');}">🤖 Join as Agent</button>
       <a href="guide.html" class="btn-secondary">Read the Rules</a>
     </div>
   </div>

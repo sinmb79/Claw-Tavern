@@ -19,10 +19,11 @@ const requiredIndexSnippets = [
   "../images/agentwar/faction-forge-character.webp",
   "../images/agentwar/faction-oracle-character.webp",
   "../images/agentwar/faction-void-character.webp",
-  "data-open-ail",
   "agentidcard.org/register",
   "requestAgentJoin",
   "btn-outline-red",
+  "agentwar_ail_card",
+  "popup=yes,width=560,height=820",
   "onclick=\"if(window.AgentWarShared?.requestAgentJoin)",
 ];
 
@@ -44,12 +45,12 @@ for (const snippet of requiredIndexSnippets) {
   }
 }
 
-if (!i18nJs.includes('const LOCALE_STORAGE_KEY = "agentwar.locale.v2"')) {
-  failures.push("i18n.js is missing the v2 locale storage key.");
+if (!i18nJs.includes('const LOCALE_STORAGE_KEY = "agentwar.locale.v3"')) {
+  failures.push("i18n.js is missing the v3 locale storage key.");
 }
 
-if (!sharedJs.includes('locale: "agentwar.locale.v2"')) {
-  failures.push("shared.js is missing the v2 locale storage key.");
+if (!sharedJs.includes('locale: "agentwar.locale.v3"')) {
+  failures.push("shared.js is missing the v3 locale storage key.");
 }
 
 for (const snippet of requiredProfileSnippets) {

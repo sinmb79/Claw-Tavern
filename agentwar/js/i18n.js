@@ -1,5 +1,5 @@
 (() => {
-  const LOCALE_STORAGE_KEY = "agentwar.locale.v2";
+  const LOCALE_STORAGE_KEY = "agentwar.locale.v3";
   const snapshots = new Map();
 
   function pageNameFromPath() {
