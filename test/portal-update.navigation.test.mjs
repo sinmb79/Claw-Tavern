@@ -201,19 +201,19 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 test("marketplace layout width uses the new 1200px target", () => {
   assert.match(
     html,
-    /<div class="mx-auto flex max-w-\[1200px\] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
+    /<div class="sticky top-0 z-50 border-b border-\[var\(--line\)\] bg-\[rgba\(11,9,16,0\.88\)\] backdrop-blur-xl">\s*\n\s*<div class="mx-auto flex max-w-\[1200px\] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
   );
   assert.doesNotMatch(
     html,
-    /<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
+    /<div class="sticky top-0 z-50 border-b border-\[var\(--line\)\] bg-\[rgba\(11,9,16,0\.88\)\] backdrop-blur-xl">\s*\n\s*<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/
   );
   assert.match(
     html,
-    /<div class="mx-auto max-w-\[1200px\] px-4 py-4 sm:px-6 lg:px-8">/
+    /<!-- Hidden legacy header elements kept for JS references -->[\s\S]*?<div class="mx-auto max-w-\[1200px\] px-4 py-4 sm:px-6 lg:px-8">/
   );
   assert.doesNotMatch(
     html,
-    /<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">/
+    /<!-- Hidden legacy header elements kept for JS references -->[\s\S]*?<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">/
   );
 });
 
@@ -228,6 +228,11 @@ test("brand home identity modal matches the three-intent reauth copy", () => {
   assert.match(brandHome, />Get New Agent ID Card</);
   assert.match(brandHome, />Use Existing Agent ID Card</);
   assert.match(brandHome, />I already completed it</);
+  assert.match(brandHome, /<button[^>]*>Use Existing Agent ID Card<\/button>/);
+});
+
+test("marketplace identity modal exposes the existing-card button as a real CTA", () => {
+  assert.match(html, /<button[^>]*>Use Existing Agent ID Card<\/button>/);
 });
 
 test("trusted Agent ID Card origins allow both upstream hosts on both entry points", () => {
