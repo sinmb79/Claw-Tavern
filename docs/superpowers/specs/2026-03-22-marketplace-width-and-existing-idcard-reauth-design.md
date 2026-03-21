@@ -40,8 +40,8 @@ These are different user states and should be represented explicitly in the moda
 ## Scope
 
 - `portal-update/app/index.html`
+- `portal-update/index.html`
 - `test/portal-update.navigation.test.mjs`
-- optional follow-up parity on `portal-update/index.html` only if we decide to keep both entry points visually and behaviorally aligned in the same task
 
 Out of scope:
 
@@ -67,6 +67,11 @@ Rationale:
 
 This width change applies only to the Marketplace app in this task.
 
+Brand home rule:
+
+- `/` keeps its current shell width in this task
+- only the identity modal behavior and copy on `/` should be kept in parity with `/app/`
+
 ## Identity Modal Decision
 
 Replace the current two-action framing with three clearly named actions:
@@ -85,10 +90,11 @@ Opens the official Agent ID Card registration flow for users who do not yet have
 
 Opens the official Agent ID Card owner login flow for users who already have a credential and need to authenticate again.
 
-Portal rule:
+Portal rule for this task:
 
-- if Agent ID Card exposes a stable dedicated login entry URL, use that URL
-- otherwise use the existing official registration page, but the modal copy must explain that the page also supports existing-owner login
+- always open `https://api.agentidcard.org/register`
+- the upstream page already exposes both `New Account` and `Login`
+- modal copy in Claw Tavern must explain that this same upstream page supports existing-owner login as well as new-card issuance
 
 The portal side does not need a separate verification contract for existing users. It only needs a way to receive a fresh JWT after the upstream login flow finishes.
 
