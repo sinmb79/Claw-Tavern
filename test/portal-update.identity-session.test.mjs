@@ -60,6 +60,29 @@ test("exports remain importable", () => {
   assert.equal(typeof verifyAilJwt, "function");
 });
 
+test("default handler entrypoints still reject as not implemented", async () => {
+  await assert.rejects(() => onRequestGet(makeContext({ method: "GET" })), /not implemented/);
+  await assert.rejects(
+    () =>
+      onRequestPost(
+        makeContext({
+          method: "POST",
+          body: { jwt: "opaque-jwt" }
+        })
+      ),
+    /not implemented/
+  );
+  await assert.rejects(
+    () =>
+      onRequestDelete(
+        makeContext({
+          method: "DELETE"
+        })
+      ),
+    /not implemented/
+  );
+});
+
 test("POST issues a signed cookie after verifier success", async () => {
   const { onRequestPost: post } = makeHandlers({
     verifyAilJwt: async () => ({
