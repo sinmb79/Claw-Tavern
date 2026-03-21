@@ -434,7 +434,7 @@ test("POST rejects invalid JWTs", async () => {
     })
   );
 
-  assert.ok([400, 401].includes(response.status), `Expected 400 or 401, got ${response.status}`);
+  assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), {
     verified: false,
     error: "invalid-jwt"
@@ -479,7 +479,7 @@ test("POST fails closed when the session secret is missing", async () => {
     })
   );
 
-  assert.ok(response.status >= 500, `Expected 5xx, got ${response.status}`);
+  assert.equal(response.status, 500);
   assert.deepEqual(await response.json(), {
     verified: false,
     error: "server-misconfigured"
