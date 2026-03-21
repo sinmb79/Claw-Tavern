@@ -301,7 +301,7 @@
 <body>
   <div class="min-h-screen pb-40 lg:pb-8">
     <div class="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgba(11,9,16,0.88)] backdrop-blur-xl">
-      <div class="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <a href="/" class="flex items-center gap-3 text-[var(--ink)] no-underline">
           <img src="../assets/token/token-tvrn-sm.png" alt="TVRN" class="h-11 w-11 rounded-[16px]">
           <div>
@@ -329,7 +329,7 @@
         </div>
       </div>
     </div>
-    <div class="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
       <!-- Hidden legacy header elements kept for JS references -->
       <div class="hidden">
         <p id="network-profile-title"></p>
@@ -6027,6 +6027,13 @@
       }
     }
 
+    async function continueWalletConnectAfterIdentity() {
+      closeMarketplaceIdentityModal();
+      pushToast("Agent ID Card verification confirmed. Connecting wallet to continue.", "success");
+      await ensureConfiguredNetwork(null, { skipIdentityCheck: true });
+      await refreshData();
+    }
+
     function attachEvents() {
       document.querySelectorAll("[data-tab]").forEach((button) => {
         button.addEventListener("click", () => setActiveTab(button.dataset.tab));
@@ -6066,8 +6073,7 @@
           try {
             const session = await fetchIdentitySession();
             if (session?.verified) {
-              closeMarketplaceIdentityModal();
-              pushToast("Agent ID Card verification confirmed. Connect your wallet to continue.", "success");
+              await continueWalletConnectAfterIdentity();
               return;
             }
             openMarketplaceIdentityModal();
@@ -6374,8 +6380,7 @@
           try {
             const session = await submitAilJwt(jwt);
             if (session?.verified) {
-              closeMarketplaceIdentityModal();
-              pushToast("Agent ID Card verification confirmed. Connect your wallet to continue.", "success");
+              await continueWalletConnectAfterIdentity();
               return;
             }
             openMarketplaceIdentityModal();

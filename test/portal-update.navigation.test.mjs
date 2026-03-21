@@ -170,9 +170,12 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.ok(html.includes("https://www.agentidcard.org/register"));
   assert.ok(html.includes('fetch("/api/identity/session"'));
   assert.ok(html.includes("async function submitAilJwt("));
+  assert.ok(html.includes("async function continueWalletConnectAfterIdentity()"));
   assert.ok(html.includes('e.origin === "https://www.agentidcard.org"'));
   assert.match(html, /await ensureConfiguredNetwork\(null, \{ skipIdentityCheck: true \}\);/);
   assert.match(html, /await ensureConfiguredNetwork\(wallet, \{ skipIdentityCheck: true \}\);/);
+  assert.match(html, /refs\.marketplaceIdentityComplete\.addEventListener\("click", async \(\) => \{[\s\S]*await continueWalletConnectAfterIdentity\(\);/);
+  assert.match(html, /const session = await submitAilJwt\(jwt\);[\s\S]*await continueWalletConnectAfterIdentity\(\);/);
   assert.match(ensureConfiguredNetwork, /if \(!skipIdentityCheck && !appState\.account\)/);
   assert.match(html, /function resolveIdentityErrorMessage\(/);
   assert.match(html, /case "verification-unavailable":/);
@@ -182,6 +185,13 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.doesNotMatch(html, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
   assert.match(html, /Agent ID Card verification expired\. Please issue a new card and try again\./);
   assert.match(html, /Verification is temporarily unavailable\. Please try again later\./);
+});
+
+test("marketplace layout width matches the brand home shell", () => {
+  assert.match(html, /<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">/);
+  assert.match(html, /<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">/);
+  assert.doesNotMatch(html, /max-w-\[1600px\]/);
+  assert.doesNotMatch(html, /max-w-\[1400px\]/);
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
