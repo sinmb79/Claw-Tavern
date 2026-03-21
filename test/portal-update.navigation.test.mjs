@@ -4,9 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 const htmlPath = path.resolve("portal-update/app/index.html");
-const html = fs.readFileSync(htmlPath, "utf8");
+const html = fs.readFileSync(htmlPath, "utf8").replace(/\r\n/g, "\n");
 const brandHomePath = path.resolve("portal-update/index.html");
-const brandHome = fs.readFileSync(brandHomePath, "utf8");
+const brandHome = fs.readFileSync(brandHomePath, "utf8").replace(/\r\n/g, "\n");
 
 function extractBetween(source, startMarker, endMarker) {
   const startIndex = source.indexOf(startMarker);
