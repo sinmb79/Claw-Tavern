@@ -119,7 +119,7 @@ test("wallet connection supports injected multi-wallet discovery and chooser flo
   assert.match(html, /activeWalletProvider:\s*null/);
   assert.match(html, /function chooseWalletProvider\(/);
   assert.match(html, /window\.dispatchEvent\(new Event\("eip6963:requestProvider"\)\)/);
-  assert.match(html, /async function ensureConfiguredNetwork\(selectedWallet = null\)/);
+  assert.match(html, /async function ensureConfiguredNetwork\(selectedWallet = null, options = \{\}\)/);
 });
 
 test("wallet chooser listeners are bound in bootstrap instead of register-agent rendering", () => {
@@ -158,6 +158,12 @@ test("task 40 terminology uses specialty, tasks, profile, and wallet in the rema
 });
 
 test("marketplace wallet flow includes an Agent ID Card identity gate before wallet connection", () => {
+  const ensureConfiguredNetwork = extractBetween(
+    html,
+    "async function ensureConfiguredNetwork(selectedWallet = null",
+    "\n    async function syncBrowserWalletState"
+  );
+
   assert.ok(html.includes('id="marketplace-identity-modal"'));
   assert.ok(html.includes('id="marketplace-identity-open"'));
   assert.ok(html.includes('id="marketplace-identity-complete"'));
@@ -165,6 +171,12 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.ok(html.includes('fetch("/api/identity/session"'));
   assert.ok(html.includes("async function submitAilJwt("));
   assert.ok(html.includes('e.origin === "https://www.agentidcard.org"'));
+  assert.match(html, /await ensureConfiguredNetwork\(null, \{ skipIdentityCheck: true \}\);/);
+  assert.match(html, /await ensureConfiguredNetwork\(wallet, \{ skipIdentityCheck: true \}\);/);
+  assert.match(ensureConfiguredNetwork, /if \(!skipIdentityCheck && !appState\.account\)/);
+  assert.match(html, /function resolveIdentityErrorMessage\(/);
+  assert.match(html, /Agent ID Card opened in a new tab\. Finish verification there, then return here and press "I already completed it"\./);
+  assert.match(html, /Agent ID Card verification expired\. Please issue a new card and try again\./);
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
@@ -175,4 +187,7 @@ test("brand home wallet flow also requires Agent ID Card before connection", () 
   assert.ok(brandHome.includes('fetch("/api/identity/session"'));
   assert.ok(brandHome.includes("async function submitAilJwt("));
   assert.ok(brandHome.includes('e.origin === "https://www.agentidcard.org"'));
+  assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
+  assert.match(brandHome, /Agent ID Card opened in a new tab\. Finish verification there, then return here and press "I already completed it"\./);
+  assert.match(brandHome, /Agent ID Card verification service is temporarily unavailable\. Please try again later\./);
 });

@@ -2369,23 +2369,83 @@
       }
     }
 
+    function createIdentityFlowError(code, message) {
+      const error = new Error(message);
+      error.identityCode = code;
+      return error;
+    }
+
+    function resolveIdentityErrorMessage(error) {
+      switch (error?.identityCode) {
+        case "identity-popup-fallback":
+          return 'Agent ID Card opened in a new tab. Finish verification there, then return here and press "I already completed it".';
+        case "identity-message-missing-jwt":
+          return "Agent ID Card did not return a verification token. Please retry.";
+        case "expired-jwt":
+          return "Agent ID Card verification expired. Please issue a new card and try again.";
+        case "invalid-jwt":
+          return "Agent ID Card verification was rejected. Please issue a new card and try again.";
+        case "missing-jwt":
+          return "Agent ID Card did not finish verification. Please retry the identity flow.";
+        case "identity-session-pending":
+          return "Identity verification is still pending. Finish Agent ID Card, then re-check.";
+        case "identity-session-fetch-failed":
+          return "Couldn't check your Agent ID Card session right now. Please retry.";
+        case "identity-service-unavailable":
+          return "Agent ID Card verification service is temporarily unavailable. Please try again later.";
+        default:
+          return error?.message || "Complete Agent ID Card verification before connecting your wallet.";
+      }
+    }
+
+    async function readIdentityResponse(response, fallbackCode) {
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch (_) {
+        payload = null;
+      }
+
+      if (response.ok) {
+        return payload ?? { verified: false };
+      }
+
+      const errorCode = payload?.error === "server-misconfigured"
+        ? "identity-service-unavailable"
+        : (payload?.error || fallbackCode);
+
+      throw createIdentityFlowError(errorCode, resolveIdentityErrorMessage({ identityCode: errorCode }));
+    }
+
     async function fetchIdentitySession() {
-      const response = await fetch("/api/identity/session", {
-        credentials: "same-origin"
-      });
-      return response.json();
+      let response;
+      try {
+        response = await fetch("/api/identity/session", {
+          credentials: "same-origin"
+        });
+      } catch (_) {
+        throw createIdentityFlowError("identity-session-fetch-failed", resolveIdentityErrorMessage({ identityCode: "identity-session-fetch-failed" }));
+      }
+
+      return readIdentityResponse(response, "identity-session-fetch-failed");
     }
 
     async function submitAilJwt(jwt) {
-      const response = await fetch("/api/identity/session", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({ jwt })
-      });
-      return response.json();
+      let response;
+      try {
+        response = await fetch("/api/identity/session", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({ jwt })
+        });
+      } catch (_) {
+        throw createIdentityFlowError("identity-service-unavailable", resolveIdentityErrorMessage({ identityCode: "identity-service-unavailable" }));
+      }
+
+      return readIdentityResponse(response, "identity-service-unavailable");
     }
 
     function closeMarketplaceIdentityModal() {
@@ -2423,7 +2483,7 @@
         return popup;
       }
 
-      pushToast("Agent ID Card popup was blocked. Opening a new tab instead.", "info");
+      pushToast(resolveIdentityErrorMessage({ identityCode: "identity-popup-fallback" }), "info");
       window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
       return null;
     }
@@ -2676,12 +2736,14 @@
       }
     }
 
-    async function ensureConfiguredNetwork(selectedWallet = null) {
-      if (!appState.account) {
+    async function ensureConfiguredNetwork(selectedWallet = null, options = {}) {
+      const { skipIdentityCheck = false } = options;
+
+      if (!skipIdentityCheck && !appState.account) {
         const session = await fetchIdentitySession();
         if (!session?.verified) {
           openMarketplaceIdentityModal();
-          throw new Error("Complete Agent ID Card verification before connecting your wallet.");
+          throw createIdentityFlowError("identity-session-pending", resolveIdentityErrorMessage({ identityCode: "identity-session-pending" }));
         }
       }
 
@@ -5132,6 +5194,10 @@
     }
 
     function extractErrorMessage(error) {
+      if (error?.identityCode) {
+        return resolveIdentityErrorMessage(error);
+      }
+
       const candidate =
         error?.shortMessage ||
         error?.reason ||
@@ -5973,7 +6039,7 @@
           if (!identityReady) {
             return;
           }
-          await ensureConfiguredNetwork();
+          await ensureConfiguredNetwork(null, { skipIdentityCheck: true });
           await refreshData();
         } catch (error) {
           pushToast(extractErrorMessage(error), "error");
@@ -6002,11 +6068,11 @@
               return;
             }
             openMarketplaceIdentityModal();
-            pushToast("Verification is still pending. Finish Agent ID Card first, then try again.", "info");
+            pushToast(resolveIdentityErrorMessage({ identityCode: "identity-session-pending" }), "info");
           } catch (error) {
             console.error(error);
             openMarketplaceIdentityModal();
-            pushToast("Unable to confirm Agent ID Card verification right now.", "error");
+            pushToast(resolveIdentityErrorMessage(error), "error");
           }
         });
       }
@@ -6298,7 +6364,7 @@
         if (e.origin === "https://www.agentidcard.org" && e.data?.type === "ail-registered") {
           const jwt = typeof e.data?.jwt === "string" ? e.data.jwt.trim() : "";
           if (!jwt) {
-            pushToast("Agent ID Card verification did not include a JWT. Please retry.", "error");
+            pushToast(resolveIdentityErrorMessage({ identityCode: "identity-message-missing-jwt" }), "error");
             return;
           }
 
@@ -6310,11 +6376,11 @@
               return;
             }
             openMarketplaceIdentityModal();
-            pushToast("Agent ID Card verification was not accepted yet. Please retry.", "error");
+            pushToast(resolveIdentityErrorMessage({ identityCode: "identity-session-pending" }), "error");
           } catch (error) {
             console.error(error);
             openMarketplaceIdentityModal();
-            pushToast("Unable to confirm Agent ID Card verification right now.", "error");
+            pushToast(resolveIdentityErrorMessage(error), "error");
           }
         }
       });
@@ -6334,7 +6400,7 @@
               try {
                 const accounts = await wallet.provider.request({ method: "eth_accounts" });
                 if (accounts.length) {
-                  await ensureConfiguredNetwork(wallet);
+                  await ensureConfiguredNetwork(wallet, { skipIdentityCheck: true });
                   break;
                 }
               } catch (_) {

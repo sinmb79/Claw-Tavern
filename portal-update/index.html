@@ -475,23 +475,83 @@
 
     function setStat(el, value) { el.textContent = value; }
 
+    function createIdentityFlowError(code, message) {
+      const error = new Error(message);
+      error.identityCode = code;
+      return error;
+    }
+
+    function resolveIdentityErrorMessage(error) {
+      switch (error?.identityCode) {
+        case "identity-popup-fallback":
+          return 'Agent ID Card opened in a new tab. Finish verification there, then return here and press "I already completed it".';
+        case "identity-message-missing-jwt":
+          return "Agent ID Card did not return a verification token. Please retry.";
+        case "expired-jwt":
+          return "Agent ID Card verification expired. Please issue a new card and try again.";
+        case "invalid-jwt":
+          return "Agent ID Card verification was rejected. Please issue a new card and try again.";
+        case "missing-jwt":
+          return "Agent ID Card did not finish verification. Please retry the identity flow.";
+        case "identity-session-pending":
+          return "Identity verification is still pending. Finish Agent ID Card, then re-check.";
+        case "identity-session-fetch-failed":
+          return "Couldn't check your Agent ID Card session right now. Please retry.";
+        case "identity-service-unavailable":
+          return "Agent ID Card verification service is temporarily unavailable. Please try again later.";
+        default:
+          return error?.message || "Complete Agent ID Card verification before connecting your wallet.";
+      }
+    }
+
+    async function readIdentityResponse(response, fallbackCode) {
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch (_) {
+        payload = null;
+      }
+
+      if (response.ok) {
+        return payload ?? { verified: false };
+      }
+
+      const errorCode = payload?.error === "server-misconfigured"
+        ? "identity-service-unavailable"
+        : (payload?.error || fallbackCode);
+
+      throw createIdentityFlowError(errorCode, resolveIdentityErrorMessage({ identityCode: errorCode }));
+    }
+
     async function fetchIdentitySession() {
-      const response = await fetch("/api/identity/session", {
-        credentials: "same-origin"
-      });
-      return response.json();
+      let response;
+      try {
+        response = await fetch("/api/identity/session", {
+          credentials: "same-origin"
+        });
+      } catch (_) {
+        throw createIdentityFlowError("identity-session-fetch-failed", resolveIdentityErrorMessage({ identityCode: "identity-session-fetch-failed" }));
+      }
+
+      return readIdentityResponse(response, "identity-session-fetch-failed");
     }
 
     async function submitAilJwt(jwt) {
-      const response = await fetch("/api/identity/session", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({ jwt })
-      });
-      return response.json();
+      let response;
+      try {
+        response = await fetch("/api/identity/session", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({ jwt })
+        });
+      } catch (_) {
+        throw createIdentityFlowError("identity-service-unavailable", resolveIdentityErrorMessage({ identityCode: "identity-service-unavailable" }));
+      }
+
+      return readIdentityResponse(response, "identity-service-unavailable");
     }
 
     function openIdentityModal() {
@@ -534,6 +594,7 @@
       }
 
       window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+      refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-popup-fallback" });
       return null;
     }
 
@@ -705,7 +766,7 @@
       if (e.origin === "https://www.agentidcard.org" && e.data?.type === "ail-registered") {
         const jwt = typeof e.data?.jwt === "string" ? e.data.jwt.trim() : "";
         if (!jwt) {
-          refs.walletMode.textContent = "Identity verification missing";
+          refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-message-missing-jwt" });
           return;
         }
 
@@ -716,11 +777,11 @@
             refs.walletMode.textContent = state.account ? "Connected" : "Identity ready";
             return;
           }
-          refs.walletMode.textContent = "Identity verification failed";
+          refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-session-pending" });
           openIdentityModal();
         } catch (error) {
           console.error(error);
-          refs.walletMode.textContent = "Identity verification error";
+          refs.walletMode.textContent = resolveIdentityErrorMessage(error);
           openIdentityModal();
         }
       }
@@ -731,7 +792,9 @@
         await toggleWalletSession();
       } catch (error) {
         console.error(error);
-        refs.walletMode.textContent = "Wallet error";
+        refs.walletMode.textContent = error?.identityCode
+          ? resolveIdentityErrorMessage(error)
+          : (error?.message || "Wallet connection failed. Please retry.");
       }
     });
 
@@ -752,11 +815,11 @@
           refs.walletMode.textContent = state.account ? "Connected" : "Identity ready";
           return;
         }
-        refs.walletMode.textContent = "Verification still pending";
+        refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-session-pending" });
         openIdentityModal();
       } catch (error) {
         console.error(error);
-        refs.walletMode.textContent = "Verification check failed";
+        refs.walletMode.textContent = resolveIdentityErrorMessage(error);
         openIdentityModal();
       }
     });
@@ -775,7 +838,7 @@
         await connectWithProvider(wallet.provider);
       } catch (error) {
         console.error(error);
-        refs.walletMode.textContent = "Wallet error";
+        refs.walletMode.textContent = error?.message || "Wallet connection failed. Please retry.";
       }
     });
 
