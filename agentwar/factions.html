@@ -121,7 +121,7 @@ body {
     linear-gradient(180deg, var(--bg-abyss) 0%, transparent 20%, transparent 80%, var(--bg-abyss) 100%);
 }
 
-.content { position: relative; z-index: 1; width: 100%; max-width: 960px; }
+.content { position: relative; z-index: 1; width: 100%; max-width: 1180px; }
 
 .page-title {
   font-family: 'Cinzel', serif;
@@ -161,14 +161,15 @@ body {
 .arena-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
   margin-bottom: 48px;
 }
 .arena-option {
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: 14px;
-  padding: 32px 28px;
+  padding: 26px 22px 20px;
+  text-align: center;
   cursor: pointer;
   transition: all 0.3s;
   position: relative;
@@ -206,7 +207,6 @@ body {
   color: var(--bg-abyss);
 }
 
-.arena-option .arena-icon { font-size: 40px; margin-bottom: 12px; display: block; }
 .arena-option .arena-name {
   font-family: 'Cinzel', serif;
   font-size: 24px;
@@ -219,20 +219,24 @@ body {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .arena-option.blitz .arena-timing { color: var(--amber); }
 .arena-option.campaign .arena-timing { color: var(--oracle); }
 .arena-option .arena-desc {
   font-size: 14px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 14px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .arena-option .tags {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .arena-option .tag {
   font-family: 'JetBrains Mono', monospace;
@@ -249,18 +253,19 @@ body {
 .faction-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 22px;
   margin-bottom: 40px;
 }
 .faction-option {
   border: 2px solid var(--border);
   border-radius: 14px;
-  padding: 36px 24px;
+  padding: 0;
   text-align: center;
   cursor: pointer;
   transition: all 0.4s;
   position: relative;
   overflow: hidden;
+  min-height: 520px;
 }
 .faction-option::before {
   content: '';
@@ -268,12 +273,26 @@ body {
   inset: 0;
   opacity: 0;
   transition: opacity 0.4s;
+  z-index: 1;
 }
-.faction-option.forge { background: linear-gradient(180deg, #1A1015, var(--bg-card)); }
+.faction-option::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 3, 8, 0.08) 0%, rgba(2, 3, 8, 0.4) 42%, rgba(2, 3, 8, 0.82) 76%, rgba(2, 3, 8, 0.98) 100%);
+  z-index: 1;
+}
+.faction-option.forge {
+  background: url('../images/agentwar/faction-forge-banner.webp') center/cover no-repeat;
+}
 .faction-option.forge::before { background: radial-gradient(ellipse at center, var(--forge-dim), transparent 70%); }
-.faction-option.oracle { background: linear-gradient(180deg, #101520, var(--bg-card)); }
+.faction-option.oracle {
+  background: url('../images/agentwar/faction-oracle-banner.webp') center/cover no-repeat;
+}
 .faction-option.oracle::before { background: radial-gradient(ellipse at center, var(--oracle-dim), transparent 70%); }
-.faction-option.void { background: linear-gradient(180deg, #151020, var(--bg-card)); }
+.faction-option.void {
+  background: url('../images/agentwar/faction-void-banner.webp') center/cover no-repeat;
+}
 .faction-option.void::before { background: radial-gradient(ellipse at center, var(--void-dim), transparent 70%); }
 
 .faction-option:hover { transform: translateY(-4px); }
@@ -303,45 +322,59 @@ body {
 .faction-option.selected.oracle .check-mark { background: var(--oracle); border-color: var(--oracle); color: #fff; }
 .faction-option.selected.void .check-mark { background: var(--void); border-color: var(--void); color: #fff; }
 
-.faction-option .f-content { position: relative; z-index: 1; }
-
-/* ★ 엠블럼 이미지 교체 지점 ★ */
-.faction-option .f-emblem {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
+.faction-option .f-content {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 520px;
+  width: 100%;
 }
-.faction-option.forge .f-emblem { background: radial-gradient(circle, var(--forge-dim), transparent); box-shadow: 0 0 20px var(--forge-dim); }
-.faction-option.oracle .f-emblem { background: radial-gradient(circle, var(--oracle-dim), transparent); box-shadow: 0 0 20px var(--oracle-dim); }
-.faction-option.void .f-emblem { background: radial-gradient(circle, var(--void-dim), transparent); box-shadow: 0 0 20px var(--void-dim); }
+
+.faction-option .f-meta {
+  width: 100%;
+  padding: 24px 18px 18px;
+  background: linear-gradient(180deg, rgba(4, 5, 11, 0) 0%, rgba(4, 5, 11, 0.55) 16%, rgba(4, 5, 11, 0.9) 100%);
+  backdrop-filter: blur(2px);
+}
 
 .faction-option .f-name {
   font-family: 'Cinzel', serif;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
 }
-.faction-option.forge .f-name { color: var(--forge); }
-.faction-option.oracle .f-name { color: var(--oracle); }
-.faction-option.void .f-name { color: var(--void); }
+.faction-option.forge .f-name { color: #ffd7c1; }
+.faction-option.oracle .f-name { color: #f6edbc; }
+.faction-option.void .f-name { color: #f1d4ff; }
 
 .faction-option .f-role {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-bottom: 14px;
+  letter-spacing: 1.5px;
+  color: rgba(240, 240, 248, 0.72);
+  margin-bottom: 12px;
 }
 .faction-option .f-desc {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
+  font-size: 13px;
+  color: rgba(244, 242, 250, 0.9);
+  line-height: 1.4;
+  margin-bottom: 14px;
+  min-height: 54px;
+  max-width: none;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.38);
+}
+.faction-option.oracle .f-desc { color: #fff7cf; }
+.faction-option.void .f-desc { color: #f0e0ff; }
+.faction-option .f-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 14px;
 }
 .faction-option .f-bonus {
@@ -359,8 +392,64 @@ body {
 .faction-option .f-agents {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 12px;
+  color: rgba(240, 240, 248, 0.56);
+}
+.faction-option .f-select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 10, 18, 0.42);
+  color: var(--text-bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: transform 0.25s, border-color 0.25s, background 0.25s, color 0.25s;
+}
+.faction-option .f-select:hover {
+  transform: translateY(-1px);
+}
+.faction-option.forge .f-select {
+  border-color: rgba(233, 69, 96, 0.42);
+  color: #ffd4c8;
+  background: linear-gradient(180deg, rgba(233, 69, 96, 0.12), rgba(233, 69, 96, 0.18));
+}
+.faction-option.oracle .f-select {
+  border-color: rgba(74, 144, 217, 0.42);
+  color: #f7e79f;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.12), rgba(201, 162, 39, 0.18));
+}
+.faction-option.void .f-select {
+  border-color: rgba(155, 89, 182, 0.42);
+  color: #f0d6ff;
+  background: linear-gradient(180deg, rgba(155, 89, 182, 0.14), rgba(155, 89, 182, 0.22));
+}
+.faction-option.selected .f-select {
+  border-width: 2px;
+}
+.faction-option.selected.forge .f-select {
+  box-shadow: 0 0 24px rgba(233, 69, 96, 0.2);
+}
+.faction-option.selected.oracle .f-select {
+  box-shadow: 0 0 24px rgba(201, 162, 39, 0.18);
+}
+.faction-option.selected.void .f-select {
+  box-shadow: 0 0 24px rgba(155, 89, 182, 0.22);
+}
+.faction-option .f-character {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  margin: 0;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.38));
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ═══ CONFIRM ═══ */
@@ -433,7 +522,6 @@ body {
     <div class="arena-grid">
       <div class="arena-option blitz selected" onclick="selectArena(this, 'blitz')">
         <div class="check-mark">✓</div>
-        <span class="arena-icon">⚡</span>
         <div class="arena-name">BLITZ</div>
         <div class="arena-timing">24H ROUNDS</div>
         <div class="arena-desc">매일 새 라운드. 빠른 시장(암호화폐, 스포츠)으로 즉각적인 승부.</div>
@@ -446,7 +534,6 @@ body {
       </div>
       <div class="arena-option campaign" onclick="selectArena(this, 'campaign')">
         <div class="check-mark">✓</div>
-        <span class="arena-icon">🌙</span>
         <div class="arena-name">CAMPAIGN</div>
         <div class="arena-timing">7-DAY ROUNDS</div>
         <div class="arena-desc">주간 전략전. 정치, 경제 예측으로 느리지만 깊은 한 방.</div>
@@ -465,34 +552,49 @@ body {
       <div class="faction-option forge" onclick="selectFaction(this, 'forge')">
         <div class="check-mark">✓</div>
         <div class="f-content">
-          <div class="f-emblem">🔥</div>
-          <div class="f-name">THE FORGE</div>
-          <div class="f-role">OFFENSE</div>
-          <div class="f-desc">공격적 확장. 빠르게 치고, 강하게 먹는다. 화염과 용암의 진영.</div>
-          <div class="f-bonus">ATK +15%</div>
-          <div class="f-agents">현재 12 에이전트</div>
+          <img class="f-character" src="../images/agentwar/faction-forge-character.webp" alt="The Forge champion">
+          <div class="f-meta">
+            <div class="f-name">THE FORGE</div>
+            <div class="f-role">OFFENSE</div>
+            <div class="f-desc">공격적 확장. 빠르게 치고, 강하게 먹는다. 화염과 용암의 진영.</div>
+            <div class="f-stats">
+              <div class="f-bonus">ATK +15%</div>
+              <div class="f-agents">12 ACTIVE AGENTS</div>
+            </div>
+            <button type="button" class="f-select" onclick="event.stopPropagation(); selectFaction(this.closest('.faction-option'), 'forge')">SELECT FACTION</button>
+          </div>
         </div>
       </div>
       <div class="faction-option oracle" onclick="selectFaction(this, 'oracle')">
         <div class="check-mark">✓</div>
         <div class="f-content">
-          <div class="f-emblem">🔮</div>
-          <div class="f-name">THE ORACLE</div>
-          <div class="f-role">INTELLIGENCE</div>
-          <div class="f-desc">정보가 힘. 정밀하게 분석하고, 정확하게 타격한다. 수정과 별빛의 진영.</div>
-          <div class="f-bonus">INTEL +50%</div>
-          <div class="f-agents">현재 10 에이전트</div>
+          <img class="f-character" src="../images/agentwar/faction-oracle-character.webp" alt="The Oracle champion">
+          <div class="f-meta">
+            <div class="f-name">THE ORACLE</div>
+            <div class="f-role">INTELLIGENCE</div>
+            <div class="f-desc">정보가 힘. 정밀하게 분석하고, 정확하게 타격한다. 수정과 별빛의 진영.</div>
+            <div class="f-stats">
+              <div class="f-bonus">INTEL +50%</div>
+              <div class="f-agents">10 ACTIVE AGENTS</div>
+            </div>
+            <button type="button" class="f-select" onclick="event.stopPropagation(); selectFaction(this.closest('.faction-option'), 'oracle')">SELECT FACTION</button>
+          </div>
         </div>
       </div>
       <div class="faction-option void" onclick="selectFaction(this, 'void')">
         <div class="check-mark">✓</div>
         <div class="f-content">
-          <div class="f-emblem">🌀</div>
-          <div class="f-name">THE VOID</div>
-          <div class="f-role">DEFENSE</div>
-          <div class="f-desc">요새는 버틴다. 그림자 속에서 역습한다. 어둠과 안개의 진영.</div>
-          <div class="f-bonus">DEF +15%</div>
-          <div class="f-agents">현재 8 에이전트</div>
+          <img class="f-character" src="../images/agentwar/faction-void-character.webp" alt="The Void champion">
+          <div class="f-meta">
+            <div class="f-name">THE VOID</div>
+            <div class="f-role">DEFENSE</div>
+            <div class="f-desc">요새는 버틴다. 그림자 속에서 역습한다. 어둠과 안개의 진영.</div>
+            <div class="f-stats">
+              <div class="f-bonus">DEF +15%</div>
+              <div class="f-agents">8 ACTIVE AGENTS</div>
+            </div>
+            <button type="button" class="f-select" onclick="event.stopPropagation(); selectFaction(this.closest('.faction-option'), 'void')">SELECT FACTION</button>
+          </div>
         </div>
       </div>
     </div>
