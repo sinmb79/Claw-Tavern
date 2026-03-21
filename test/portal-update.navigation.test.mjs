@@ -4,9 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 const htmlPath = path.resolve("portal-update/app/index.html");
-const html = fs.readFileSync(htmlPath, "utf8");
+const html = fs.readFileSync(htmlPath, "utf8").replace(/\r\n/g, "\n");
 const brandHomePath = path.resolve("portal-update/index.html");
-const brandHome = fs.readFileSync(brandHomePath, "utf8");
+const brandHome = fs.readFileSync(brandHomePath, "utf8").replace(/\r\n/g, "\n");
 
 function extractBetween(source, startMarker, endMarker) {
   const startIndex = source.indexOf(startMarker);
@@ -119,7 +119,7 @@ test("wallet connection supports injected multi-wallet discovery and chooser flo
   assert.match(html, /activeWalletProvider:\s*null/);
   assert.match(html, /function chooseWalletProvider\(/);
   assert.match(html, /window\.dispatchEvent\(new Event\("eip6963:requestProvider"\)\)/);
-  assert.match(html, /async function ensureConfiguredNetwork\(selectedWallet = null\)/);
+  assert.match(html, /async function ensureConfiguredNetwork\(selectedWallet = null, options = \{\}\)/);
 });
 
 test("wallet chooser listeners are bound in bootstrap instead of register-agent rendering", () => {
@@ -158,31 +158,46 @@ test("task 40 terminology uses specialty, tasks, profile, and wallet in the rema
 });
 
 test("marketplace wallet flow includes an Agent ID Card identity gate before wallet connection", () => {
-  assert.match(html, /id="marketplace-identity-modal"/);
-  assert.match(html, /id="marketplace-identity-open"/);
-  assert.match(html, /id="marketplace-identity-complete"/);
-  assert.match(html, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(html, /agentwar\.ail\.registered/);
-  assert.match(html, /async function ensureMarketplaceIdentityGate\(/);
-
-  const attachEvents = extractBetween(
+  const ensureConfiguredNetwork = extractBetween(
     html,
-    "function attachEvents() {",
-    "\n    async function bootstrap()"
+    "async function ensureConfiguredNetwork(selectedWallet = null",
+    "\n    async function syncBrowserWalletState"
   );
 
-  assert.match(
-    attachEvents,
-    /if \(appState\.account\) \{\s*await disconnectWalletSession\(\);\s*return;\s*\}\s*const identityReady = await ensureMarketplaceIdentityGate\(\);\s*if \(!identityReady\) \{\s*return;\s*\}\s*await ensureConfiguredNetwork\(\);/s
-  );
+  assert.ok(html.includes('id="marketplace-identity-modal"'));
+  assert.ok(html.includes('id="marketplace-identity-open"'));
+  assert.ok(html.includes('id="marketplace-identity-complete"'));
+  assert.ok(html.includes("https://www.agentidcard.org/register"));
+  assert.ok(html.includes('fetch("/api/identity/session"'));
+  assert.ok(html.includes("async function submitAilJwt("));
+  assert.ok(html.includes('e.origin === "https://www.agentidcard.org"'));
+  assert.match(html, /await ensureConfiguredNetwork\(null, \{ skipIdentityCheck: true \}\);/);
+  assert.match(html, /await ensureConfiguredNetwork\(wallet, \{ skipIdentityCheck: true \}\);/);
+  assert.match(ensureConfiguredNetwork, /if \(!skipIdentityCheck && !appState\.account\)/);
+  assert.match(html, /function resolveIdentityErrorMessage\(/);
+  assert.match(html, /case "verification-unavailable":/);
+  assert.match(html, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
+  assert.match(html, /If wallet access does not unlock automatically, return here and press "I already completed it"\./);
+  assert.match(html, /window\.open\(AIL_REGISTER_URL, "_blank"\);/);
+  assert.doesNotMatch(html, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
+  assert.match(html, /Agent ID Card verification expired\. Please issue a new card and try again\./);
+  assert.match(html, /Verification is temporarily unavailable\. Please try again later\./);
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.match(brandHome, /agentwar\.ail\.registered/);
-  assert.match(brandHome, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(brandHome, /async function ensureIdentityGate\(/);
-  assert.match(
-    brandHome,
-    /const identityReady = await ensureIdentityGate\(\);\s*if \(!identityReady\) \{\s*return;\s*\}\s*await discoverWallets\(\);/s
-  );
+  assert.ok(brandHome.includes('id="identity-modal"'));
+  assert.ok(brandHome.includes('id="identity-open"'));
+  assert.ok(brandHome.includes('id="identity-complete"'));
+  assert.ok(brandHome.includes("https://www.agentidcard.org/register"));
+  assert.ok(brandHome.includes('fetch("/api/identity/session"'));
+  assert.ok(brandHome.includes("async function submitAilJwt("));
+  assert.ok(brandHome.includes('e.origin === "https://www.agentidcard.org"'));
+  assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
+  assert.match(brandHome, /case "verification-unavailable":/);
+  assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
+  assert.match(brandHome, /If wallet access does not unlock automatically, return here and press "I already completed it"\./);
+  assert.match(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank"\);/);
+  assert.doesNotMatch(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
+  assert.match(brandHome, /Agent ID Card verification service is temporarily unavailable\. Please try again later\./);
+  assert.match(brandHome, /Verification is temporarily unavailable\. Please try again later\./);
 });

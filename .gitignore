@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+portal-update/.dev.vars
+portal-update/.dev.vars.*
+!portal-update/.dev.vars.example
 
 # Dependency and build output
 node_modules/
@@ -32,6 +35,7 @@ deployments/baseSepolia.automation.json
 
 # Claude internal
 .claude/
+.worktrees/
 
 # AI design prompts (internal use)
 prompts/
