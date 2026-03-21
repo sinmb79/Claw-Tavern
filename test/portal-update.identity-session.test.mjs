@@ -73,6 +73,53 @@ test("exports remain importable", () => {
   assert.equal(typeof verifyAilJwt, "function");
 });
 
+test("verifyAilJwt normalizes successful SDK verification results", async () => {
+  class FakeAilClient {
+    async verify(token) {
+      assert.equal(token, "opaque-jwt");
+      return {
+        valid: true,
+        ail_id: "AIL-2026-00001",
+        display_name: "ClaudeCoder",
+        issued: "2026-03-21T00:00:00.000Z",
+        expires: "2026-03-22T00:00:00.000Z"
+      };
+    }
+  }
+
+  const result = await verifyAilJwt("opaque-jwt", {
+    sdk: { AilClient: FakeAilClient }
+  });
+
+  assert.deepEqual(result, {
+    valid: true,
+    ail_id: "AIL-2026-00001",
+    display_name: "ClaudeCoder",
+    verified_at: "2026-03-21T00:00:00.000Z",
+    expires_at: "2026-03-22T00:00:00.000Z"
+  });
+});
+
+test("verifyAilJwt normalizes expired verifier failures", async () => {
+  class FakeAilClient {
+    async verify() {
+      return {
+        valid: false,
+        reason: "jwt expired"
+      };
+    }
+  }
+
+  const result = await verifyAilJwt("expired-jwt", {
+    sdk: { AilClient: FakeAilClient }
+  });
+
+  assert.deepEqual(result, {
+    valid: false,
+    error: "expired-jwt"
+  });
+});
+
 test("issueSessionCookie signs payload and caps expiry at 24 hours", async () => {
   const nowMs = Date.now();
   const setCookie = await issueSessionCookie(
@@ -252,27 +299,31 @@ test("clearSessionCookie clears the session cookie", () => {
   assert.match(setCookie, /Secure/);
 });
 
-test("default handler entrypoints still reject as not implemented", async () => {
-  await assert.rejects(() => onRequestGet(makeContext({ method: "GET" })), /not implemented/);
-  await assert.rejects(
-    () =>
-      onRequestPost(
-        makeContext({
-          method: "POST",
-          body: { jwt: "opaque-jwt" }
-        })
-      ),
-    /not implemented/
+test("default handler entrypoints expose the live route behavior", async () => {
+  const getResponse = await onRequestGet(makeContext({ method: "GET" }));
+  assert.equal(getResponse.status, 200);
+  assert.deepEqual(await getResponse.json(), { verified: false });
+
+  const postResponse = await onRequestPost(
+    makeContext({
+      method: "POST",
+      env: { CT_SESSION_SECRET: "test-secret" },
+      body: {}
+    })
   );
-  await assert.rejects(
-    () =>
-      onRequestDelete(
-        makeContext({
-          method: "DELETE"
-        })
-      ),
-    /not implemented/
+  assert.equal(postResponse.status, 400);
+  assert.deepEqual(await postResponse.json(), {
+    verified: false,
+    error: "missing-jwt"
+  });
+
+  const deleteResponse = await onRequestDelete(
+    makeContext({
+      method: "DELETE"
+    })
   );
+  assert.equal(deleteResponse.status, 204);
+  assert.match(deleteResponse.headers.get("set-cookie") ?? "", /ct_ail_session=/);
 });
 
 test("POST issues a signed cookie after verifier success", async () => {
@@ -281,6 +332,7 @@ test("POST issues a signed cookie after verifier success", async () => {
       valid: true,
       ail_id: "AIL-2026-00001",
       display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
       expires_at: "2026-03-22T00:00:00.000Z"
     })
   });
@@ -294,6 +346,15 @@ test("POST issues a signed cookie after verifier success", async () => {
   );
 
   assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    verified: true,
+    identity: {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z"
+    }
+  });
   assert.match(response.headers.get("set-cookie") ?? "", /ct_ail_session=/);
   assert.match(response.headers.get("set-cookie") ?? "", /HttpOnly/);
 });
@@ -312,6 +373,10 @@ test("POST rejects invalid JWTs", async () => {
   );
 
   assert.ok([400, 401].includes(response.status), `Expected 400 or 401, got ${response.status}`);
+  assert.deepEqual(await response.json(), {
+    verified: false,
+    error: "invalid-jwt"
+  });
   assert.equal(response.headers.get("set-cookie"), null);
 });
 
@@ -329,6 +394,10 @@ test("POST rejects expired JWTs", async () => {
   );
 
   assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), {
+    verified: false,
+    error: "expired-jwt"
+  });
   assert.equal(response.headers.get("set-cookie"), null);
 });
 
@@ -345,6 +414,33 @@ test("POST fails closed when the session secret is missing", async () => {
   );
 
   assert.ok(response.status >= 500, `Expected 5xx, got ${response.status}`);
+  assert.deepEqual(await response.json(), {
+    verified: false,
+    error: "server-misconfigured"
+  });
+  assert.equal(response.headers.get("set-cookie"), null);
+});
+
+test("POST rejects requests without a jwt payload", async () => {
+  const { onRequestPost: post } = makeHandlers({
+    verifyAilJwt: async () => {
+      throw new Error("should not be called");
+    }
+  });
+
+  const response = await post(
+    makeContext({
+      method: "POST",
+      env: { CT_SESSION_SECRET: "test-secret" },
+      body: {}
+    })
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    verified: false,
+    error: "missing-jwt"
+  });
   assert.equal(response.headers.get("set-cookie"), null);
 });
 
@@ -373,12 +469,20 @@ test("GET reports verified when a valid cookie is present", async () => {
     makeContext({
       method: "GET",
       env,
-      cookie: `ct_ail_session=${cookie}`
+      cookie: `ct_ail_session=${extractCookieValue(cookie)}`
     })
   );
 
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { verified: true });
+  assert.deepEqual(await response.json(), {
+    verified: true,
+    identity: {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z"
+    }
+  });
 });
 
 test("DELETE clears the session cookie", async () => {
