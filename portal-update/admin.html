@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claw Tavern | Node Operator Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "bg-deep": "#0b0910",
+            "bg": "#120f16",
+            "panel": "#1b1622",
+            "panel-strong": "#221c2a",
+            "ink": "#f5e8c8",
+            "muted": "#c1b39b",
+            "gold": "#d8a933",
+            "gold-soft": "#f6df8e",
+            "wine": "#6f294d",
+            "emerald": "#2f8d71",
+            "ember": "#da6b38",
+            "line": "rgba(245, 232, 200, 0.12)",
+            "mist": "rgba(245, 232, 200, 0.08)",
+            "base-blue": "#0052ff"
+          },
+          fontFamily: {
+            display: ["Cinzel", "serif"],
+            body: ["Spectral", "serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #f5e8c8;
+      font-family: "Spectral", serif;
+      background:
+        radial-gradient(circle at top right, rgba(111, 41, 77, 0.35), transparent 26%),
+        radial-gradient(circle at left center, rgba(216, 169, 51, 0.14), transparent 28%),
+        linear-gradient(180deg, #17111f 0%, #0b0910 100%);
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(39, 31, 50, 0.93), rgba(21, 17, 28, 0.96));
+      border: 1px solid rgba(245, 232, 200, 0.12);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-soft {
+      background: linear-gradient(180deg, rgba(36, 29, 45, 0.82), rgba(20, 16, 28, 0.86));
+      border: 1px solid rgba(245, 232, 200, 0.08);
+    }
+
+    .nav-chip {
+      border: 1px solid rgba(245, 232, 200, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: #c1b39b;
+      transition: all 180ms ease;
+    }
+
+    .nav-chip.active {
+      color: #1d1207;
+      background: linear-gradient(135deg, #f6df8e, #d8a933);
+      border-color: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 12px 24px rgba(216, 169, 51, 0.24);
+    }
+
+    .field {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(245, 232, 200, 0.12);
+      background: rgba(8, 7, 12, 0.42);
+      color: #f5e8c8;
+      padding: 0.85rem 1rem;
+      outline: none;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      border: 1px solid rgba(245, 232, 200, 0.12);
+    }
+
+    .status-badge.emerald {
+      border-color: rgba(47, 141, 113, 0.4);
+      background: rgba(47, 141, 113, 0.12);
+      color: #9be8d0;
+    }
+
+    .status-badge.ember {
+      border-color: rgba(218, 107, 56, 0.4);
+      background: rgba(218, 107, 56, 0.12);
+      color: #ffd3b8;
+    }
+
+    .status-badge.gold {
+      border-color: rgba(216, 169, 51, 0.4);
+      background: rgba(216, 169, 51, 0.12);
+      color: #f6df8e;
+    }
+
+    .status-badge.neutral {
+      border-color: rgba(245, 232, 200, 0.16);
+      background: rgba(255, 255, 255, 0.05);
+      color: #c1b39b;
+    }
+  </style>
+</head>
+<body>
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <header class="panel rounded-[28px] px-6 py-5">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-12 w-12 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold">
+            <span class="material-symbols-outlined text-3xl">castle</span>
+          </div>
+          <div>
+            <p class="font-display text-xs uppercase tracking-[0.4em] text-gold-soft">Administrative Sanctum</p>
+            <h1 class="font-display text-2xl font-bold uppercase tracking-[0.16em] text-gold">Claw Tavern Admin</h1>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <select id="network-select" class="field !w-auto !py-3 !pr-10 font-display text-sm uppercase tracking-[0.16em]">
+            <option value="base">Base Mainnet</option>
+            <option value="baseSepolia">Base Sepolia</option>
+          </select>
+          <button id="connect-wallet" class="rounded-full border border-gold/30 bg-gold px-5 py-3 font-display text-sm font-bold uppercase tracking-[0.18em] text-bg-deep transition hover:brightness-110">Connect Wallet</button>
+          <span id="wallet-pill" class="rounded-full border border-white/10 bg-white/5 px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] text-muted">Read-only</span>
+        </div>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button class="nav-chip active rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="guild">Guild</button>
+        <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="automation">Automation</button>
+        <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="treasury">Treasury</button>
+        <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="management">Management</button>
+
+        <button class="nav-chip rounded-full px-4 py-3 font-display text-xs font-bold uppercase tracking-[0.2em]" data-admin-tab="contracts">Contracts</button>
+      </div>
+    </header>
+
+    <div id="access-banner" class="mt-6 hidden rounded-[24px] border border-ember/40 bg-ember/10 px-5 py-4 text-sm text-[#ffd3b8]"></div>
+
+    <main class="mt-6 space-y-6">
+      <section id="admin-tab-guild" class="admin-panel space-y-6">
+        <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div class="panel rounded-[28px] p-6">
+            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Guild Overview</p>
+            <h2 class="mt-3 font-display text-3xl font-bold text-gold">Operational Snapshot</h2>
+            <div id="guild-metrics" class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+          </div>
+          <div class="panel rounded-[28px] p-6">
+            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Node Status</p>
+            <div id="guild-banner" class="mt-6 space-y-4"></div>
+          </div>
+        </div>
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="font-display text-2xl font-bold text-ink">Role Grants Ledger</p>
+              <p class="mt-1 text-sm text-muted">Latest role grants from the deployment manifest for the selected network.</p>
+            </div>
+            <span id="role-ledger-count" class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.2em] text-muted">0 entries</span>
+          </div>
+          <div id="role-ledger" class="mt-6 space-y-3"></div>
+        </div>
+      </section>
+
+      <section id="admin-tab-automation" class="admin-panel hidden space-y-6">
+        <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+          <div class="panel rounded-[28px] p-6">
+            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Chainlink Upkeep</p>
+            <h2 class="mt-3 font-display text-3xl font-bold text-gold">Automation Control</h2>
+            <div id="automation-summary" class="mt-6 space-y-4"></div>
+          </div>
+          <div class="panel rounded-[28px] p-6">
+            <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Task Matrix</p>
+            <div id="automation-tasks" class="mt-6 grid gap-4 md:grid-cols-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="admin-tab-treasury" class="admin-panel hidden space-y-6">
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4" id="treasury-metrics"></div>
+        <div class="panel rounded-[28px] p-6">
+          <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Treasury Notes</p>
+          <div id="treasury-notes" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
+        </div>
+      </section>
+
+      <section id="admin-tab-management" class="admin-panel hidden space-y-6">
+        <div class="panel rounded-[28px] p-6">
+          <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Operator Roles</p>
+          <div id="management-cards" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+        </div>
+      </section>
+
+
+      <section id="admin-tab-contracts" class="admin-panel hidden space-y-6">
+        <div class="panel rounded-[28px] p-6">
+          <p class="font-display text-xs uppercase tracking-[0.35em] text-gold-soft">Live Contracts</p>
+          <div id="contract-grid" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const NETWORKS = {
+      base: {
+        label: "Base Mainnet",
+        chainId: 8453,
+        chainHex: "0x2105",
+        rpcUrl: "https://base-rpc.publicnode.com",
+        explorer: "https://basescan.org",
+        addresses: {
+          adminPriceFeed: "0x1dbCc7c12F82b6ae2b7fD7D482D501d7Db81618C",
+          tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
+          tavernRegistry: "0x60F9BCa5F361498e30f5634BE2413612D3991c1D",
+          tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0",
+          tavernStaking: "0xCD0B0e4d233358D054bE798Fa6FFF6a50EC68814",
+          tavernGovernance: "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10",
+          tavernAutomationRouter: "0xB8083F4b42855f72b7323bB16ed4B7067B05378f",
+          tavernClientRPG: "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF",
+          tavernSubscription: "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec",
+          tavernEquipment: "0x410575336467F8B0Fb338bce68Ab4638f7bf26Ee",
+          tavernGuild: "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C",
+          tavernServiceRegistry: "0xea9DafC39a98c55536c989f3416c17Bf29B8100F",
+          tavernMatchmaker: "0x371b54325f8Cc9587486447BAC9fD0A7757F65e0",
+          usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          operatorWallet: "0xf95232Ae6a716862799C90239028fb590C9bB307"
+        },
+        automation: {
+          upkeepId: "114596668028608709080117900356840846997966823030424923069414299743169274345584",
+          forwarder: "0x96e175C10bD9fADa3f9dB2a499312e6b10e6d455",
+          registry: "0xf4bAb6A129164aBa9B113cB96BA4266dF49f8743",
+          registrar: "0xE28Adc50c7551CFf69FCF32D45d037e5F6554264",
+          link: "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
+          intervalMinutes: 5
+        },
+        roleLedger: [
+          ["TavernToken", "MINTER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "BURNER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernToken", "GOVERNANCE_ROLE", "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10", "granted"],
+          ["TavernRegistry", "ARBITER_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernRegistry", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEscrow", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEscrow", "GOVERNANCE_ROLE", "0xe1d478F8148E57DEDd3f5b917bb489082C1aFF10", "granted"],
+          ["TavernEscrow", "SERVICE_REGISTRY_ROLE", "0xea9DafC39a98c55536c989f3416c17Bf29B8100F", "granted"],
+          ["TavernGuild", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernGuild", "SERVICE_REGISTRY_ROLE", "0xea9DafC39a98c55536c989f3416c17Bf29B8100F", "granted"],
+          ["TavernGuild", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernEquipment", "MINTER_ROLE", "0xA698F840C6E8Ebf2bD1DC375fe34F92F5DddfFEF", "granted"],
+          ["TavernEquipment", "GUILD_ROLE", "0x2a6aa1d72Cc5216Ef68d888f7163559b30FED58C", "granted"],
+          ["TavernServiceRegistry", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernClientRPG", "ESCROW_ROLE", "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0", "granted"],
+          ["TavernClientRPG", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0xEC44F23Ee765FA4e2648D36074E9C90F2FFc39ec", "granted"],
+          ["TavernSubscription", "KEEPER_ROLE", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"],
+          ["AdminPriceFeed", "REFRESHER", "0xB8083F4b42855f72b7323bB16ed4B7067B05378f", "granted"]
+        ]
+      },
+      baseSepolia: {
+        label: "Base Sepolia",
+        chainId: 84532,
+        chainHex: "0x14a34",
+        rpcUrl: "https://base-sepolia-rpc.publicnode.com",
+        explorer: "https://sepolia.basescan.org",
+        addresses: {
+          adminPriceFeed: "0xaFB1728A7c82a76f9289E213d0B916BC1EF67bC5",
+          tavernToken: "0xE581E1996F6740f6cB527c595228A83017793058",
+          tavernRegistry: "0x5100440a0190d9ffE928278cA50a730B03BE35dd",
+          tavernEscrow: "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956",
+          tavernStaking: "0x2F62CaD53ebBd3e0c64Cad38063FCeEfeCf332A5",
+          tavernGovernance: "0x0428538037f0B0712E2340360969Ed70Ff755864",
+          tavernAutomationRouter: "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7",
+          tavernClientRPG: "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A",
+          tavernSubscription: "0x4247cED594A15B6DD4e804370045033D2b1d24aa",
+          tavernEquipment: "0x122d164e0283F2eaCb4BD3B285Ba49f2552aCEf0",
+          tavernGuild: "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9",
+          tavernServiceRegistry: "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172",
+          tavernMatchmaker: "0x4c1F7b315d950d2F334971B3bcB1D0Ec20964EAD",
+          usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          operatorWallet: "0xf95232Ae6a716862799C90239028fb590C9bB307"
+        },
+        automation: {
+          upkeepId: "83312993709645624957959282308901778471762172289240668344585107003540809416090",
+          forwarder: "0x1cEE38e968804d4A85F7d48830dDfbbee5E081FD",
+          registry: "0x91D4a4C3D448c7f3CB477332B1c7D420a5810aC3",
+          registrar: "0xf28D56F3A707E25B71Ce529a21AF388751E1CF2A",
+          link: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+          intervalMinutes: 5
+        },
+        roleLedger: [
+          ["TavernToken", "MINTER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "BURNER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernToken", "GOVERNANCE_ROLE", "0x0428538037f0B0712E2340360969Ed70Ff755864", "granted"],
+          ["TavernRegistry", "ARBITER_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernRegistry", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEscrow", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEscrow", "GOVERNANCE_ROLE", "0x0428538037f0B0712E2340360969Ed70Ff755864", "granted"],
+          ["TavernEscrow", "SERVICE_REGISTRY_ROLE", "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172", "granted"],
+          ["TavernGuild", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernGuild", "SERVICE_REGISTRY_ROLE", "0x80D2b5697eAC8b3dbfe9A8bE5c34C733Db3D1172", "granted"],
+          ["TavernGuild", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernEquipment", "MINTER_ROLE", "0xBB7eeEE9C155e5566a8b1d035a0E9678eaE7FB5A", "granted"],
+          ["TavernEquipment", "GUILD_ROLE", "0xB9f90aEE931e0F1eB2B485Ffc5032ddc611E2aF9", "granted"],
+          ["TavernServiceRegistry", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernClientRPG", "ESCROW_ROLE", "0x36856fFe1eb6BD003562a3F368560b5E1D4A2956", "granted"],
+          ["TavernClientRPG", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["TavernClientRPG", "SUBSCRIPTION_ROLE", "0x4247cED594A15B6DD4e804370045033D2b1d24aa", "granted"],
+          ["TavernSubscription", "KEEPER_ROLE", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"],
+          ["AdminPriceFeed", "REFRESHER", "0x1C09350C0055290Be6E66cB8308F7D7De5E1EaD7", "granted"]
+        ]
+      }
+    };
+
+    const ESCROW_ABI = [
+      "function nextQuestId() view returns (uint256)",
+      "function currentFeeStage() view returns (uint256)",
+      "function hasRole(bytes32,address) view returns (bool)"
+    ];
+    const TOKEN_ABI = [
+      "function remainingEcosystemPool() view returns (uint256)"
+    ];
+    const REGISTRY_ABI = [
+      "function jobQuota(uint256) view returns (uint256)"
+    ];
+
+    const refs = {};
+    const state = {
+      networkKey: "base",
+      provider: null,
+      browserProvider: null,
+      signer: null,
+      account: null,
+      chainId: null,
+      blockNumber: null,
+      questCount: 0,
+      feeStage: 0,
+      ecosystemPool: 0n,
+
+      quotas: [],
+      isAdmin: false,
+      currentTab: "guild"
+    };
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function bindRefs() {
+      refs.networkSelect = $("network-select");
+      refs.connectWallet = $("connect-wallet");
+      refs.walletPill = $("wallet-pill");
+      refs.accessBanner = $("access-banner");
+      refs.guildMetrics = $("guild-metrics");
+      refs.guildBanner = $("guild-banner");
+      refs.roleLedgerCount = $("role-ledger-count");
+      refs.roleLedger = $("role-ledger");
+      refs.automationSummary = $("automation-summary");
+      refs.automationTasks = $("automation-tasks");
+      refs.treasuryMetrics = $("treasury-metrics");
+      refs.treasuryNotes = $("treasury-notes");
+      refs.managementCards = $("management-cards");
+
+      refs.contractGrid = $("contract-grid");
+    }
+
+    function getConfig() {
+      return NETWORKS[state.networkKey];
+    }
+
+    function shortAddress(value) {
+      return `${value.slice(0, 6)}...${value.slice(-4)}`;
+    }
+
+    function formatToken(value, decimals = 18, digits = 2) {
+      const text = ethers.formatUnits(value ?? 0n, decimals);
+      const [whole, fraction = ""] = text.split(".");
+      return fraction ? `${whole}.${fraction.slice(0, digits).replace(/0+$/, "")}`.replace(/\.$/, "") : whole;
+    }
+
+    function setActiveAdminTab(tab) {
+      state.currentTab = tab;
+      document.querySelectorAll("[data-admin-tab]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.adminTab === tab);
+      });
+      document.querySelectorAll(".admin-panel").forEach((panel) => {
+        panel.classList.toggle("hidden", panel.id !== `admin-tab-${tab}`);
+      });
+    }
+
+    function renderWalletPill() {
+      const config = getConfig();
+      refs.walletPill.textContent = state.account
+        ? `${shortAddress(state.account)} | ${state.chainId === config.chainId ? config.label : `Chain ${state.chainId}`}`
+        : "Read-only";
+    }
+
+    function statusBadge(tone, label) {
+      const normalized = ["emerald", "ember", "gold"].includes(tone) ? tone : "neutral";
+      return `<span class="status-badge ${normalized}">${label}</span>`;
+    }
+
+    function renderGuild() {
+      const config = getConfig();
+      refs.guildMetrics.innerHTML = [
+        ["Latest block", String(state.blockNumber ?? "n/a"), "Live provider height"],
+        ["Quest count", String(Math.max(0, state.questCount - 1)), "Derived from nextQuestId()"],
+        ["Fee stage", `${state.feeStage}%`, "Escrow current fee stage"]
+      ].map(([label, value, note]) => `
+        <div class="panel-soft rounded-2xl p-4">
+          <p class="text-xs uppercase tracking-[0.22em] text-muted">${label}</p>
+          <p class="mt-2 font-display text-2xl font-bold text-ink">${value}</p>
+          <p class="mt-2 text-sm text-muted">${note}</p>
+        </div>
+      `).join("");
+
+      refs.guildBanner.innerHTML = `
+        <div class="panel-soft rounded-2xl p-5">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="font-display text-xl font-bold text-ink">${config.label} node state</p>
+              <p class="mt-2 text-sm text-muted">Automation router and escrow contracts are live on this profile.</p>
+            </div>
+            ${statusBadge(state.isAdmin ? "emerald" : "ember", state.isAdmin ? "Admin" : "Observer")}
+          </div>
+          <div class="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+              <p class="text-muted">Operator wallet</p>
+              <p class="mt-2 font-mono text-xs text-ink">${config.addresses.operatorWallet}</p>
+            </div>
+            <div class="rounded-2xl border border-white/8 bg-black/10 p-4">
+              <p class="text-muted">Forwarder</p>
+              <p class="mt-2 font-mono text-xs text-ink">${config.automation.forwarder}</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      refs.roleLedgerCount.textContent = `${config.roleLedger.length} entries`;
+      refs.roleLedger.innerHTML = config.roleLedger.map(([contract, role, grantee, status]) => `
+        <div class="panel-soft rounded-2xl p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-display text-lg font-bold text-ink">${contract}</p>
+              <p class="mt-1 text-xs uppercase tracking-[0.2em] text-muted">${role}</p>
+            </div>
+            ${statusBadge(status === "granted" ? "emerald" : "gold", status)}
+          </div>
+          <p class="mt-3 font-mono text-xs text-ink">${grantee}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderAutomation() {
+      const config = getConfig();
+      refs.automationSummary.innerHTML = `
+        <div class="panel-soft rounded-2xl p-5">
+          <p class="text-xs uppercase tracking-[0.22em] text-muted">Upkeep ID</p>
+          <p class="mt-2 font-mono text-xs text-ink">${config.automation.upkeepId}</p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="panel-soft rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-muted">Forwarder</p>
+            <p class="mt-2 font-mono text-xs text-ink">${config.automation.forwarder}</p>
+          </div>
+          <div class="panel-soft rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-muted">Check interval</p>
+            <p class="mt-2 font-display text-2xl font-bold text-ink">${config.automation.intervalMinutes} min</p>
+          </div>
+          <div class="panel-soft rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-muted">Registrar</p>
+            <p class="mt-2 font-mono text-xs text-ink">${config.automation.registrar}</p>
+          </div>
+          <div class="panel-soft rounded-2xl p-4">
+            <p class="text-xs uppercase tracking-[0.22em] text-muted">LINK token</p>
+            <p class="mt-2 font-mono text-xs text-ink">${config.automation.link}</p>
+          </div>
+        </div>
+      `;
+
+      const taskCards = [
+        ["ExecuteTimeout", "Quest timeout settlement and stale job cleanup.", "ACTIVE"],
+        ["AutoApprove", "Automated result approval through router upkeep.", "ACTIVE"],
+        ["FeeStage", "Escrow fee stage checks routed via upkeep.", "ACTIVE"],
+        ["QuotaRebalance", "Registry quota maintenance and hysteresis checks.", "ACTIVE"],
+
+        ["SubscriptionExpiry", "Subscription expiry and client status review.", "MANUAL"]
+      ];
+      refs.automationTasks.innerHTML = taskCards.map(([title, body, status]) => `
+        <article class="panel-soft rounded-2xl p-5">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="font-display text-lg font-bold text-ink">${title}</p>
+              <p class="mt-1 text-sm text-muted">${body}</p>
+            </div>
+            ${statusBadge(status === "ACTIVE" ? "emerald" : "gold", status)}
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderTreasury() {
+      const config = getConfig();
+      refs.treasuryMetrics.innerHTML = [
+        ["Ecosystem pool", `${formatToken(state.ecosystemPool)} TVRN`, "TavernToken.remainingEcosystemPool()"],
+        ["Fee stage", `${state.feeStage}%`, "Escrow current fee stage"],
+        ["USDC rail", shortAddress(config.addresses.usdc), "Settlement currency"],
+        ["Operator wallet", shortAddress(config.addresses.operatorWallet), "Subscription fee sink"]
+      ].map(([label, value, note]) => `
+        <div class="panel rounded-[24px] p-5">
+          <p class="text-xs uppercase tracking-[0.22em] text-muted">${label}</p>
+          <p class="mt-3 font-display text-2xl font-bold text-ink">${value}</p>
+          <p class="mt-2 text-sm text-muted">${note}</p>
+        </div>
+      `).join("");
+
+      refs.treasuryNotes.innerHTML = `
+        <div class="panel-soft rounded-2xl p-5">
+          <p class="font-display text-xl font-bold text-ink">Immediate subscription settlement</p>
+          <p class="mt-3 leading-7 text-muted">Subscription fees do not sit in escrow. The contract sends 95% to the agent and 5% to the operator wallet in the same transaction.</p>
+        </div>
+        <div class="panel-soft rounded-2xl p-5">
+          <p class="font-display text-xl font-bold text-ink">Operator guidance</p>
+          <p class="mt-3 leading-7 text-muted">Treasury and fee withdrawals remain operational tasks. Use terminal scripts for privileged writes after confirming admin access.</p>
+        </div>
+      `;
+    }
+
+    function renderManagement() {
+      const config = getConfig();
+      refs.managementCards.innerHTML = [
+        ["Escrow admin check", state.isAdmin ? "Admin confirmed" : "Admin role required", state.isAdmin ? "emerald" : "ember"],
+        ["Router forwarder", shortAddress(config.automation.forwarder), "gold"],
+        ["Operator wallet", shortAddress(config.addresses.operatorWallet), "gold"],
+        ["Keeper cadence", `${config.automation.intervalMinutes} minute checks`, "emerald"],
+        ["Recent grants", `${config.roleLedger.length} manifest grants`, "gold"],
+        ["Sepolia mirror", NETWORKS.baseSepolia.label, "neutral"]
+      ].map(([label, value, tone]) => `
+        <div class="panel-soft rounded-2xl p-5">
+          <p class="text-xs uppercase tracking-[0.22em] text-muted">${label}</p>
+          <p class="mt-3 font-display text-2xl font-bold text-ink">${value}</p>
+          <div class="mt-4">${statusBadge(tone, tone)}</div>
+        </div>
+      `).join("");
+    }
+
+
+    function renderContracts() {
+      const config = getConfig();
+      refs.contractGrid.innerHTML = Object.entries(config.addresses)
+        .filter(([key]) => key !== "operatorWallet")
+        .map(([key, address]) => `
+          <a class="panel-soft rounded-2xl p-4 transition hover:border-gold/30" href="${config.explorer}/address/${address}" target="_blank" rel="noreferrer">
+            <p class="text-xs uppercase tracking-[0.22em] text-muted">${key}</p>
+            <p class="mt-3 font-mono text-xs text-ink">${address}</p>
+          </a>
+        `).join("");
+    }
+
+    async function ensureConfiguredNetwork() {
+      const config = getConfig();
+      if (!window.ethereum) {
+        throw new Error("No injected wallet found.");
+      }
+
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      if (!accounts.length) {
+        throw new Error("Wallet connection rejected.");
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      let network = await provider.getNetwork();
+      if (Number(network.chainId) !== config.chainId) {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: config.chainHex }]
+        });
+      }
+
+      state.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      state.signer = await state.browserProvider.getSigner();
+      state.account = await state.signer.getAddress();
+      state.chainId = Number((await state.browserProvider.getNetwork()).chainId);
+      renderWalletPill();
+    }
+
+    async function refreshAdmin() {
+      const config = getConfig();
+      state.provider = new ethers.JsonRpcProvider(config.rpcUrl, undefined, { batchMaxCount: 1 });
+      const escrow = new ethers.Contract(config.addresses.tavernEscrow, ESCROW_ABI, state.provider);
+      const registry = new ethers.Contract(config.addresses.tavernRegistry, REGISTRY_ABI, state.provider);
+      const token = new ethers.Contract(config.addresses.tavernToken, TOKEN_ABI, state.provider);
+
+      const quotaReads = [];
+      for (let index = 0; index < 6; index += 1) {
+        quotaReads.push(await registry.jobQuota(index).catch(() => 0n));
+      }
+
+      const blockNumber = await state.provider.getBlockNumber().catch(() => null);
+      const nextQuestId = await escrow.nextQuestId().catch(() => 0n);
+      const feeStage = await escrow.currentFeeStage().catch(() => 0n);
+      const ecosystemPool = await token.remainingEcosystemPool().catch(() => 0n);
+
+      state.blockNumber = blockNumber;
+      state.questCount = Number(nextQuestId);
+      state.feeStage = Number(feeStage);
+      state.ecosystemPool = ecosystemPool;
+      state.quotas = quotaReads.map((value) => Number(value));
+      state.isAdmin = false;
+
+      if (state.account) {
+        state.isAdmin = await escrow.hasRole(DEFAULT_ADMIN_ROLE, state.account).catch(() => false);
+      }
+
+      refs.accessBanner.textContent = state.account && !state.isAdmin
+        ? "Connected wallet does not hold DEFAULT_ADMIN_ROLE on TavernEscrow for this network. This page stays in observer mode."
+        : "";
+      refs.accessBanner.classList.toggle("hidden", !(state.account && !state.isAdmin));
+
+      renderWalletPill();
+      renderGuild();
+      renderAutomation();
+      renderTreasury();
+      renderManagement();
+      renderContracts();
+    }
+
+    function attachEvents() {
+      document.querySelectorAll("[data-admin-tab]").forEach((button) => {
+        button.addEventListener("click", () => setActiveAdminTab(button.dataset.adminTab));
+      });
+
+      refs.networkSelect.addEventListener("change", async (event) => {
+        state.networkKey = event.target.value;
+        state.account = null;
+        state.chainId = null;
+        renderWalletPill();
+        await refreshAdmin();
+      });
+
+      refs.connectWallet.addEventListener("click", async () => {
+        try {
+          await ensureConfiguredNetwork();
+          await refreshAdmin();
+        } catch (error) {
+          refs.accessBanner.textContent = error.message || "Wallet connection failed.";
+          refs.accessBanner.classList.remove("hidden");
+        }
+      });
+    }
+
+    async function bootstrap() {
+      bindRefs();
+      attachEvents();
+      renderWalletPill();
+      await refreshAdmin();
+    }
+
+    window.addEventListener("load", bootstrap);
+  </script>
+</body>
+</html>

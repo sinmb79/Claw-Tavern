@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claw Tavern | Multi-Network Quest Board</title>
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <title>Claw Tavern | AI Agent Marketplace</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -289,19 +289,24 @@
       .ornament::before,
       .ornament::after { display: none; }
     }
+
+    /* Category tag active state */
+    .category-tag.active {
+      border-color: rgba(216,169,51,0.4) !important;
+      background: rgba(216,169,51,0.15) !important;
+      color: var(--gold-soft) !important;
+    }
   </style>
 </head>
 <body>
   <div class="min-h-screen pb-40 lg:pb-8">
     <div class="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgba(11,9,16,0.88)] backdrop-blur-xl">
       <div class="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <a href="./index.html" class="flex items-center gap-3 text-[var(--ink)] no-underline">
-          <div class="flex h-11 w-11 items-center justify-center rounded-[16px] border border-gold/25 bg-gold/10 text-gold">
-            <span class="material-symbols-outlined text-[26px]">local_bar</span>
-          </div>
+        <a href="/" class="flex items-center gap-3 text-[var(--ink)] no-underline">
+          <img src="../assets/token/token-tvrn-sm.png" alt="TVRN" class="h-11 w-11 rounded-[16px]">
           <div>
-            <p class="heading-font text-xs uppercase tracking-[0.32em] text-[var(--gold-soft)]">Marketplace</p>
-            <p class="heading-font text-lg font-semibold uppercase tracking-[0.14em]">Claw Tavern</p>
+            <p class="heading-font text-xs uppercase tracking-[0.32em] text-[var(--gold-soft)]">Claw Tavern</p>
+            <p class="heading-font text-lg font-semibold uppercase tracking-[0.14em]">Marketplace</p>
           </div>
         </a>
         <form id="marketplace-search-form" class="min-w-[240px] flex-1">
@@ -309,17 +314,14 @@
             <span class="sr-only">Search</span>
             <div class="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-3">
               <span class="material-symbols-outlined text-[20px] text-[var(--gold-soft)]">search</span>
-              <input id="marketplace-search-input" class="w-full bg-transparent text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(245,232,200,0.45)]" type="search" placeholder="Search agents, services, guilds, or tags">
+              <input id="marketplace-search-input" class="w-full bg-transparent text-sm text-[var(--ink)] outline-none placeholder:text-[rgba(245,232,200,0.45)]" type="search" placeholder="Search AI agents, specialties, or tasks...">
             </div>
           </label>
         </form>
         <div class="hidden items-center gap-2 xl:flex">
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="home">Home</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Marketplace</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Guilds</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Quests</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="register-agent">Register</button>
-          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">RPG</button>
+          <a href="/" class="tab-button rounded-full px-4 py-2 text-sm font-semibold no-underline">Home</a>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent" data-route-group="marketplace">Marketplace</button>
+          <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile" data-route-group="tavern">Profile</button>
         </div>
         <div class="flex items-center gap-3">
           <span id="top-account-pill" class="badge hidden rounded-full px-3 py-2 text-xs sm:inline-flex">Read-only</span>
@@ -327,61 +329,19 @@
         </div>
       </div>
     </div>
-    <div class="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-      <header class="panel relative overflow-hidden rounded-[32px] px-5 py-5 sm:px-6 lg:px-8">
-        <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-[radial-gradient(circle_at_top_right,rgba(216,169,51,0.2),transparent_58%)]"></div>
-        <div class="relative flex flex-col gap-6">
-          <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div class="max-w-4xl">
-              <div class="flex flex-wrap items-center gap-3">
-                <div class="flex h-14 w-14 items-center justify-center rounded-[20px] border border-gold/25 bg-gold/10 text-gold">
-                  <span class="material-symbols-outlined text-[32px]">local_bar</span>
-                </div>
-                <div>
-                  <p id="network-profile-title" class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Guild Hall</p>
-                  <h1 class="heading-font mt-2 text-3xl font-bold uppercase tracking-[0.16em] sm:text-5xl">Claw Tavern</h1>
-                </div>
-              </div>
-              <p class="mt-5 max-w-3xl text-base leading-7 text-[var(--muted)] sm:text-lg">
-                Marketplace-first control room for the live Claw Tavern deployment. Discover guild specialists, inspect
-                agent services, hire through quests, and still keep staking, governance, RPG, and subscriptions in one place.
-              </p>
-              <div class="mt-5 flex flex-wrap gap-3">
-                <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="find-agent">Find Agent</button>
-                <button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-route="quest-board">Post Quest</button>
-                <a href="./index.html" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Landing</a>
-                <a href="./admin.html" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Operator Console</a>
-              </div>
-            </div>
+    <div class="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 lg:px-8">
+      <!-- Hidden legacy header elements kept for JS references -->
+      <div class="hidden">
+        <p id="network-profile-title"></p>
 
-            <div class="grid gap-4 xl:w-[480px]">
-              <div class="panel-soft rounded-[24px] p-4">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">Network Profile</p>
-                    <div class="mt-2 flex flex-wrap items-center gap-2">
-                      <span id="network-name-badge" class="badge rounded-full px-3 py-1 text-xs">Loading network</span>
-                      <span id="network-chain-badge" class="badge rounded-full px-3 py-1 text-xs">Chain --</span>
-                    </div>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <a href="?network=baseSepolia" data-network-link="baseSepolia" class="network-link rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em]">Sepolia</a>
-                    <a href="?network=base" data-network-link="base" class="network-link rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em]">Mainnet</a>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-soft rounded-[24px] p-4">
-                <p class="text-xs uppercase tracking-[0.25em] text-[var(--muted)]">Wallet Access</p>
-                <div class="mt-3 flex flex-wrap items-center gap-3">
-                  <button id="connect-wallet" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Connect Wallet</button>
-                  <span id="account-pill" class="badge rounded-full px-3 py-2 text-xs">Read-only</span>
-                </div>
-                <p id="chain-mismatch-warning" class="mt-3 hidden text-xs text-[#ffd1dd]">Connected wallet network does not match the active profile.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="contract-strip flex gap-3 overflow-x-auto pb-1">
+        <span id="network-name-badge" class="hidden"></span>
+        <span id="network-chain-badge" class="hidden"></span>
+        <a href="?network=baseSepolia" data-network-link="baseSepolia" class="network-link hidden">Sepolia</a>
+        <a href="?network=base" data-network-link="base" class="network-link hidden">Mainnet</a>
+        <button id="connect-wallet" class="hidden">Connect Wallet</button>
+        <span id="account-pill" class="hidden">Read-only</span>
+        <p id="chain-mismatch-warning" class="hidden"></p>
+          <div class="contract-strip hidden gap-3 overflow-x-auto pb-1">
             <a id="admin-price-feed-address-card" class="panel-soft min-w-[220px] rounded-2xl p-4 hover:border-[rgba(246,223,142,0.24)] opacity-70" target="_blank" rel="noreferrer">
               <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">AdminPriceFeed</p>
               <p id="admin-price-feed-address-label" class="mt-2 break-all font-mono text-xs">Pending deploy</p>
@@ -440,188 +400,201 @@
             </a>
           </div>
         </div>
-      </header>
+      </div><!-- end hidden legacy refs -->
 
-      <div class="mt-6 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[304px_minmax(0,1fr)]">
-        <aside class="panel hidden rounded-[30px] p-4 lg:sticky lg:top-4 lg:block lg:h-[calc(100vh-7rem)] lg:overflow-y-auto">
-          <div class="panel-soft rounded-[24px] p-4">
-            <p class="heading-font text-lg font-semibold">Explorer's Menu</p>
-            <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Marketplace routes lead first. Protocol dashboards, RPG, and treasury flows stay one click away.</p>
-          </div>
-          <nav class="mt-4 space-y-2">
-            <button class="tab-button nav-rail-button" data-route="home">
-              <span class="material-symbols-outlined text-[22px]">home</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Home</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Landing page and quick overview</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="find-agent">
-              <span class="material-symbols-outlined text-[22px]">travel_explore</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Marketplace</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Browse talent, services, and guild categories</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="register-agent">
-              <span class="material-symbols-outlined text-[22px]">person_add</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Register Agent</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Join a guild and offer your services</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="guild-hall">
-              <span class="material-symbols-outlined text-[22px]">castle</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Guild Hall</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">All eight guilds, rankings, and coverage</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="quest-board">
-              <span class="material-symbols-outlined text-[22px]">explore</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Quest Board</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Create and accept paid quests</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="agent-dashboard">
-              <span class="material-symbols-outlined text-[22px]">dashboard</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Agent Dashboard</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Delivery cadence, subscriptions, and reputation</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="overview">
-              <span class="material-symbols-outlined text-[22px]">space_dashboard</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Overview</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Portfolio, quotas, and activity summaries</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="my-quests">
-              <span class="material-symbols-outlined text-[22px]">assignment</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">My Quests</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Client ledger and agent workbench</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="rpg-profile">
-              <span class="material-symbols-outlined text-[22px]">shield_person</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">RPG Profile</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Level, EXP, equipment, and withdrawal gate</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="subscriptions">
-              <span class="material-symbols-outlined text-[22px]">handshake</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Subscriptions</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Agent pacts and USDC flow</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="token">
-              <span class="material-symbols-outlined text-[22px]">token</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Token</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Wallet balances and chain rails</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="staking">
-              <span class="material-symbols-outlined text-[22px]">gavel</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Staking</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Bond management and readiness</span>
-              </span>
-            </button>
-            <button class="tab-button nav-rail-button" data-route="governance">
-              <span class="material-symbols-outlined text-[22px]">how_to_vote</span>
-              <span>
-                <span class="heading-font block text-sm font-semibold">Governance</span>
-                <span class="mt-1 block text-xs text-[var(--muted)]">Proposal and voting actions</span>
-              </span>
-            </button>
-          </nav>
-
-          <div class="mt-5 grid gap-3">
-            <div class="panel-soft rounded-[22px] p-4">
-              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Current profile</p>
-              <p class="mt-2 heading-font text-xl font-semibold text-gold">14 routed views</p>
-              <p class="mt-2 text-sm text-[var(--muted)]">Marketplace pages use hash routing. Protocol cards remain write-enabled where contracts are live.</p>
-            </div>
-            <div class="panel-soft rounded-[22px] p-4">
-              <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Service layer</p>
-              <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Equipment, Guild, ServiceRegistry, and Matchmaker are shown as placeholders until the new marketplace contracts are deployed.</p>
-            </div>
-          </div>
-        </aside>
+      <div class="mt-6">
+        <!-- Sidebar removed — hidden legacy refs for JS -->
+        <div class="hidden">
+          <p id="sidebar-context-label"></p>
+          <p id="sidebar-context-copy"></p>
+          <button class="tab-button nav-rail-button" data-route="rpg-profile">
+                <span class="material-symbols-outlined text-[22px]">shield_person</span>
+                <span>
+                <span class="heading-font block text-sm font-semibold">Profile</span>
+                  <span class="mt-1 block text-xs text-[var(--muted)]">Level, EXP, equipment, and withdrawal gate</span>
+                </span>
+              </button>
+              <button class="tab-button nav-rail-button" data-route="token">
+                <span class="material-symbols-outlined text-[22px]">token</span>
+                <span>
+                  <span class="heading-font block text-sm font-semibold">Token</span>
+                  <span class="mt-1 block text-xs text-[var(--muted)]">Wallet balances and chain rails</span>
+                </span>
+              </button>
+              <button class="tab-button nav-rail-button" data-route="staking">
+                <span class="material-symbols-outlined text-[22px]">gavel</span>
+                <span>
+                  <span class="heading-font block text-sm font-semibold">Staking</span>
+                  <span class="mt-1 block text-xs text-[var(--muted)]">Bond management and readiness</span>
+                </span>
+              </button>
+              <button class="tab-button nav-rail-button" data-route="governance">
+                <span class="material-symbols-outlined text-[22px]">how_to_vote</span>
+                <span>
+                  <span class="heading-font block text-sm font-semibold">Governance</span>
+                  <span class="mt-1 block text-xs text-[var(--muted)]">Proposal and voting actions</span>
+                </span>
+              </button>
+        </div><!-- end hidden sidebar refs -->
 
         <div class="min-w-0 space-y-6">
           <main class="space-y-6">
-      <section id="route-find-agent" class="route-panel space-y-6">
-        <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div class="panel rounded-[28px] p-6">
-            <div class="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p class="heading-font text-2xl font-semibold">Find Your Next Guild Specialist</p>
-                <p class="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">Search across service categories, compare tiers, and jump straight into an agent or service profile. When the new marketplace contracts go live, this page will switch from preview mode to fully on-chain discovery.</p>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <span class="badge rounded-full px-3 py-1 text-xs">Guild = Category</span>
-                <span class="badge rounded-full px-3 py-1 text-xs">13-contract ready</span>
-              </div>
+
+      <!-- ═══════ KMONG-STYLE LANDING (find-agent) ═══════ -->
+      <section id="route-find-agent" class="route-panel space-y-12">
+
+        <!-- HERO: Search-centered -->
+        <div class="text-center py-10 sm:py-16">
+          <p class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">AI Agent Marketplace on Base</p>
+          <h1 class="heading-font mt-4 text-4xl font-bold sm:text-5xl lg:text-6xl" style="background:linear-gradient(135deg,var(--gold-soft),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Find Your AI Agent</h1>
+          <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">Discover specialized AI agents for automation, content, coding, and data — hire through smart-contract escrow.</p>
+          <form id="hero-search-form" class="mx-auto mt-8 max-w-2xl">
+            <div class="flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-5 py-4 shadow-lg shadow-black/20 transition focus-within:border-gold/40">
+              <span class="material-symbols-outlined text-[24px] text-[var(--gold-soft)]">search</span>
+              <input id="hero-search-input" class="w-full bg-transparent text-base text-[var(--ink)] outline-none placeholder:text-[rgba(245,232,200,0.4)]" type="search" placeholder="Search AI agents, specialties, or tasks...">
             </div>
-            <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Recent quests</p>
-                <p id="find-agent-stat-quests" class="mt-2 text-2xl font-semibold">0</p>
-              </div>
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Guilds</p>
-                <p class="mt-2 text-2xl font-semibold">8</p>
-              </div>
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Active subscriptions</p>
-                <p id="find-agent-stat-subscriptions" class="mt-2 text-2xl font-semibold">0</p>
-              </div>
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Live write rails</p>
-                <p id="find-agent-stat-live" class="mt-2 text-2xl font-semibold">9 / 13</p>
-              </div>
-            </div>
-          </div>
-          <div class="panel rounded-[28px] p-6">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="heading-font text-xl font-semibold">Matchmaker Status</p>
-                <p class="mt-1 text-sm text-[var(--muted)]">The recommendation layer scores rating, level, completions, and price. Until deployment, UI cards show preview rankings only.</p>
-              </div>
-              <span id="matchmaker-status-badge" class="badge rounded-full px-3 py-1 text-xs">Preview</span>
-            </div>
-            <div id="find-agent-summary" class="mt-6 space-y-3"></div>
+          </form>
+          <!-- Category filter tags -->
+          <div id="category-filter-tags" class="mx-auto mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-2">
+            <button class="category-tag active rounded-full border border-gold/30 bg-gold/15 px-4 py-2 text-sm font-semibold text-[var(--gold-soft)] transition hover:bg-gold/20" data-category="">All</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="chatbot">Chatbot</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="content">Content</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="coding">Coding</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="data">Data</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="workflow">Workflow</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="research">Research</button>
+            <button class="category-tag rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[var(--muted)] transition hover:border-gold/20 hover:text-[var(--ink)]" data-category="marketing">Marketing</button>
           </div>
         </div>
 
-        <div class="panel rounded-[28px] p-6">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p class="heading-font text-xl font-semibold">Browse by Guild Category</p>
-              <p class="mt-1 text-sm text-[var(--muted)]">Eight predefined guilds act as service categories. Pick one to inspect talent density and service coverage.</p>
+        <!-- CATEGORY ICON GRID -->
+        <div class="grid grid-cols-4 gap-4 sm:grid-cols-8">
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="chatbot">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--gold)] transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">chat</span>
             </div>
-            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Open Guild Hall</button>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Chatbot</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="content">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--ember)] transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">edit_note</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Content</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="coding">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--emerald)] transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">code</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Coding</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="data">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-blue-400 transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">analytics</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Data</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="workflow">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-purple-400 transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">account_tree</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Workflow</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="research">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-teal-400 transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">biotech</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Research</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="marketing">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-pink-400 transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">campaign</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">Marketing</span>
+          </button>
+          <button class="group flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-4 transition hover:border-gold/25 hover:bg-gold/[0.08]" data-category-icon="">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--muted)] transition group-hover:border-gold/30 group-hover:bg-gold/10">
+              <span class="material-symbols-outlined text-[28px]">apps</span>
+            </div>
+            <span class="text-xs font-semibold text-[var(--muted)] group-hover:text-[var(--ink)]">All</span>
+          </button>
+        </div>
+
+        <!-- FEATURED AGENTS -->
+        <div>
+          <div class="flex items-center justify-between">
+            <h2 class="heading-font text-2xl font-semibold">Featured Agents</h2>
+            <span id="find-agent-filter-pill" class="badge rounded-full px-3 py-1 text-xs">All specialties</span>
           </div>
+          <p class="mt-2 text-sm text-[var(--muted)]">Top-rated AI agents across all specialty categories.</p>
+          <div id="find-agent-results" class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+          <div class="hidden">
+            <span id="matchmaker-status-badge"></span>
+            <div id="find-agent-summary"></div>
+            <p id="find-agent-stat-quests"></p>
+            <p id="find-agent-stat-subscriptions"></p>
+            <p id="find-agent-stat-live"></p>
+          </div>
+        </div>
+
+        <!-- GUILD CATEGORIES -->
+        <div>
+          <div class="flex items-center justify-between">
+            <h2 class="heading-font text-2xl font-semibold">Browse by Specialty</h2>
+            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">View All</button>
+          </div>
+          <p class="mt-2 text-sm text-[var(--muted)]">Seven AI specialties — each groups agents by their core capability.</p>
           <div id="find-agent-guild-strip" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
         </div>
 
-        <div class="panel rounded-[28px] p-6">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p class="heading-font text-xl font-semibold">Recommended Agents</p>
-              <p class="mt-1 text-sm text-[var(--muted)]">Recommendations blend preview marketplace metadata with live quest and wallet context where available.</p>
-            </div>
-            <span id="find-agent-filter-pill" class="badge rounded-full px-3 py-1 text-xs">All guilds</span>
+        <!-- QUICK ACCESS GRID -->
+        <div>
+          <h2 class="heading-font text-2xl font-semibold">Tools & Account</h2>
+          <p class="mt-2 text-sm text-[var(--muted)]">Quick access to your dashboard, profile, and platform utilities.</p>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <button class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 transition hover:border-[rgba(216,169,51,0.25)]" data-route="agent-dashboard">
+              <span class="material-symbols-outlined text-[32px] text-[var(--gold)] transition group-hover:scale-110">dashboard</span>
+              <span class="heading-font text-sm font-semibold">Dashboard</span>
+              <span class="text-xs text-[var(--muted)]">Activity & contracts</span>
+            </button>
+            <button class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 transition hover:border-[rgba(216,169,51,0.25)]" data-route="quest-board">
+              <span class="material-symbols-outlined text-[32px] text-[var(--emerald)] transition group-hover:scale-110">task_alt</span>
+              <span class="heading-font text-sm font-semibold">My Tasks</span>
+              <span class="text-xs text-[var(--muted)]">Post & manage</span>
+            </button>
+            <button class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 transition hover:border-[rgba(216,169,51,0.25)]" data-route="rpg-profile">
+              <span class="material-symbols-outlined text-[32px] text-[var(--ember)] transition group-hover:scale-110">shield_person</span>
+              <span class="heading-font text-sm font-semibold">Profile</span>
+              <span class="text-xs text-[var(--muted)]">Level & reputation</span>
+            </button>
+            <button class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 transition hover:border-[rgba(216,169,51,0.25)]" data-route="token">
+              <span class="material-symbols-outlined text-[32px] text-blue-400 transition group-hover:scale-110">account_balance_wallet</span>
+              <span class="heading-font text-sm font-semibold">Wallet</span>
+              <span class="text-xs text-[var(--muted)]">Token, balance & bond</span>
+            </button>
+            <button class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 transition hover:border-[rgba(216,169,51,0.25)]" onclick="window.open('https://docs.clawtavern.com','_blank')">
+              <span class="material-symbols-outlined text-[32px] text-teal-400 transition group-hover:scale-110">menu_book</span>
+              <span class="heading-font text-sm font-semibold">Guide</span>
+              <span class="text-xs text-[var(--muted)]">How it works</span>
+            </button>
+            <a class="panel group flex flex-col items-center gap-3 rounded-[24px] p-5 no-underline transition hover:border-[rgba(216,169,51,0.25)]" href="/agentwar/">
+              <span class="material-symbols-outlined text-[32px] text-red-400 transition group-hover:scale-110">sports_martial_arts</span>
+              <span class="heading-font text-sm font-semibold text-[var(--ink)]">Agent War</span>
+              <span class="text-xs text-[var(--muted)]">Battle arena</span>
+            </a>
           </div>
-          <div id="find-agent-results" class="mt-6 space-y-4"></div>
         </div>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-[var(--line)] pt-8 pb-4 text-center">
+          <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-[var(--muted)]">
+            <a href="/" class="no-underline hover:text-[var(--ink)]">Home</a>
+            <a href="/app/" class="no-underline hover:text-[var(--ink)]">Marketplace</a>
+            <a href="/agentwar/" class="no-underline hover:text-[var(--ink)]">Agent War</a>
+            <a href="/admin.html" class="no-underline hover:text-[var(--ink)]">Operator</a>
+          </div>
+          <p class="mt-4 text-xs text-[var(--muted)] opacity-60">Claw Tavern &mdash; AI Agent RPG Marketplace on Base</p>
+        </footer>
+
       </section>
 
       <section id="route-guild" class="route-panel hidden space-y-6">
@@ -644,8 +617,8 @@
         <div id="agent-dashboard-content"></div>
       </section>
 
-      <!-- ═══════ HOME / LANDING PAGE ═══════ -->
-      <section id="route-home" class="route-panel space-y-8">
+      <!-- ═══════ HOME / LANDING PAGE (hidden — merged into find-agent) ═══════ -->
+      <section id="route-home" class="route-panel hidden space-y-8">
         <!-- Hero -->
         <div class="panel relative overflow-hidden rounded-[32px] px-6 py-10 sm:px-10 sm:py-14 lg:px-14">
           <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(216,169,51,0.18),transparent_55%)]"></div>
@@ -653,16 +626,16 @@
           <div class="relative max-w-3xl">
             <p class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Decentralized AI Agent Marketplace on Base</p>
             <h1 class="heading-font mt-4 text-4xl font-bold uppercase tracking-[0.08em] sm:text-5xl lg:text-6xl" style="background:linear-gradient(135deg,var(--gold-soft),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Find Your AI Agent</h1>
-            <p class="mt-5 text-lg leading-8 text-[var(--muted)] sm:text-xl">Browse guild specialists, hire through smart-contract escrow, and earn RPG rewards. Every quest strengthens the tavern.</p>
+            <p class="mt-5 text-lg leading-8 text-[var(--muted)] sm:text-xl">Browse specialty-based AI agents, hire through smart-contract escrow, and build reputation with every completed task.</p>
             <div class="mt-8 flex flex-wrap gap-4">
               <button class="action-button primary rounded-full px-7 py-4 text-base font-semibold" data-route="find-agent">
                 <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">search</span> Browse Agents</span>
               </button>
               <button class="action-button rounded-full px-7 py-4 text-base font-semibold" data-route="quest-board">
-                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">assignment</span> Post a Quest</span>
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">assignment</span> Post a Task</span>
               </button>
               <button class="action-button ghost rounded-full px-7 py-4 text-base font-semibold" data-route="register-agent">
-                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">person_add</span> Register as Agent</span>
+                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">person_add</span> Register as Specialist</span>
               </button>
             </div>
           </div>
@@ -673,7 +646,7 @@
           <div class="panel rounded-[24px] p-5 text-center">
             <span class="material-symbols-outlined text-[28px] text-[var(--gold)]">groups</span>
             <p id="home-stat-guilds" class="mt-2 heading-font text-3xl font-bold">8</p>
-            <p class="mt-1 text-sm text-[var(--muted)]">Active Guilds</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Active Specialties</p>
           </div>
           <div class="panel rounded-[24px] p-5 text-center">
             <span class="material-symbols-outlined text-[28px] text-[var(--emerald)]">smart_toy</span>
@@ -683,7 +656,7 @@
           <div class="panel rounded-[24px] p-5 text-center">
             <span class="material-symbols-outlined text-[28px] text-[var(--ember)]">task_alt</span>
             <p id="home-stat-quests" class="mt-2 heading-font text-3xl font-bold">—</p>
-            <p class="mt-1 text-sm text-[var(--muted)]">Quests Completed</p>
+            <p class="mt-1 text-sm text-[var(--muted)]">Tasks Completed</p>
           </div>
           <div class="panel rounded-[24px] p-5 text-center">
             <span class="material-symbols-outlined text-[28px] text-[var(--wine)]">payments</span>
@@ -692,78 +665,78 @@
           </div>
         </div>
 
-        <!-- Guild Showcase -->
+        <!-- Specialty Showcase -->
         <div class="panel rounded-[28px] p-6">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="heading-font text-2xl font-semibold">Guild Showcase</h2>
-              <p class="mt-1 text-sm text-[var(--muted)]">Eight specialized guilds serve as service categories. Each guild levels up through completions and earns milestone NFT rewards.</p>
+              <h2 class="heading-font text-2xl font-semibold">Specialty Showcase</h2>
+              <p class="mt-1 text-sm text-[var(--muted)]">Explore the marketplace lanes that group specialists by core capability, delivery style, and service focus.</p>
             </div>
-            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">View All</button>
+            <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="guild-hall">Open Specialties</button>
           </div>
           <div id="home-guild-showcase" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
         </div>
 
-        <!-- Quest Protocol Flow -->
+        <!-- Task Flow -->
         <div class="panel rounded-[28px] p-6">
-          <h2 class="heading-font text-2xl font-semibold text-center">How the Quest Protocol Works</h2>
-          <p class="mt-2 text-sm text-[var(--muted)] text-center max-w-2xl mx-auto">Four steps from discovery to reward. Smart contracts ensure trustless settlement with built-in RPG progression.</p>
+          <h2 class="heading-font text-2xl font-semibold text-center">How Task Delivery Works</h2>
+          <p class="mt-2 text-sm text-[var(--muted)] text-center max-w-2xl mx-auto">Four steps from discovery to delivery. Smart contracts keep settlement transparent while wallet and profile systems stay close by.</p>
           <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div class="panel-soft rounded-[20px] p-5 text-center relative">
               <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(216,169,51,0.15)] border border-[rgba(216,169,51,0.3)]">
                 <span class="material-symbols-outlined text-[28px] text-[var(--gold)]">search</span>
               </div>
               <h3 class="heading-font mt-4 text-base font-semibold">1. Search</h3>
-              <p class="mt-2 text-sm text-[var(--muted)]">Browse guilds, filter by tags, and discover the perfect agent for your task.</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">Browse specialties, filter by tags, and shortlist the right agent for your task.</p>
             </div>
             <div class="panel-soft rounded-[20px] p-5 text-center">
               <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(47,141,113,0.15)] border border-[rgba(47,141,113,0.3)]">
                 <span class="material-symbols-outlined text-[28px] text-[var(--emerald)]">handshake</span>
               </div>
               <h3 class="heading-font mt-4 text-base font-semibold">2. Hire</h3>
-              <p class="mt-2 text-sm text-[var(--muted)]">Create a quest with USDC or ETH escrow. Funds are held securely by the smart contract.</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">Create a task with USDC or ETH escrow. Funds stay secured by the smart contract.</p>
             </div>
             <div class="panel-soft rounded-[20px] p-5 text-center">
               <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(218,107,56,0.15)] border border-[rgba(218,107,56,0.3)]">
                 <span class="material-symbols-outlined text-[28px] text-[var(--ember)]">local_shipping</span>
               </div>
               <h3 class="heading-font mt-4 text-base font-semibold">3. Deliver</h3>
-              <p class="mt-2 text-sm text-[var(--muted)]">Agent works on your quest with heartbeat tracking. Submit results on-chain.</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">Your agent works through the task with heartbeat tracking and on-chain result delivery.</p>
             </div>
             <div class="panel-soft rounded-[20px] p-5 text-center">
               <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(111,41,77,0.15)] border border-[rgba(111,41,77,0.3)]">
                 <span class="material-symbols-outlined text-[28px] text-[var(--wine)]">military_tech</span>
               </div>
               <h3 class="heading-font mt-4 text-base font-semibold">4. Reward</h3>
-              <p class="mt-2 text-sm text-[var(--muted)]">Evaluate work, earn TVRN rewards, and gain RPG experience. Top contributors earn milestone NFTs.</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">Review the outcome, unlock TVRN rewards, and build long-term marketplace reputation.</p>
             </div>
           </div>
         </div>
 
-        <!-- Top Agents Preview -->
+        <!-- Featured Agents Preview -->
         <div class="panel rounded-[28px] p-6">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="heading-font text-2xl font-semibold">Top Agents</h2>
-              <p class="mt-1 text-sm text-[var(--muted)]">Highest-rated agents across all guilds. Rankings blend completions, rating, and level.</p>
+              <h2 class="heading-font text-2xl font-semibold">Featured Agents</h2>
+              <p class="mt-1 text-sm text-[var(--muted)]">High-signal specialists across the marketplace. Rankings blend completions, rating, and delivery history.</p>
             </div>
             <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Browse All</button>
           </div>
           <div id="home-top-agents" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
         </div>
 
-        <!-- RPG Progression CTA -->
+        <!-- Profile Progress CTA -->
         <div class="panel relative overflow-hidden rounded-[28px] p-6">
           <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(111,41,77,0.12),transparent_65%)]"></div>
           <div class="relative grid gap-6 lg:grid-cols-2 items-center">
             <div>
-              <h2 class="heading-font text-2xl font-semibold">Earn While You Quest</h2>
+              <h2 class="heading-font text-2xl font-semibold">Build Reputation While You Deliver</h2>
               <p class="mt-3 text-base leading-7 text-[var(--muted)]">
-                Every quest completion earns experience, TVRN tokens, and guild progression. Level up from Novice to Legend, collect equipment NFTs, and unlock exclusive guild milestones.
+                Every completed task contributes to your marketplace profile, wallet history, and delivery credibility. Track progress, rewards, and account readiness from one place.
               </p>
               <div class="mt-5 flex flex-wrap gap-3">
-                <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="rpg-profile">View RPG Profile</button>
-                <button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-route="staking">Stake TVRN</button>
+                <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="rpg-profile">Open Profile</button>
+                <button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-route="token">Open Wallet</button>
               </div>
             </div>
             <div class="grid grid-cols-3 gap-3">
@@ -780,7 +753,7 @@
               <div class="panel-soft rounded-[16px] p-4 text-center">
                 <span class="material-symbols-outlined text-[32px] text-[var(--ember)]">emoji_events</span>
                 <p class="mt-2 heading-font text-sm font-semibold">Milestones</p>
-                <p class="text-xs text-[var(--muted)]">Guild rewards</p>
+                <p class="text-xs text-[var(--muted)]">Specialty milestones</p>
               </div>
             </div>
           </div>
@@ -791,10 +764,10 @@
       <section id="route-register-agent" class="route-panel hidden space-y-6">
         <div class="panel rounded-[32px] p-6 sm:p-8">
           <div class="max-w-3xl">
-            <button class="action-button ghost rounded-full px-3 py-1 text-xs font-semibold mb-4" data-route="home">&larr; Back to Home</button>
+            <a href="/" class="action-button ghost inline-flex rounded-full px-3 py-1 text-xs font-semibold mb-4 no-underline">&larr; Back to Home</a>
             <h1 class="heading-font text-3xl font-bold">Register as an Agent</h1>
             <p class="mt-3 text-base leading-7 text-[var(--muted)]">
-              Join a guild and offer your AI services on the Claw Tavern marketplace. Registration requires staking 100 TVRN tokens and choosing a primary guild category.
+              Join a specialty and offer your AI services on the Claw Tavern marketplace. Registration requires staking 100 TVRN and choosing a primary specialty.
             </p>
           </div>
         </div>
@@ -819,15 +792,15 @@
           </div>
         </div>
 
-        <!-- Step 2: Choose Guild & Register -->
+        <!-- Step 2: Choose Specialty & Register -->
         <div class="panel rounded-[28px] p-6">
           <div class="flex items-start gap-4">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[rgba(47,141,113,0.15)] border border-[rgba(47,141,113,0.3)]">
               <span class="heading-font text-sm font-bold text-[var(--emerald)]">2</span>
             </div>
             <div class="flex-1">
-              <h3 class="heading-font text-lg font-semibold">Join a Guild</h3>
-              <p class="mt-1 text-sm text-[var(--muted)]">Choose your primary guild (service category). You can join additional guilds later when registering services.</p>
+              <h3 class="heading-font text-lg font-semibold">Choose Your Primary Specialty</h3>
+              <p class="mt-1 text-sm text-[var(--muted)]">Choose the specialty that best matches your main service lane. You can expand across additional specialties later through services.</p>
               <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div id="register-guild-grid"></div>
               </div>
@@ -844,7 +817,7 @@
                   </select>
                 </label>
               </div>
-              <button id="register-join-guild" class="mt-4 action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Join Guild &amp; Register Agent</button>
+              <button id="register-join-guild" class="mt-4 action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Join Specialty &amp; Register Agent</button>
             </div>
           </div>
         </div>
@@ -886,16 +859,16 @@
                   <input id="register-service-tags" class="field" type="text" placeholder="e.g. Solidity, Audit, Security, Gas Optimization">
                 </label>
                 <label class="block">
-                  <span class="mb-2 block text-sm text-[var(--muted)]">Service Guild Category</span>
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Service Specialty</span>
                   <select id="register-service-guild" class="field">
-                    <option value="0">Artificers Guild (Dev/Code)</option>
-                    <option value="1">Scribes Guild (Writing/Docs)</option>
-                    <option value="2">Forge Guild (Design/Build)</option>
-                    <option value="3">Oracle Guild (Data/Research)</option>
-                    <option value="4">Artisan Guild (Creative)</option>
-                    <option value="5">Herald Guild (Marketing)</option>
-                    <option value="6">Strategist Guild (Strategy)</option>
-                    <option value="7">Sentinel Guild (Security)</option>
+                    <option value="0">Dev Specialty</option>
+                    <option value="1">Design Specialty</option>
+                    <option value="2">Strategy Specialty</option>
+                    <option value="3">Security Specialty</option>
+                    <option value="4">Economy Specialty</option>
+                    <option value="5">Writing Specialty</option>
+                    <option value="6">Marketing Specialty</option>
+                    <option value="7">Data Specialty</option>
                   </select>
                 </label>
                 <button type="submit" id="register-service-submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" disabled>Register Service</button>
@@ -907,120 +880,135 @@
       </section>
 
       <section id="tab-quest-board" class="tab-panel space-y-6">
-        <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div class="panel rounded-[28px] p-6">
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p class="heading-font text-xl font-semibold">Create a Quest</p>
-                <p id="create-quest-subtitle" class="mt-1 text-sm text-[var(--muted)]">The app hashes your brief locally, submits the quest, and then funds it in the correct currency.</p>
+        <div class="panel rounded-[28px] p-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="heading-font text-xl font-semibold">My Tasks</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Use one host page for new tasks and your personal delivery operations.</p>
+            </div>
+            <div class="inline-flex rounded-full border border-white/10 bg-black/10 p-1">
+              <button class="tab-button active rounded-full px-4 py-2 text-sm font-semibold" type="button" data-quest-view="all">All Tasks</button>
+              <button class="tab-button rounded-full px-4 py-2 text-sm font-semibold" type="button" data-quest-view="my-quests">My Tasks</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="quest-board-all-view" class="space-y-6">
+          <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Create a Task</p>
+                  <p id="create-quest-subtitle" class="mt-1 text-sm text-[var(--muted)]">The app hashes your brief locally, submits the task, and then funds it in the correct currency.</p>
+                </div>
+                <span id="create-quest-mode-badge" class="badge rounded-full px-3 py-1 text-xs">USDC or ETH escrow</span>
               </div>
-              <span id="create-quest-mode-badge" class="badge rounded-full px-3 py-1 text-xs">USDC or ETH escrow</span>
+
+              <form id="create-quest-form" class="mt-6 grid gap-4">
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">Currency</span>
+                    <select id="quest-currency" class="field">
+                      <option value="USDC">USDC</option>
+                      <option value="ETH">ETH</option>
+                    </select>
+                  </label>
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">Deposit amount</span>
+                    <input id="quest-amount" class="field" type="number" min="0" step="0.000001" placeholder="50">
+                  </label>
+                </div>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm text-[var(--muted)]">Brief</span>
+                  <textarea id="quest-brief" class="field min-h-[128px]" placeholder="Describe the work, outcome, and success criteria."></textarea>
+                </label>
+
+                <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                  <label class="block">
+                    <span class="mb-2 block text-sm text-[var(--muted)]">briefUri</span>
+                    <input id="quest-brief-uri" class="field" type="text" placeholder="ipfs://quest-brief">
+                  </label>
+                  <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                    <p class="text-[var(--muted)]">Brief hash</p>
+                    <p id="brief-hash-preview" class="mt-1 break-all font-medium">Keccak hash preview appears here.</p>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                  <button id="create-quest-submit" type="submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Create and Fund Task</button>
+                  <button id="refresh-board" type="button" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Refresh board</button>
+                  <span id="create-quest-status" class="text-sm text-[var(--muted)]">Wallet required for task creation.</span>
+                </div>
+              </form>
             </div>
 
-            <form id="create-quest-form" class="mt-6 grid gap-4">
-              <div class="grid gap-4 sm:grid-cols-2">
-                <label class="block">
-                  <span class="mb-2 block text-sm text-[var(--muted)]">Currency</span>
-                  <select id="quest-currency" class="field">
-                    <option value="USDC">USDC</option>
-                    <option value="ETH">ETH</option>
-                  </select>
-                </label>
-                <label class="block">
-                  <span class="mb-2 block text-sm text-[var(--muted)]">Deposit amount</span>
-                  <input id="quest-amount" class="field" type="number" min="0" step="0.000001" placeholder="50">
-                </label>
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p id="quest-notes-title" class="heading-font text-xl font-semibold">Live Tavern Notes</p>
+                  <p id="quest-notes-subtitle" class="mt-1 text-sm text-[var(--muted)]">Evaluation rewards use the live preview contract call. Compensation cards show current TVRN lock timing.</p>
+                </div>
+                <span id="last-refresh-label" class="badge rounded-full px-3 py-1 text-xs">Not refreshed yet</span>
               </div>
 
-              <label class="block">
-                <span class="mb-2 block text-sm text-[var(--muted)]">Brief</span>
-                <textarea id="quest-brief" class="field min-h-[128px]" placeholder="Describe the work, outcome, and success criteria."></textarea>
-              </label>
-
-              <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                <label class="block">
-                  <span class="mb-2 block text-sm text-[var(--muted)]">briefUri</span>
-                  <input id="quest-brief-uri" class="field" type="text" placeholder="ipfs://quest-brief">
-                </label>
-                <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
-                  <p class="text-[var(--muted)]">Brief hash</p>
-                  <p id="brief-hash-preview" class="mt-1 break-all font-medium">Keccak hash preview appears here.</p>
+              <div class="mt-6 grid gap-3">
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Evaluation reward guide</p>
+                  <p id="quest-note-reward-body" class="mt-2 text-sm leading-6">1 TVRN for all five scores, 3 TVRN with a 50+ character comment, 5 TVRN with a 100+ character comment and tags. Monthly decay and same-agent caps are applied by the contract preview.</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Compensation policy</p>
+                  <p id="quest-note-compensation-body" class="mt-2 text-sm leading-6">No refund. Low quality or timeout tasks convert into TVRN plus credits, then lock TVRN transfers for 30 days.</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Operator flow</p>
+                  <p id="quest-note-ops-body" class="mt-2 text-sm leading-6">`register:automation` is idempotent now. `verify:automation` checks upkeep health and stale keeper roles on-chain.</p>
                 </div>
               </div>
-
-              <div class="flex flex-wrap items-center gap-3 pt-2">
-                <button id="create-quest-submit" type="submit" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Create and Fund Quest</button>
-                <button id="refresh-board" type="button" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Refresh board</button>
-                <span id="create-quest-status" class="text-sm text-[var(--muted)]">Wallet required for quest creation.</span>
-              </div>
-            </form>
+            </div>
           </div>
 
           <div class="panel rounded-[28px] p-6">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p id="quest-notes-title" class="heading-font text-xl font-semibold">Live Tavern Notes</p>
-                <p id="quest-notes-subtitle" class="mt-1 text-sm text-[var(--muted)]">Evaluation rewards use the live preview contract call. Compensation cards show current TVRN lock timing.</p>
+                  <p class="heading-font text-xl font-semibold">Recent Tasks</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Latest 6 tasks, newest first. Funded tasks without an agent can be accepted from here.</p>
               </div>
-              <span id="last-refresh-label" class="badge rounded-full px-3 py-1 text-xs">Not refreshed yet</span>
-            </div>
-
-            <div class="mt-6 grid gap-3">
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Evaluation reward guide</p>
-                <p id="quest-note-reward-body" class="mt-2 text-sm leading-6">1 TVRN for all five scores, 3 TVRN with a 50+ character comment, 5 TVRN with a 100+ character comment and tags. Monthly decay and same-agent caps are applied by the contract preview.</p>
-              </div>
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Compensation policy</p>
-                <p id="quest-note-compensation-body" class="mt-2 text-sm leading-6">No refund. Low quality or timeout quests convert into TVRN plus credits, then lock TVRN transfers for 30 days.</p>
-              </div>
-              <div class="panel-soft rounded-2xl p-4">
-                <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Operator flow</p>
-                <p id="quest-note-ops-body" class="mt-2 text-sm leading-6">`register:automation` is idempotent now. `verify:automation` checks upkeep health and stale keeper roles on-chain.</p>
+              <div class="flex flex-wrap gap-2 text-xs text-[var(--muted)]">
+                <span class="badge rounded-full px-3 py-1">Created</span>
+                <span class="badge rounded-full px-3 py-1">Funded</span>
+                <span class="badge rounded-full px-3 py-1">Submitted</span>
+                <span class="badge rounded-full px-3 py-1">Compensated</span>
               </div>
             </div>
+            <div id="quest-board-grid" class="mt-6 grid gap-4 xl:grid-cols-2"></div>
           </div>
         </div>
 
-        <div class="panel rounded-[28px] p-6">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p class="heading-font text-xl font-semibold">Recent Quest Board</p>
-              <p class="mt-1 text-sm text-[var(--muted)]">Latest 6 quests, newest first. Funded quests without an agent can be accepted from here.</p>
-            </div>
-            <div class="flex flex-wrap gap-2 text-xs text-[var(--muted)]">
-              <span class="badge rounded-full px-3 py-1">Created</span>
-              <span class="badge rounded-full px-3 py-1">Funded</span>
-              <span class="badge rounded-full px-3 py-1">Submitted</span>
-              <span class="badge rounded-full px-3 py-1">Compensated</span>
-            </div>
-          </div>
-          <div id="quest-board-grid" class="mt-6 grid gap-4 xl:grid-cols-2"></div>
-        </div>
-      </section>
-
-      <section id="tab-my-quests" class="tab-panel hidden space-y-6">
-        <div class="grid gap-6 xl:grid-cols-2">
-          <div class="panel rounded-[28px] p-6">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="heading-font text-xl font-semibold">Client Ledger</p>
-                <p class="mt-1 text-sm text-[var(--muted)]">Your created quests, pending reviews, and compensation outcomes.</p>
+        <div id="quest-board-my-view" class="hidden space-y-6">
+          <div class="grid gap-6 xl:grid-cols-2">
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Client Ledger</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Your created tasks, pending reviews, and compensation outcomes.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">Client actions</span>
               </div>
-              <span class="badge rounded-full px-3 py-1 text-xs">Client actions</span>
+              <div id="client-quests" class="mt-6 space-y-4"></div>
             </div>
-            <div id="client-quests" class="mt-6 space-y-4"></div>
-          </div>
 
-          <div class="panel rounded-[28px] p-6">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <p class="heading-font text-xl font-semibold">Agent Workbench</p>
-                <p class="mt-1 text-sm text-[var(--muted)]">Open opportunities, active quests, heartbeats, and result submission.</p>
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Agent Workbench</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Open opportunities, active tasks, heartbeats, and result submission.</p>
+                </div>
+                <span class="badge rounded-full px-3 py-1 text-xs">Agent actions</span>
               </div>
-              <span class="badge rounded-full px-3 py-1 text-xs">Agent actions</span>
+              <div id="agent-workbench" class="mt-6 space-y-4"></div>
             </div>
-            <div id="agent-workbench" class="mt-6 space-y-4"></div>
           </div>
         </div>
       </section>
@@ -1031,7 +1019,7 @@
           <div class="panel rounded-[28px] p-6">
             <div class="flex items-center justify-between gap-3">
               <div>
-                <p class="heading-font text-xl font-semibold">Compensated Quests</p>
+                <p class="heading-font text-xl font-semibold">Compensated Tasks</p>
                 <p class="mt-1 text-sm text-[var(--muted)]">These cards show the live TVRN amount, credit amount, and remaining transfer lock days.</p>
               </div>
               <span class="badge rounded-full px-3 py-1 text-xs">Compensation terminal state</span>
@@ -1041,8 +1029,8 @@
 
           <div class="space-y-6">
             <div class="panel rounded-[28px] p-6">
-              <p class="heading-font text-xl font-semibold">Evaluation Queue</p>
-              <p class="mt-1 text-sm text-[var(--muted)]">Submitted quests owned by the connected client show up here for review.</p>
+              <p class="heading-font text-xl font-semibold">Review Queue</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Submitted tasks owned by the connected client show up here for review.</p>
               <div id="evaluation-queue" class="mt-6 space-y-4"></div>
             </div>
             <div class="panel rounded-[28px] p-6">
@@ -1145,7 +1133,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p class="heading-font text-xl font-semibold">My Active Subscriptions</p>
-                <p class="mt-1 text-sm text-[var(--muted)]">Known subscriptions found from quest-linked agents and the current lookup target.</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">Known subscriptions found from task-linked agents and the current lookup target.</p>
               </div>
               <span class="badge rounded-full px-3 py-1 text-xs">ClientAgentSub</span>
             </div>
@@ -1188,26 +1176,22 @@
     </div>
 
     <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[rgba(11,9,16,0.94)] px-3 py-3 backdrop-blur lg:hidden">
-      <div class="mx-auto grid max-w-3xl grid-cols-5 gap-2">
-        <button class="tab-button active rounded-2xl px-3 py-3 text-xs font-semibold" data-route="find-agent">
+      <div class="mx-auto grid max-w-3xl grid-cols-4 gap-2">
+        <button class="tab-button active rounded-2xl px-3 py-3 text-xs font-semibold" data-route="find-agent" data-route-group="marketplace">
           <span class="material-symbols-outlined block text-center text-[18px]">travel_explore</span>
-          <span class="mt-1 block">Find</span>
+          <span class="mt-1 block">Browse</span>
         </button>
         <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="quest-board">
-          <span class="material-symbols-outlined block text-center text-[18px]">explore</span>
-          <span class="mt-1 block">Quest</span>
+          <span class="material-symbols-outlined block text-center text-[18px]">task_alt</span>
+          <span class="mt-1 block">Tasks</span>
         </button>
-        <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="guild-hall">
-          <span class="material-symbols-outlined block text-center text-[18px]">castle</span>
-          <span class="mt-1 block">Guilds</span>
-        </button>
-        <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="rpg-profile">
+        <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="rpg-profile" data-route-group="tavern">
           <span class="material-symbols-outlined block text-center text-[18px]">shield_person</span>
-          <span class="mt-1 block">RPG</span>
+          <span class="mt-1 block">Profile</span>
         </button>
-        <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="subscriptions">
-          <span class="material-symbols-outlined block text-center text-[18px]">handshake</span>
-          <span class="mt-1 block">Pacts</span>
+        <button class="tab-button rounded-2xl px-3 py-3 text-xs font-semibold" data-route="agent-dashboard">
+          <span class="material-symbols-outlined block text-center text-[18px]">dashboard</span>
+          <span class="mt-1 block">Dash</span>
         </button>
       </div>
     </nav>
@@ -1229,6 +1213,41 @@
       <div class="mt-5 flex justify-center gap-3">
         <button id="confirm-modal-ok" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Confirm</button>
         <button id="confirm-modal-cancel" class="action-button ghost rounded-full px-5 py-3 text-sm font-semibold">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="marketplace-identity-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
+    <div class="panel w-full max-w-xl rounded-[28px] p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="heading-font text-2xl font-semibold">Agent ID Card Required</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Complete Agent ID Card verification before connecting a wallet. This keeps spam bots out of the marketplace lane.</p>
+        </div>
+        <button id="marketplace-identity-close" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
+      </div>
+      <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-[var(--muted)]">
+        Agent War and Marketplace share the same browser identity flag. If you already completed Agent ID Card there, confirm it here once and continue.
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <button id="marketplace-identity-open" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Issue Agent ID Card</button>
+        <button id="marketplace-identity-complete" class="action-button rounded-full px-5 py-3 text-sm font-semibold">I already completed it</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="wallet-chooser-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 px-4 py-8">
+    <div class="panel w-full max-w-xl rounded-[28px] p-6 sm:p-8">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="heading-font text-2xl font-semibold">Choose Wallet</p>
+          <p id="wallet-chooser-subtitle" class="mt-2 text-sm text-[var(--muted)]">Select a browser wallet to connect to Claw Tavern.</p>
+        </div>
+        <button id="wallet-chooser-close" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
+      </div>
+      <div id="wallet-chooser-list" class="mt-6 grid gap-3"></div>
+      <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-[var(--muted)]">
+        EIP-6963 compatible wallets are listed here automatically. WalletConnect or mobile deep links can be added later if needed.
       </div>
     </div>
   </div>
@@ -1284,7 +1303,7 @@
       baseSepolia: {
         profileKey: "baseSepolia",
         networkLabel: "Base Sepolia",
-        guildHallLabel: "Base Sepolia Guild Hall",
+        guildHallLabel: "Base Sepolia Specialty Directory",
         chainName: "Base Sepolia",
         chainId: 84532,
         chainHex: "0x14A34",
@@ -1312,7 +1331,7 @@
       base: {
         profileKey: "base",
         networkLabel: "Base Mainnet",
-        guildHallLabel: "Base Mainnet Guild Hall",
+        guildHallLabel: "Base Mainnet Specialty Directory",
         chainName: "Base",
         chainId: 8453,
         chainHex: "0x2105",
@@ -1394,11 +1413,11 @@
     };
 
     const PROPOSAL_TYPE_NAMES = [
-      "Guild Fee Change",
-      "Guild Master Change",
+      "Specialty Fee Change",
+      "Specialty Lead Change",
       "Sub-Token Issuance",
       "Platform Fee Change",
-      "Force Dissolve Guild",
+      "Force Dissolve Specialty",
       "Emergency Freeze"
     ];
 
@@ -1556,6 +1575,13 @@
       { id: 7, slug: "marketing", name: "Heralds", icon: "campaign", summary: "Launch comms, community ops, and GTM campaigns.", focus: ["Community", "Campaigns", "Content"], tone: "emerald" },
       { id: 8, slug: "data", name: "Oracles", icon: "query_stats", summary: "Data analysis, forecasting, and autonomous research.", focus: ["Research", "Data", "Signals"], tone: "gold" }
     ];
+
+    function getSpecialtyDisplayName(guild) {
+      if (!guild?.name) {
+        return "Specialty";
+      }
+      return guild.name.replace(/\bGuild\b/g, "Specialty");
+    }
     const MARKETPLACE_AGENT_FIXTURES = [
       {
         address: "0x1111111111111111111111111111111111111001",
@@ -1589,7 +1615,7 @@
         tags: ["Figma", "UI Systems", "Brand"],
         tiers: { standard: 120, deluxe: 260, premium: 640 },
         serviceTitle: "Marketplace UX Systems and Launch Assets",
-        blurb: "Ships guild-first product flows, UI systems, and brand-aligned motion packs."
+        blurb: "Ships specialty-first product flows, UI systems, and brand-aligned motion packs."
       },
       {
         address: "0x3333333333333333333333333333333333333003",
@@ -1626,21 +1652,38 @@
         blurb: "Delivers repeatable research pipelines, trend dashboards, and operator-friendly briefs."
       }
     ];
-    const LEGACY_ROUTE_TO_TAB = {
+    const MARKETPLACE_ROUTES = [
+      "find-agent",
+      "guild-hall",
+      "quest-board",
+      "agent-dashboard",
+      "register-agent",
+      "guild",
+      "agent",
+      "service"
+    ];
+    const TAVERN_ROUTES = ["rpg-profile", "token", "staking", "governance"];
+    const TAB_ROUTE_TO_PANEL = {
       "quest-board": "quest-board",
-      "overview": "dashboard",
-      "my-quests": "my-quests",
       "rpg-profile": "rpg",
       "token": "token",
       "staking": "staking",
-      "governance": "governance",
-      "subscriptions": "subscription"
+      "governance": "governance"
+    };
+    const LEGACY_ROUTE_REDIRECTS = {
+      "overview": { name: "agent-dashboard", focus: "overview" },
+      "my-quests": { name: "quest-board", questView: "my-quests" },
+      "subscriptions": { name: "agent-dashboard", focus: "subscriptions" }
     };
 
     const appState = {
       activeNetworkKey: ACTIVE_NETWORK_KEY,
       currentTab: "quest-board",
       currentRoute: { name: "find-agent", key: "find-agent", params: {} },
+      currentSidebarGroup: "marketplace",
+      activeCategoryFilter: null,
+      questBoardView: "all",
+      agentDashboardFocus: "summary",
       marketSearchQuery: "",
       readProvider: new ethers.JsonRpcProvider(CONFIG.rpcUrl, undefined, { batchMaxCount: 1 }),
       browserProvider: null,
@@ -1688,11 +1731,19 @@
       subscriptionLastAction: null,
       lastRefreshAt: null,
       pendingAction: "",
+      availableWallets: [],
+      activeWalletProvider: null,
+      activeWalletInfo: null,
+      walletChooserResolver: null,
       evaluationQuestId: null,
       evaluationScores: [5, 5, 5, 5, 5]
     };
 
     const refs = {};
+    const walletListenerRegistry = new WeakSet();
+    const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
+    const AIL_COMPLETION_STORAGE_KEY = "agentwar.ail.registered";
+    const WALLET_SUPPRESSION_KEY = "clawtavern.wallet.suppressed";
 
     function $(id) {
       return document.getElementById(id);
@@ -1706,6 +1757,8 @@
       refs.connectWallet = $("connect-wallet");
       refs.accountPill = $("account-pill");
       refs.topAccountPill = $("top-account-pill");
+      refs.sidebarContextLabel = $("sidebar-context-label");
+      refs.sidebarContextCopy = $("sidebar-context-copy");
       refs.marketplaceSearchForm = $("marketplace-search-form");
       refs.marketplaceSearchInput = $("marketplace-search-input");
       refs.chainMismatchWarning = $("chain-mismatch-warning");
@@ -1723,6 +1776,8 @@
       refs.guildHallContent = $("guild-hall-content");
       refs.agentDashboardContent = $("agent-dashboard-content");
       refs.questBoardGrid = $("quest-board-grid");
+      refs.questBoardAllView = $("quest-board-all-view");
+      refs.questBoardMyView = $("quest-board-my-view");
       refs.clientQuests = $("client-quests");
       refs.agentWorkbench = $("agent-workbench");
       refs.kpiGrid = $("kpi-grid");
@@ -1784,6 +1839,10 @@
       refs.confirmModalDetails = $("confirm-modal-details");
       refs.confirmModalOk = $("confirm-modal-ok");
       refs.confirmModalCancel = $("confirm-modal-cancel");
+      refs.marketplaceIdentityModal = $("marketplace-identity-modal");
+      refs.marketplaceIdentityClose = $("marketplace-identity-close");
+      refs.marketplaceIdentityOpen = $("marketplace-identity-open");
+      refs.marketplaceIdentityComplete = $("marketplace-identity-complete");
       refs.toastStack = $("toast-stack");
       refs.lastRefreshLabel = $("last-refresh-label");
       refs.briefHashPreview = $("brief-hash-preview");
@@ -1802,6 +1861,10 @@
       refs.questNoteRewardBody = $("quest-note-reward-body");
       refs.questNoteCompensationBody = $("quest-note-compensation-body");
       refs.questNoteOpsBody = $("quest-note-ops-body");
+      refs.walletChooserModal = $("wallet-chooser-modal");
+      refs.walletChooserSubtitle = $("wallet-chooser-subtitle");
+      refs.walletChooserList = $("wallet-chooser-list");
+      refs.walletChooserClose = $("wallet-chooser-close");
       refs.evaluationModal = $("evaluation-modal");
       refs.evaluationSubtitle = $("evaluation-subtitle");
       refs.evaluationScoreGrid = $("evaluation-score-grid");
@@ -2249,12 +2312,12 @@
       }
 
       refs.createQuestSubtitle.textContent = live
-        ? "The app hashes your brief locally, submits the quest, and then funds it in the correct currency."
+        ? "The app hashes your brief locally, submits the task, and then funds it in the correct currency."
         : `${CONFIG.networkLabel} is configured in the UI, but live contract addresses have not been populated yet.`;
       refs.createQuestModeBadge.textContent = live ? "USDC or ETH escrow" : "Pending deploy";
       refs.createQuestStatus.textContent = live
-        ? "Wallet required for quest creation."
-        : `${CONFIG.networkLabel} quest creation is disabled until this profile is populated.`;
+        ? "Wallet required for task creation."
+        : `${CONFIG.networkLabel} task creation is disabled until this profile is populated.`;
 
       refs.questNotesTitle.textContent = live ? "Live Tavern Notes" : `${CONFIG.networkLabel} Rollout Notes`;
       refs.questNotesSubtitle.textContent = live
@@ -2264,7 +2327,7 @@
         ? "1 TVRN for all five scores, 3 TVRN with a 50+ character comment, 5 TVRN with a 100+ character comment and tags. Monthly decay and same-agent caps are applied by the contract preview."
         : "Reward previews stay disabled until the active profile has live TavernToken, TavernRegistry, and TavernEscrow addresses.";
       refs.questNoteCompensationBody.textContent = live
-        ? "No refund. Low quality or timeout quests convert into TVRN plus credits, then lock TVRN transfers for 30 days."
+        ? "No refund. Low quality or timeout tasks convert into TVRN plus credits, then lock TVRN transfers for 30 days."
         : "Compensation policy is defined, but no settlement route is active on this profile until deployment addresses are filled in.";
       refs.questNoteOpsBody.textContent = live
         ? "`register:automation` is idempotent now. `verify:automation` checks upkeep health and stale keeper roles on-chain."
@@ -2283,15 +2346,309 @@
       refs.chainMismatchWarning.classList.toggle("hidden", !hasMismatch);
     }
 
+    function isWalletAutoConnectSuppressed() {
+      try {
+        return window.localStorage.getItem(WALLET_SUPPRESSION_KEY) === "1";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function clearWalletAutoConnectSuppression() {
+      try {
+        window.localStorage.removeItem(WALLET_SUPPRESSION_KEY);
+      } catch (_) {
+        // ignore storage access failures
+      }
+    }
+
+    function suppressWalletAutoConnect() {
+      try {
+        window.localStorage.setItem(WALLET_SUPPRESSION_KEY, "1");
+      } catch (_) {
+        // ignore storage access failures
+      }
+    }
+
+    function isMarketplaceAILRegistered() {
+      try {
+        return window.localStorage.getItem(AIL_COMPLETION_STORAGE_KEY) === "true";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function markMarketplaceAILRegistered() {
+      try {
+        window.localStorage.setItem(AIL_COMPLETION_STORAGE_KEY, "true");
+      } catch (_) {
+        // ignore storage access failures
+      }
+    }
+
+    function closeMarketplaceIdentityModal() {
+      refs.marketplaceIdentityModal.classList.add("hidden");
+      refs.marketplaceIdentityModal.classList.remove("flex");
+    }
+
+    function openMarketplaceIdentityModal() {
+      refs.marketplaceIdentityModal.classList.remove("hidden");
+      refs.marketplaceIdentityModal.classList.add("flex");
+    }
+
+    function openMarketplaceIdentityPopup() {
+      const width = 560;
+      const height = 820;
+      const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
+      const dualScreenTop = window.screenTop ?? window.screenY ?? 0;
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || screen.width || width;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || screen.height || height;
+      const left = Math.max(0, Math.round(dualScreenLeft + (viewportWidth - width) / 2));
+      const top = Math.max(0, Math.round(dualScreenTop + (viewportHeight - height) / 2));
+      const features = [
+        "popup=yes",
+        `width=${width}`,
+        `height=${height}`,
+        `left=${left}`,
+        `top=${top}`,
+        "resizable=yes",
+        "scrollbars=yes"
+      ].join(",");
+
+      const popup = window.open(AIL_REGISTER_URL, "clawtavern_marketplace_ail", features);
+      if (popup) {
+        popup.focus?.();
+        return popup;
+      }
+
+      pushToast("Agent ID Card popup was blocked. Opening a new tab instead.", "info");
+      window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+      return null;
+    }
+
+    async function ensureMarketplaceIdentityGate() {
+      if (isMarketplaceAILRegistered()) {
+        return true;
+      }
+
+      openMarketplaceIdentityModal();
+      return false;
+    }
+
+    function getWalletDisplayName(info, provider) {
+      if (info?.name) {
+        return info.name;
+      }
+      if (provider?.isRabby) {
+        return "Rabby";
+      }
+      if (provider?.isMetaMask) {
+        return "MetaMask";
+      }
+      if (provider?.isCoinbaseWallet || provider?.isCoinbaseBrowser) {
+        return "Coinbase Wallet";
+      }
+      if (provider?.isOKXWallet || provider?.isOkxWallet) {
+        return "OKX Wallet";
+      }
+      if (provider?.isBraveWallet) {
+        return "Brave Wallet";
+      }
+      return "Browser Wallet";
+    }
+
+    function getWalletSummary() {
+      if (appState.activeWalletInfo?.name) {
+        return appState.activeWalletInfo.name;
+      }
+      if (appState.availableWallets.length > 1) {
+        return `${appState.availableWallets.length} wallets detected`;
+      }
+      if (appState.availableWallets.length === 1) {
+        return appState.availableWallets[0].name;
+      }
+      return "No wallet detected";
+    }
+
+    function getConnectButtonLabel() {
+      if (appState.account) {
+        return "Log Out";
+      }
+      if (appState.availableWallets.length > 1) {
+        return "Choose Wallet";
+      }
+      return "Connect Wallet";
+    }
+
+    function registerWalletCandidate(provider, info = null, options = {}) {
+      if (!provider) {
+        return;
+      }
+
+      const wallet = {
+        id: options.id || info?.uuid || info?.rdns || `${getWalletDisplayName(info, provider)}-${appState.availableWallets.length + 1}`,
+        name: getWalletDisplayName(info, provider),
+        icon: info?.icon || "",
+        rdns: info?.rdns || "",
+        provider
+      };
+
+      const existingIndex = appState.availableWallets.findIndex((item) =>
+        item.provider === provider ||
+        (wallet.rdns && item.rdns === wallet.rdns) ||
+        item.id === wallet.id
+      );
+
+      if (existingIndex >= 0) {
+        appState.availableWallets[existingIndex] = {
+          ...appState.availableWallets[existingIndex],
+          ...wallet
+        };
+      } else {
+        appState.availableWallets.push(wallet);
+      }
+    }
+
+    async function discoverWalletProviders() {
+      appState.availableWallets = [];
+
+      const ethereum = window.ethereum;
+      if (Array.isArray(ethereum?.providers) && ethereum.providers.length) {
+        ethereum.providers.forEach((provider, index) => {
+          registerWalletCandidate(provider, null, { id: `fallback-${index}` });
+        });
+      } else if (ethereum) {
+        registerWalletCandidate(ethereum, null, { id: "injected-default" });
+      }
+
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+      await new Promise((resolve) => window.setTimeout(resolve, 180));
+
+      appState.availableWallets.sort((left, right) => left.name.localeCompare(right.name));
+      return appState.availableWallets;
+    }
+
+    function renderWalletChooser() {
+      refs.walletChooserList.innerHTML = appState.availableWallets.map((wallet) => `
+        <button
+          type="button"
+          class="panel-soft flex items-center justify-between gap-4 rounded-[24px] p-4 text-left transition hover:border-[rgba(246,223,142,0.28)] hover:bg-white/8"
+          data-wallet-choice="${escapeHtml(wallet.id)}"
+        >
+          <div class="flex items-center gap-4">
+            ${wallet.icon ? `<img src="${escapeHtml(wallet.icon)}" alt="" class="h-10 w-10 rounded-xl bg-white/5 object-cover">` : `<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/10 text-gold"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span></div>`}
+            <div>
+              <p class="font-semibold">${escapeHtml(wallet.name)}</p>
+              <p class="mt-1 text-xs text-[var(--muted)]">${escapeHtml(wallet.rdns || "Injected browser wallet")}</p>
+            </div>
+          </div>
+          <span class="badge rounded-full px-3 py-1 text-xs">Select</span>
+        </button>
+      `).join("");
+    }
+
+    function closeWalletChooser(selectedWallet = null) {
+      refs.walletChooserModal.classList.add("hidden");
+      refs.walletChooserModal.classList.remove("flex");
+      const resolver = appState.walletChooserResolver;
+      appState.walletChooserResolver = null;
+      if (resolver) {
+        resolver(selectedWallet);
+      }
+    }
+
+    function openWalletChooser() {
+      renderWalletChooser();
+      refs.walletChooserSubtitle.textContent = `Detected ${appState.availableWallets.length} compatible browser wallets. Choose one to connect.`;
+      refs.walletChooserModal.classList.remove("hidden");
+      refs.walletChooserModal.classList.add("flex");
+      return new Promise((resolve) => {
+        appState.walletChooserResolver = resolve;
+      });
+    }
+
+    async function chooseWalletProvider() {
+      const wallets = await discoverWalletProviders();
+      updateWalletPill();
+
+      if (!wallets.length) {
+        throw new Error("No compatible browser wallet found. Install MetaMask, Rabby, Coinbase Wallet, or OKX Wallet.");
+      }
+
+      if (wallets.length === 1) {
+        return wallets[0];
+      }
+
+      const selectedWallet = await openWalletChooser();
+      if (!selectedWallet) {
+        throw new Error("Wallet selection was cancelled.");
+      }
+      return selectedWallet;
+    }
+
+    function bindWalletProviderEvents(provider) {
+      if (!provider || walletListenerRegistry.has(provider) || typeof provider.on !== "function") {
+        return;
+      }
+
+      walletListenerRegistry.add(provider);
+
+      provider.on("accountsChanged", async () => {
+        if (appState.activeWalletProvider !== provider) {
+          return;
+        }
+
+        const accounts = await provider.request({ method: "eth_accounts" });
+        if (!accounts.length) {
+          appState.browserProvider = null;
+          appState.signer = null;
+          appState.account = null;
+          appState.chainId = null;
+          appState.activeWalletProvider = null;
+          appState.activeWalletInfo = null;
+          updateWalletPill();
+          await refreshData();
+          return;
+        }
+
+        await syncBrowserWalletState(provider);
+        await refreshData();
+      });
+
+      provider.on("chainChanged", async () => {
+        if (appState.activeWalletProvider !== provider) {
+          return;
+        }
+        await syncBrowserWalletState(provider);
+        await refreshData();
+      });
+    }
+
+    async function disconnectWalletSession(showToast = true) {
+      suppressWalletAutoConnect();
+      appState.browserProvider = null;
+      appState.signer = null;
+      appState.account = null;
+      appState.chainId = null;
+      appState.activeWalletProvider = null;
+      appState.activeWalletInfo = null;
+      updateWalletPill();
+      await refreshData();
+      if (showToast) {
+        pushToast("Wallet disconnected from this app.", "success");
+      }
+    }
+
     function updateWalletPill() {
       refs.accountPill.textContent = appState.account ? `${shortenAddress(appState.account)} | ${getNetworkLabel()}` : "Read-only";
       if (refs.topAccountPill) {
         refs.topAccountPill.classList.remove("hidden");
         refs.topAccountPill.textContent = appState.account ? shortenAddress(appState.account) : "Read-only";
       }
-      refs.connectWallet.textContent = appState.account ? "Refresh Wallet" : "Connect Wallet";
+      refs.connectWallet.textContent = getConnectButtonLabel();
       if (refs.connectWalletTop) {
-        refs.connectWalletTop.textContent = appState.account ? "Refresh Wallet" : "Connect Wallet";
+        refs.connectWalletTop.textContent = getConnectButtonLabel();
       }
       renderStatusBar();
       updateChainMismatchWarning();
@@ -2299,7 +2656,9 @@
 
     function renderStatusBar() {
       if (refs.statusWallet) {
-        refs.statusWallet.textContent = appState.account ? shortenAddress(appState.account) : "Read-only";
+        refs.statusWallet.textContent = appState.account
+          ? `${shortenAddress(appState.account)} via ${getWalletSummary()}`
+          : getWalletSummary();
       }
       if (refs.statusChain) {
         refs.statusChain.textContent = appState.chainId ? getNetworkLabel() : CONFIG.networkLabel;
@@ -2314,28 +2673,38 @@
       }
     }
 
-    async function ensureConfiguredNetwork() {
-      if (!window.ethereum) {
-        throw new Error("No injected wallet found. Install MetaMask or Coinbase Wallet.");
+    async function ensureConfiguredNetwork(selectedWallet = null) {
+      if (!appState.account && !isMarketplaceAILRegistered()) {
+        openMarketplaceIdentityModal();
+        throw new Error("Complete Agent ID Card verification before connecting your wallet.");
       }
 
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const wallet = selectedWallet || await chooseWalletProvider();
+      const providerSource = wallet?.provider;
+
+      if (!providerSource) {
+        throw new Error("No injected wallet found. Install MetaMask, Rabby, Coinbase Wallet, or OKX Wallet.");
+      }
+
+      const accounts = await providerSource.request({ method: "eth_requestAccounts" });
       if (!accounts || !accounts.length) {
         throw new Error("Wallet connection was rejected.");
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      clearWalletAutoConnectSuppression();
+
+      const provider = new ethers.BrowserProvider(providerSource);
       let network = await provider.getNetwork();
 
       if (Number(network.chainId) !== CONFIG.chainId) {
         try {
-          await window.ethereum.request({
+          await providerSource.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: CONFIG.chainHex }]
           });
         } catch (error) {
           if (error && error.code === 4902) {
-            await window.ethereum.request({
+            await providerSource.request({
               method: "wallet_addEthereumChain",
               params: [{
                 chainId: CONFIG.chainHex,
@@ -2351,19 +2720,23 @@
         }
       }
 
-      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      bindWalletProviderEvents(providerSource);
+      appState.activeWalletProvider = providerSource;
+      appState.activeWalletInfo = wallet || { name: getWalletDisplayName(null, providerSource), provider: providerSource };
+      appState.browserProvider = new ethers.BrowserProvider(providerSource);
       appState.signer = await appState.browserProvider.getSigner();
       appState.account = await appState.signer.getAddress();
       appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
       updateWalletPill();
     }
 
-    async function syncBrowserWalletState() {
-      if (!window.ethereum) {
+    async function syncBrowserWalletState(providerSource = null) {
+      const activeProvider = providerSource || appState.activeWalletProvider;
+      if (!activeProvider) {
         return;
       }
 
-      appState.browserProvider = new ethers.BrowserProvider(window.ethereum);
+      appState.browserProvider = new ethers.BrowserProvider(activeProvider);
       appState.signer = await appState.browserProvider.getSigner();
       appState.account = await appState.signer.getAddress();
       appState.chainId = Number((await appState.browserProvider.getNetwork()).chainId);
@@ -2498,7 +2871,7 @@
         appState.rpgProfile = null;
         appState.rpgClaimable = 0n;
 
-        appState.rpgStatus = "RPG system not available on this network.";
+        appState.rpgStatus = "Profile system not available on this network.";
         appState.rpgEligibility = null;
         appState.subscriptionLookupRate = null;
         appState.subscriptionLookupSubscription = null;
@@ -2658,7 +3031,7 @@
           agents.unshift({
             address: normalized,
             handle: "Connected Adventurer",
-            title: appState.agentProfile.modelType || "Live Guild Agent",
+            title: appState.agentProfile.modelType || "Live Specialty Agent",
             guildId: liveGuildId,
             level: Math.max(1, appState.rpgProfile?.level ?? 12),
             rating: Number((Math.min(5, 4 + (appState.agentProfile.reputation / 1000))).toFixed(1)),
@@ -2667,10 +3040,10 @@
             verified: Boolean(appState.rpgProfile?.verified),
             matchScore: 99,
             monthlyRate: 220,
-            tags: ["Live wallet", "On-chain", "Quest history"],
+            tags: ["Live wallet", "On-chain", "Task history"],
             tiers: { standard: 140, deluxe: 320, premium: 720 },
             serviceTitle: "Live Agent Delivery and Retainer Support",
-            blurb: "Connected wallet profile derived from on-chain registry, quest, and RPG state.",
+            blurb: "Connected wallet profile derived from on-chain registry, task activity, and profile state.",
             source: "live"
           });
         }
@@ -2697,7 +3070,7 @@
           tags: guild.focus,
           tiers: { standard: 95 + index * 10, deluxe: 220 + index * 30, premium: 480 + index * 80 },
           serviceTitle: `${guild.name} Sprint Delivery`,
-          blurb: "Quest history surfaced from recent on-chain activity.",
+          blurb: "Task history surfaced from recent on-chain activity.",
           source: "chain"
         });
       }
@@ -2756,10 +3129,22 @@
       };
     }
 
+    function isMarketplaceRoute(routeName) {
+      return MARKETPLACE_ROUTES.includes(routeName) || Object.hasOwn(LEGACY_ROUTE_REDIRECTS, routeName);
+    }
+
+    function isTavernRoute(routeName) {
+      return TAVERN_ROUTES.includes(routeName);
+    }
+
+    function getRouteGroup(routeName) {
+      return isTavernRoute(routeName) ? "tavern" : "marketplace";
+    }
+
     function parseRouteFromHash() {
       const raw = window.location.hash.replace(/^#/, "").trim();
       if (!raw) {
-        return { name: "home", key: "home", params: {} };
+        return { name: "find-agent", key: "find-agent", params: {} };
       }
 
       const [name, param = ""] = raw.split("/");
@@ -2782,10 +3167,13 @@
           params: { serviceId: Number.isFinite(serviceId) && serviceId > 0 ? serviceId : 1 }
         };
       }
-      if (name === "home" || name === "find-agent" || name === "guild-hall" || name === "agent-dashboard" || name === "register-agent" || LEGACY_ROUTE_TO_TAB[name]) {
+      if (name === "home") {
+        return { name: "home", key: "home", params: {} };
+      }
+      if (isMarketplaceRoute(name) || isTavernRoute(name)) {
         return { name, key: raw, params: {} };
       }
-      return { name: "home", key: "home", params: {} };
+      return { name: "find-agent", key: "find-agent", params: {} };
     }
 
     function routeToHash(route) {
@@ -2813,11 +3201,54 @@
       window.location.hash = nextHash;
     }
 
-    function syncRouteButtons(route) {
+    function syncRouteButtons(rawRoute, resolvedRoute) {
+      const routeGroup = getRouteGroup(resolvedRoute.name);
       document.querySelectorAll("[data-route]").forEach((button) => {
         const target = button.dataset.route;
-        const isActive = target === route.name || target === route.key;
+        const exactMatch = target === rawRoute.name || target === rawRoute.key || target === resolvedRoute.name || target === resolvedRoute.key;
+        const groupMatch = resolvedRoute.name !== "home" && button.dataset.routeGroup && button.dataset.routeGroup === routeGroup;
+        const isActive = Boolean(exactMatch || groupMatch);
         button.classList.toggle("active", isActive);
+      });
+    }
+
+    function syncSidebarGroup(routeName) {
+      const nextGroup = getRouteGroup(routeName);
+      appState.currentSidebarGroup = nextGroup;
+
+      document.querySelectorAll("[data-sidebar-group]").forEach((groupNode) => {
+        groupNode.classList.toggle("hidden", groupNode.dataset.sidebarGroup !== nextGroup);
+      });
+
+      if (!refs.sidebarContextLabel || !refs.sidebarContextCopy) {
+        return;
+      }
+
+      if (nextGroup === "tavern") {
+        if (refs.networkProfileTitle) {
+          refs.networkProfileTitle.textContent = `${CONFIG.networkLabel} Tavern`;
+        }
+        refs.sidebarContextLabel.textContent = "Tavern";
+        refs.sidebarContextCopy.textContent = "RPG, token, staking, governance, and Agent War now live in a dedicated lane.";
+      } else {
+        if (refs.networkProfileTitle) {
+          refs.networkProfileTitle.textContent = `${CONFIG.networkLabel} Marketplace`;
+        }
+        refs.sidebarContextLabel.textContent = "Marketplace";
+        refs.sidebarContextCopy.textContent = "Hiring flows stay primary. Tavern systems remain close, but no longer crowd the main marketplace lane.";
+      }
+    }
+
+    function syncQuestBoardView() {
+      const showMyQuests = appState.questBoardView === "my-quests";
+      if (refs.questBoardAllView) {
+        refs.questBoardAllView.classList.toggle("hidden", showMyQuests);
+      }
+      if (refs.questBoardMyView) {
+        refs.questBoardMyView.classList.toggle("hidden", !showMyQuests);
+      }
+      document.querySelectorAll("[data-quest-view]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.questView === appState.questBoardView);
       });
     }
 
@@ -2825,17 +3256,14 @@
       const labels = {
         "home": "Home",
         "find-agent": "Find Agent",
-        "guild-hall": "Guild Hall",
+        "guild-hall": "Browse Specialties",
         "agent-dashboard": "Agent Dashboard",
-        "quest-board": "Quest Board",
+        "quest-board": "My Tasks",
         "register-agent": "Register Agent",
-        "overview": "Overview",
-        "my-quests": "My Quests",
-        "rpg-profile": "RPG Profile",
+        "rpg-profile": "Profile",
         "token": "Token",
         "staking": "Staking",
         "governance": "Governance",
-        "subscriptions": "Subscriptions",
         "guild": `${getGuildDefinitionById(route.params.guildId).name}`,
         "agent": "Agent Profile",
         "service": "Service Detail"
@@ -2844,18 +3272,27 @@
     }
 
     function applyRouteFromHash() {
-      const route = parseRouteFromHash();
+      const rawRoute = parseRouteFromHash();
+      const redirect = LEGACY_ROUTE_REDIRECTS[rawRoute.name] ?? null;
+      const route = redirect
+        ? { ...rawRoute, name: redirect.name, params: { ...rawRoute.params } }
+        : rawRoute;
+
       appState.currentRoute = route;
-      syncRouteButtons(route);
+      appState.questBoardView = redirect?.questView ?? (route.name === "quest-board" ? "all" : appState.questBoardView);
+      appState.agentDashboardFocus = redirect?.focus ?? (route.name === "agent-dashboard" ? "summary" : appState.agentDashboardFocus);
+
+      syncRouteButtons(rawRoute, route);
+      syncSidebarGroup(route.name);
       updateRouteDocumentTitle(route);
 
       if (refs.marketplaceSearchInput && refs.marketplaceSearchInput.value !== appState.marketSearchQuery) {
         refs.marketplaceSearchInput.value = appState.marketSearchQuery;
       }
 
-      if (LEGACY_ROUTE_TO_TAB[route.name]) {
+      if (TAB_ROUTE_TO_PANEL[route.name]) {
         document.querySelectorAll(".route-panel").forEach((panel) => panel.classList.add("hidden"));
-        setActiveTab(LEGACY_ROUTE_TO_TAB[route.name]);
+        setActiveTab(TAB_ROUTE_TO_PANEL[route.name]);
         return;
       }
 
@@ -2868,7 +3305,7 @@
       } else if (route.name === "find-agent") {
         refs.findAgentFilterPill.textContent = appState.marketSearchQuery
           ? `Search: ${appState.marketSearchQuery}`
-          : "All guilds";
+          : "All specialties";
         $("route-find-agent").classList.remove("hidden");
       } else if (route.name === "guild") {
         $("route-guild").classList.remove("hidden");
@@ -2879,6 +3316,7 @@
       } else if (route.name === "guild-hall") {
         $("route-guild-hall").classList.remove("hidden");
       } else if (route.name === "agent-dashboard") {
+        renderAgentDashboardView();
         $("route-agent-dashboard").classList.remove("hidden");
       } else if (route.name === "register-agent") {
         $("route-register-agent").classList.remove("hidden");
@@ -2927,7 +3365,7 @@
         </div>
         <div class="panel-soft rounded-2xl p-4">
           <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Search state</p>
-          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${query ? `Filtering recommendations for "${escapeHtml(appState.marketSearchQuery)}".` : "No search filter applied. Showing cross-guild recommendations."}</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${query ? `Filtering recommendations for "${escapeHtml(appState.marketSearchQuery)}".` : "No search filter applied. Showing cross-specialty recommendations."}</p>
         </div>
       `;
 
@@ -2941,7 +3379,7 @@
               </div>
               ${renderToneBadge(`${metrics.memberCount} agents`, guild.tone)}
             </div>
-            <p class="heading-font mt-4 text-lg font-semibold">${escapeHtml(guild.name)}</p>
+            <p class="heading-font mt-4 text-lg font-semibold">${escapeHtml(getSpecialtyDisplayName(guild))}</p>
             <p class="mt-2 text-sm leading-6 text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
             <div class="mt-4 flex flex-wrap gap-2">
               ${guild.focus.map((focus) => `<span class="badge rounded-full px-3 py-1 text-xs">${escapeHtml(focus)}</span>`).join("")}
@@ -2964,7 +3402,7 @@
                     ${renderToneBadge(`Lv.${agent.level}`, "gold")}
                     ${renderToneBadge(agent.verified ? "Verified" : "Preview", agent.verified ? "emerald" : "slate")}
                   </div>
-                  <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(agent.title)} | ${escapeHtml(agent.guild.name)}</p>
+              <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(agent.title)} | ${escapeHtml(getSpecialtyDisplayName(agent.guild))}</p>
                   <p class="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">${escapeHtml(agent.blurb)}</p>
                   <div class="mt-4 flex flex-wrap gap-2">
                     ${agent.tags.map((tag) => `<span class="badge rounded-full px-3 py-1 text-xs">${escapeHtml(tag)}</span>`).join("")}
@@ -2989,7 +3427,7 @@
             </div>
           </article>
         `).join("")
-        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No agents matched "${escapeHtml(appState.marketSearchQuery)}". Try another guild, skill, or service phrase.</div>`;
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No agents matched "${escapeHtml(appState.marketSearchQuery)}". Try another specialty, skill, or service phrase.</div>`;
     }
 
     function renderGuildView() {
@@ -3006,7 +3444,7 @@
                     <span class="material-symbols-outlined text-[30px]">${escapeHtml(guild.icon)}</span>
                   </div>
                   <div>
-                    <p class="heading-font text-2xl font-semibold">${escapeHtml(guild.name)}</p>
+                    <p class="heading-font text-2xl font-semibold">${escapeHtml(getSpecialtyDisplayName(guild))}</p>
                     <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
                   </div>
                 </div>
@@ -3016,7 +3454,7 @@
               </div>
               <div class="flex flex-wrap gap-2">
                 <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="find-agent">Back to Market</button>
-                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Post Guild Quest</button>
+                  <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Post Specialty Task</button>
               </div>
             </div>
             <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -3039,18 +3477,18 @@
             </div>
           </div>
           <div class="panel rounded-[28px] p-6">
-            <p class="heading-font text-xl font-semibold">Guild Notes</p>
+            <p class="heading-font text-xl font-semibold">Specialty Notes</p>
             <div class="mt-4 space-y-3">
-              <div class="panel-soft rounded-2xl p-4 text-sm leading-6 text-[var(--muted)]">Predefined guilds replace user-created guilds. Membership becomes multi-category and service-driven.</div>
-              <div class="panel-soft rounded-2xl p-4 text-sm leading-6 text-[var(--muted)]">Live guild stats activate once TavernGuild and TavernServiceRegistry are deployed on ${escapeHtml(CONFIG.networkLabel)}.</div>
+              <div class="panel-soft rounded-2xl p-4 text-sm leading-6 text-[var(--muted)]">Predefined specialties replace legacy guild lanes. Membership becomes multi-category and service-driven.</div>
+              <div class="panel-soft rounded-2xl p-4 text-sm leading-6 text-[var(--muted)]">Live specialty stats activate once TavernGuild and TavernServiceRegistry are deployed on ${escapeHtml(CONFIG.networkLabel)}.</div>
             </div>
           </div>
         </div>
         <div class="panel rounded-[28px] p-6">
           <div class="flex items-center justify-between gap-3">
             <div>
-              <p class="heading-font text-xl font-semibold">Top Agents in ${escapeHtml(guild.name)}</p>
-              <p class="mt-1 text-sm text-[var(--muted)]">Preview roster aligned to the new category-based guild model.</p>
+              <p class="heading-font text-xl font-semibold">Featured Specialists in ${escapeHtml(getSpecialtyDisplayName(guild))}</p>
+              <p class="mt-1 text-sm text-[var(--muted)]">Preview roster aligned to the new category-based specialty model.</p>
             </div>
             <span class="badge rounded-full px-3 py-1 text-xs">${guildAgents.length} listed</span>
           </div>
@@ -3102,7 +3540,7 @@
               </div>
               <div class="mt-6 space-y-3 text-sm text-[var(--muted)]">
                 <p>Wallet: <span class="font-mono text-[var(--ink)]">${escapeHtml(agent.address)}</span></p>
-                <p>Guild: <span class="text-[var(--ink)]">${escapeHtml(agent.guild.name)}</span></p>
+                <p>Specialty: <span class="text-[var(--ink)]">${escapeHtml(getSpecialtyDisplayName(agent.guild))}</span></p>
                 <p>Monthly retainer: <span class="text-[var(--ink)]">$${agent.monthlyRate} USDC</span></p>
               </div>
               <div class="mt-5 flex flex-wrap gap-3">
@@ -3143,7 +3581,7 @@
                 ${[
                   ["Standard", agent.tiers.standard, "Fast scoped delivery"],
                   ["Deluxe", agent.tiers.deluxe, "Strategy plus implementation"],
-                  ["Premium", agent.tiers.premium, "End-to-end guild engagement"]
+                    ["Premium", agent.tiers.premium, "End-to-end specialty engagement"]
                 ].map(([label, price, note], index) => `
                   <div class="panel-soft rounded-[24px] p-5 ${index === 1 ? "border-[rgba(246,223,142,0.24)]" : ""}">
                     <p class="heading-font text-lg font-semibold">${label}</p>
@@ -3174,7 +3612,7 @@
                 <p class="heading-font text-2xl font-semibold">${escapeHtml(service.title)}</p>
                 <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(service.description)}</p>
               </div>
-              ${renderToneBadge(agent?.guild?.name ?? "Guild", agent?.guild?.tone ?? "gold")}
+              ${renderToneBadge(getSpecialtyDisplayName(agent?.guild) ?? "Specialty", agent?.guild?.tone ?? "gold")}
             </div>
             <div class="mt-6 flex flex-wrap gap-2">
               ${service.tags.map((tag) => `<span class="badge rounded-full px-3 py-1 text-xs">${escapeHtml(tag)}</span>`).join("")}
@@ -3182,7 +3620,7 @@
             <div class="mt-6 grid gap-4 md:grid-cols-3">
               ${[
                 ["Standard", service.tiers.standard, "Best for a focused single deliverable."],
-                ["Deluxe", service.tiers.deluxe, "Adds planning, revisions, and cross-guild context."],
+                  ["Deluxe", service.tiers.deluxe, "Adds planning, revisions, and cross-specialty context."],
                 ["Premium", service.tiers.premium, "High-touch delivery for launch-critical work."]
               ].map(([label, price, note], index) => `
                 <div class="panel-soft rounded-[24px] p-5 ${index === 1 ? "border-[rgba(246,223,142,0.24)]" : ""}">
@@ -3203,14 +3641,14 @@
               </div>
               <div class="mt-5 flex flex-wrap gap-3">
                 <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="agent/${service.agentAddress}">Open Agent</button>
-                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Post Similar Quest</button>
+                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="quest-board">Post Similar Task</button>
               </div>
             </div>
             <div class="panel rounded-[28px] p-6">
               <p class="heading-font text-xl font-semibold">Settlement Note</p>
               <p class="mt-4 text-sm leading-7 text-[var(--muted)]">${!isZeroAddress(CONFIG.addresses.tavernServiceRegistry)
                 ? "Service hiring is live on this network through the marketplace contracts."
-                : `ServiceRegistry is not deployed on ${escapeHtml(CONFIG.networkLabel)} yet. Use this page as a design-accurate preview and hire through Quest Board until deployment.`}</p>
+                : `ServiceRegistry is not deployed on ${escapeHtml(CONFIG.networkLabel)} yet. Use this page as a design-accurate preview and hire through My Tasks until deployment.`}</p>
             </div>
           </div>
         </div>
@@ -3229,7 +3667,7 @@
                 <span class="material-symbols-outlined text-[22px] text-[var(--gold)]">${guild.icon}</span>
               </div>
               <div>
-                <p class="heading-font text-sm font-semibold">${escapeHtml(guild.name)}</p>
+                        <p class="heading-font text-sm font-semibold">${escapeHtml(getSpecialtyDisplayName(guild))}</p>
                 <p class="text-xs text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
               </div>
             </div>
@@ -3261,7 +3699,7 @@
                 <span class="text-xs font-semibold">${agent.rating}</span>
                 <span class="text-[10px] text-[var(--muted)]">(${agent.reviewCount})</span>
               </div>
-              ${renderToneBadge(agent.guild.name, agent.guild.tone)}
+                ${renderToneBadge(getSpecialtyDisplayName(agent.guild), agent.guild.tone)}
             </div>
             <p class="mt-2 text-xs text-[var(--muted)] leading-5 line-clamp-2">${escapeHtml(agent.blurb)}</p>
             <div class="mt-3 flex flex-wrap gap-1">
@@ -3290,7 +3728,7 @@
               <input type="radio" name="register-guild" value="${index}" class="accent-[var(--gold)]" ${index === 0 ? "checked" : ""}>
               <span class="material-symbols-outlined text-[20px] text-[var(--gold)]">${guild.icon}</span>
               <div>
-                <p class="text-sm font-semibold">${escapeHtml(guild.name)}</p>
+                        <p class="text-sm font-semibold">${escapeHtml(getSpecialtyDisplayName(guild))}</p>
                 <p class="text-[10px] text-[var(--muted)]">${escapeHtml(guild.summary.slice(0, 50))}</p>
               </div>
             </div>
@@ -3342,32 +3780,32 @@
           <div class="relative flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="heading-font text-xs uppercase tracking-[0.42em] text-[var(--gold-soft)]">Service Categories</p>
-              <h1 class="heading-font mt-2 text-3xl font-bold">Guild Hall</h1>
-              <p class="mt-3 text-base text-[var(--muted)] max-w-2xl">Eight specialized guilds form the backbone of the Claw Tavern marketplace. Each guild levels up through completions and earns milestone NFT rewards for top contributors.</p>
-            </div>
-            <div class="flex gap-3">
-              <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="register-agent">Join a Guild</button>
-              <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="home">&larr; Home</button>
-            </div>
+               <h1 class="heading-font mt-2 text-3xl font-bold">Browse Specialties</h1>
+               <p class="mt-3 text-base text-[var(--muted)] max-w-2xl">Explore the marketplace specialties that group specialists by delivery style, capability, and demand profile.</p>
+             </div>
+             <div class="flex gap-3">
+               <button class="action-button primary rounded-full px-5 py-3 text-sm font-semibold" data-route="register-agent">Join a Specialty</button>
+               <a href="/" class="action-button ghost inline-flex rounded-full px-4 py-2 text-sm font-semibold no-underline">&larr; Home</a>
+             </div>
           </div>
         </div>
 
-        <!-- Guild Leaderboard -->
+        <!-- Specialty Overview -->
         <div class="panel rounded-[28px] p-6">
-          <h2 class="heading-font text-xl font-semibold mb-4">Guild Leaderboard</h2>
+          <h2 class="heading-font text-xl font-semibold mb-4">Specialty Overview</h2>
           <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-6">
             ${[
-              { label: "Total Guilds", value: "8", icon: "groups", color: "gold" },
+              { label: "Total Specialties", value: "8", icon: "groups", color: "gold" },
               { label: "Total Agents", value: "${getMarketplaceAgents().length}+", icon: "smart_toy", color: "emerald" },
               { label: "Avg Rating", value: "${(getMarketplaceAgents().reduce((s, a) => s + a.rating, 0) / Math.max(1, getMarketplaceAgents().length)).toFixed(1)}", icon: "star", color: "gold" },
-              { label: "Active Quests", value: "${activeQuestCount(appState.quests)}", icon: "assignment", color: "ember" }
-            ].map((stat) => \`
+              { label: "Active Tasks", value: "${activeQuestCount(appState.quests)}", icon: "assignment", color: "ember" }
+            ].map((stat) => `
               <div class="panel-soft rounded-2xl p-4 text-center">
-                <span class="material-symbols-outlined text-[24px] text-[var(--\${stat.color})]">\${stat.icon}</span>
-                <p class="mt-1 text-2xl font-bold heading-font">\${stat.value}</p>
-                <p class="text-xs text-[var(--muted)]">\${stat.label}</p>
+                <span class="material-symbols-outlined text-[24px] text-[var(--${stat.color})]">${stat.icon}</span>
+                <p class="mt-1 text-2xl font-bold heading-font">${stat.value}</p>
+                <p class="text-xs text-[var(--muted)]">${stat.label}</p>
               </div>
-            \`).join("")}
+            `).join("")}
           </div>
         </div>
 
@@ -3389,7 +3827,7 @@
                       </div>
                     </div>
                     <div>
-                      <p class="heading-font text-lg font-semibold">${escapeHtml(guild.name)}</p>
+                        <p class="heading-font text-lg font-semibold">${escapeHtml(getSpecialtyDisplayName(guild))}</p>
                       <p class="text-sm text-[var(--muted)]">${escapeHtml(guild.summary)}</p>
                     </div>
                   </div>
@@ -3432,7 +3870,7 @@
                 </div>
 
                 <div class="mt-4 flex flex-wrap gap-3">
-                  <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="guild/${guild.id}">Explore Guild</button>
+                  <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="guild/${guild.id}">Explore Specialty</button>
                   <button class="action-button ghost rounded-full px-4 py-2 text-sm font-semibold" data-route="register-agent">Apply to Join</button>
                 </div>
               </article>
@@ -3446,67 +3884,148 @@
       const myAddress = appState.account ? appState.account.toLowerCase() : "";
       const myClientQuests = myAddress ? appState.quests.filter((quest) => quest.client.toLowerCase() === myAddress) : [];
       const myAgentQuests = myAddress ? appState.quests.filter((quest) => quest.agent.toLowerCase() === myAddress) : [];
+      const focus = appState.agentDashboardFocus || "summary";
+      const focusClass = (sectionName) => focus === sectionName
+        ? "border-[rgba(246,223,142,0.32)] shadow-[0_0_0_1px_rgba(246,223,142,0.08)]"
+        : "";
+      const recentSubscriptions = appState.subscriptionSubscriptions.slice(0, 3);
+      const activeSubscriptions = appState.subscriptionSubscriptions.filter((subscription) => subscription.active && !subscription.cancelledByClient).length;
+      const totalQuestExposure = myClientQuests.length + myAgentQuests.length;
       refs.agentDashboardContent.innerHTML = !appState.account
         ? `<div class="panel rounded-[28px] p-6"><div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect wallet to unlock the personalized agent dashboard. Until then, explore the marketplace preview pages.</div></div>`
         : `
-          <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-            <div class="space-y-6">
-              <div class="panel rounded-[28px] p-6">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p class="heading-font text-2xl font-semibold">Agent Dashboard</p>
-                    <p class="mt-2 text-sm text-[var(--muted)]">Live wallet-centric summary across quest delivery, staking, and subscription posture.</p>
-                  </div>
-                  ${renderToneBadge(appState.agentProfile?.isActive ? "Active agent" : "Client wallet", appState.agentProfile?.isActive ? "emerald" : "slate")}
+          <div class="space-y-6">
+            <div class="panel rounded-[28px] p-6">
+              <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                  <p class="heading-font text-2xl font-semibold">Agent Dashboard</p>
+                  <p class="mt-2 text-sm text-[var(--muted)]">Merged control room for overview, subscription posture, and live delivery status.</p>
                 </div>
-                <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Client quests</p>
-                    <p class="mt-2 text-2xl font-semibold">${myClientQuests.length}</p>
-                  </div>
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Agent quests</p>
-                    <p class="mt-2 text-2xl font-semibold">${myAgentQuests.length}</p>
-                  </div>
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TVRN</p>
-                    <p class="mt-2 text-2xl font-semibold">${formatUnits(appState.balances.tvrn, appState.tvrnDecimals)}</p>
-                  </div>
-                  <div class="panel-soft rounded-2xl p-4">
-                    <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Subscriptions</p>
-                    <p class="mt-2 text-2xl font-semibold">${appState.subscriptionSubscriptions.length}</p>
-                  </div>
+                <div class="flex flex-wrap gap-2">
+                  ${renderToneBadge(appState.agentProfile?.isActive ? "Active agent" : "Client wallet", appState.agentProfile?.isActive ? "emerald" : "slate")}
+                  ${renderToneBadge(`${totalQuestExposure} task touchpoints`, "gold")}
                 </div>
               </div>
-              <div class="panel rounded-[28px] p-6">
-                <p class="heading-font text-xl font-semibold">Quick Route Actions</p>
-                <div class="mt-5 flex flex-wrap gap-3">
-                  <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="my-quests">Open My Quests</button>
-                  <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="staking">Manage Stake</button>
-                  <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="subscriptions">Open Subscriptions</button>
-                  <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">Open RPG Profile</button>
-                </div>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-route="my-quests">Open My Tasks</button>
+                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="subscriptions">Jump to Pacts</button>
+                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="token">Open Wallet</button>
+                <button class="action-button rounded-full px-4 py-2 text-sm font-semibold" data-route="rpg-profile">Open Profile</button>
               </div>
             </div>
-            <div class="space-y-6">
-              <div class="panel rounded-[28px] p-6">
-                <p class="heading-font text-xl font-semibold">Wallet Posture</p>
-                <div class="mt-5 space-y-3 text-sm text-[var(--muted)]">
-                  <p>USDC balance: <span class="text-[var(--ink)]">${formatUnits(appState.balances.usdc, appState.usdcDecimals, 2)} USDC</span></p>
-                  <p>Credit balance: <span class="text-[var(--ink)]">${formatUsdCredit(appState.balances.creditUsd18)}</span></p>
-                  <p>Stake amount: <span class="text-[var(--ink)]">${formatUnits(appState.stakeInfo.amount, appState.tvrnDecimals)} ${appState.tvrnSymbol}</span></p>
-                  <p>Unlock state: <span class="text-[var(--ink)]">${formatRelativeDays(appState.balances.unlockAt)}</span></p>
+
+            <section data-dashboard-section="overview" class="panel rounded-[28px] p-6 ${focusClass("overview")}">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Overview Snapshot</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Portfolio, delivery throughput, and current wallet posture in one place.</p>
+                </div>
+                ${focus === "overview" ? renderToneBadge("Focused from legacy overview", "gold") : ""}
+              </div>
+              <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Client tasks</p>
+                  <p class="mt-2 text-2xl font-semibold">${myClientQuests.length}</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Agent tasks</p>
+                  <p class="mt-2 text-2xl font-semibold">${myAgentQuests.length}</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">TVRN</p>
+                  <p class="mt-2 text-2xl font-semibold">${formatUnits(appState.balances.tvrn, appState.tvrnDecimals)}</p>
+                </div>
+                <div class="panel-soft rounded-2xl p-4">
+                  <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Credit</p>
+                  <p class="mt-2 text-2xl font-semibold">${formatUsdCredit(appState.balances.creditUsd18)}</p>
                 </div>
               </div>
+              <div class="mt-6 grid gap-6 xl:grid-cols-2">
+                <div class="panel-soft rounded-[24px] p-5">
+                  <p class="heading-font text-lg font-semibold">Wallet Posture</p>
+                  <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
+                    <p>USDC balance: <span class="text-[var(--ink)]">${formatUnits(appState.balances.usdc, appState.usdcDecimals, 2)} USDC</span></p>
+                    <p>Stake amount: <span class="text-[var(--ink)]">${formatUnits(appState.stakeInfo.amount, appState.tvrnDecimals)} ${appState.tvrnSymbol}</span></p>
+                    <p>Unlock state: <span class="text-[var(--ink)]">${formatRelativeDays(appState.balances.unlockAt)}</span></p>
+                    <p>Profile level: <span class="text-[var(--ink)]">${appState.rpgProfile?.level ?? "--"}</span></p>
+                  </div>
+                </div>
+                <div class="panel-soft rounded-[24px] p-5">
+                  <p class="heading-font text-lg font-semibold">Delivery Notes</p>
+                  <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
+                    <p>Active agent profile: <span class="text-[var(--ink)]">${appState.agentProfile?.isActive ? "Yes" : "No"}</span></p>
+                    <p>Claimable TVRN: <span class="text-[var(--ink)]">${formatUnits(appState.rpgClaimable, appState.tvrnDecimals)} ${appState.tvrnSymbol}</span></p>
+                    <p>Status: <span class="text-[var(--ink)]">${escapeHtml(appState.rpgStatus || "Profile loaded")}</span></p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section data-dashboard-section="subscriptions" class="panel rounded-[28px] p-6 ${focusClass("subscriptions")}">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="heading-font text-xl font-semibold">Subscription Pacts</p>
+                  <p class="mt-1 text-sm text-[var(--muted)]">Browse and active subscriptions now live inside the dashboard instead of their own nav item.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  ${renderToneBadge(`${activeSubscriptions} active`, activeSubscriptions ? "emerald" : "slate")}
+                  ${focus === "subscriptions" ? renderToneBadge("Focused from legacy subscriptions", "gold") : ""}
+                </div>
+              </div>
+              <div class="mt-6 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                <div class="panel-soft rounded-[24px] p-5">
+                  <p class="heading-font text-lg font-semibold">Browse / subscribe</p>
+                  <p class="mt-2 text-sm text-[var(--muted)]">${escapeHtml(appState.subscriptionLookupError || appState.subscriptionLookupMessage || "Paste an agent address to check the monthly rate.")}</p>
+                  ${appState.subscriptionLookupAgent ? `
+                    <div class="mt-4 space-y-2 text-sm text-[var(--muted)]">
+                      <p>Lookup target: <span class="text-[var(--ink)] font-mono">${escapeHtml(appState.subscriptionLookupAgent)}</span></p>
+                      <p>Monthly rate: <span class="text-[var(--ink)]">${appState.subscriptionLookupRate !== null ? `${formatUnits(appState.subscriptionLookupRate, appState.usdcDecimals, 2)} USDC / 30 days` : "Rate unavailable"}</span></p>
+                    </div>
+                  ` : `<p class="mt-4 text-sm text-[var(--muted)]">Use any "Open Subscription" CTA from the marketplace to prefill an agent here.</p>`}
+                </div>
+                <div class="panel-soft rounded-[24px] p-5">
+                  <p class="heading-font text-lg font-semibold">Active pact list</p>
+                  ${recentSubscriptions.length
+                    ? `<div class="mt-4 space-y-3">
+                        ${recentSubscriptions.map((subscription) => {
+                          const status = getSubscriptionStatusMeta(subscription);
+                          return `
+                            <article class="rounded-2xl border border-white/8 bg-black/10 p-4">
+                              <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <p class="font-semibold">Subscription #${subscription.subId}</p>
+                                  <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(shortenAddress(subscription.agent))} | ${escapeHtml(formatUnits(subscription.monthlyRateUsdc, appState.usdcDecimals, 2))} USDC</p>
+                                </div>
+                                ${renderToneBadge(status.label, status.tone)}
+                              </div>
+                            </article>
+                          `;
+                        }).join("")}
+                      </div>`
+                    : `<p class="mt-4 text-sm text-[var(--muted)]">${escapeHtml(appState.subscriptionListNote || "No subscriptions found yet.")}</p>`}
+                </div>
+              </div>
+            </section>
+
+            <section data-dashboard-section="operations" class="grid gap-6 xl:grid-cols-2">
               <div class="panel rounded-[28px] p-6">
-                <p class="heading-font text-xl font-semibold">RPG Snapshot</p>
+                <p class="heading-font text-xl font-semibold">Profile Snapshot</p>
                 <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
                   <p>Level: <span class="text-[var(--ink)]">${appState.rpgProfile?.level ?? "--"}</span></p>
                   <p>Claimable TVRN: <span class="text-[var(--ink)]">${formatUnits(appState.rpgClaimable, appState.tvrnDecimals)} ${appState.tvrnSymbol}</span></p>
                   <p>Status: <span class="text-[var(--ink)]">${escapeHtml(appState.rpgStatus || "Profile loaded")}</span></p>
                 </div>
               </div>
-            </div>
+              <div class="panel rounded-[28px] p-6">
+                <p class="heading-font text-xl font-semibold">Delivery Cadence</p>
+                <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
+                  <p>Total task exposure: <span class="text-[var(--ink)]">${totalQuestExposure}</span></p>
+                  <p>Client-created tasks awaiting review: <span class="text-[var(--ink)]">${myClientQuests.filter((quest) => quest.state === 4).length}</span></p>
+                  <p>Agent-active tasks: <span class="text-[var(--ink)]">${myAgentQuests.filter((quest) => quest.state === 2 || quest.state === 3).length}</span></p>
+                  <p>Wallet mode: <span class="text-[var(--ink)]">${appState.agentProfile?.isActive ? "Agent + client" : "Client / observer"}</span></p>
+                </div>
+              </div>
+            </section>
           </div>
         `;
     }
@@ -3519,7 +4038,7 @@
       appState.rpgStatus = "";
 
       if (!hasCoreDeployment() || isZeroAddress(CONFIG.addresses.tavernClientRPG)) {
-        appState.rpgStatus = "RPG system not available on this network.";
+        appState.rpgStatus = "Profile system not available on this network.";
         if (!skipRender) {
           renderRPGTab();
         }
@@ -3528,7 +4047,7 @@
 
       const clientRPG = contracts?.clientRPG ?? getReadContracts().clientRPG;
       if (!clientRPG) {
-        appState.rpgStatus = "RPG system not available on this network.";
+        appState.rpgStatus = "Profile system not available on this network.";
         if (!skipRender) {
           renderRPGTab();
         }
@@ -3557,7 +4076,7 @@
           appState.rpgClaimable = claimable ?? 0n;
         } else {
           appState.rpgStatus = appState.account
-            ? "No RPG profile yet. Finish the first client flow to register."
+          ? "No profile yet. Finish the first client flow to register."
             : "Connect wallet to view your profile.";
         }
       } catch (error) {
@@ -3680,7 +4199,7 @@
       refs.rpgCheckEligibility.disabled = !contractAvailable || !appState.account;
 
       if (!contractAvailable) {
-        refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">RPG system not available on this network.</div>`;
+        refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Profile system not available on this network.</div>`;
       } else if (!appState.account) {
         refs.rpgProfileContent.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">Connect wallet to view your profile.</div>`;
       } else if (!profile) {
@@ -3756,7 +4275,7 @@
               : appState.rpgEligibility.reason)}</p>
           </div>
         `
-        : `<div class="panel-soft rounded-2xl p-4 text-sm text-[var(--muted)]">${contractAvailable ? (appState.account ? "Enter a TVRN amount and run the eligibility check." : "Connect wallet to run the eligibility check.") : "RPG deployment required for eligibility previews."}</div>`;
+        : `<div class="panel-soft rounded-2xl p-4 text-sm text-[var(--muted)]">${contractAvailable ? (appState.account ? "Enter a TVRN amount and run the eligibility check." : "Connect wallet to run the eligibility check.") : "Profile deployment required for eligibility previews."}</div>`;
     }
 
     function renderSubscriptionTab() {
@@ -3878,7 +4397,7 @@
       if (!appState.quests.length) {
         refs.questBoardGrid.innerHTML = `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">${
           hasCoreDeployment()
-            ? `No quests have been created on ${escapeHtml(CONFIG.networkLabel)} yet.`
+        ? `No tasks have been created on ${escapeHtml(CONFIG.networkLabel)} yet.`
             : `${escapeHtml(CONFIG.networkLabel)} profile is configured, but live contract addresses have not been populated yet.`
         }</div>`;
         return;
@@ -3891,7 +4410,7 @@
           <article class="quest-card panel-soft rounded-[24px] p-5">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+              <p class="heading-font text-lg font-semibold">Task #${quest.questId}</p>
                 <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
               </div>
               ${stateBadge(quest.state)}
@@ -3912,7 +4431,7 @@
               ${quest.resultHash && quest.resultHash !== "0x0000000000000000000000000000000000000000000000000000000000000000" ? `<p>Result hash: <span class="font-medium text-[var(--ink)]">${escapeHtml(shortenHash(quest.resultHash))}</span></p>` : ""}
             </div>
             <div class="mt-5 flex flex-wrap gap-3">
-              ${isOpenOpportunity ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="accept-quest" data-id="${quest.questId}">Accept quest</button>` : ""}
+            ${isOpenOpportunity ? `<button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="accept-quest" data-id="${quest.questId}">Accept task</button>` : ""}
               ${resultUrl ? `<a class="action-button rounded-full px-4 py-2 text-sm font-semibold" href="${resultUrl}" target="_blank" rel="noreferrer">Open result</a>` : ""}
             </div>
           </article>
@@ -3939,7 +4458,7 @@
 
       refs.clientQuests.innerHTML = clientQuests.length
         ? clientQuests.map(renderClientQuestCard).join("")
-        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No quests created by this wallet yet.</div>`;
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No tasks created by this wallet yet.</div>`;
 
       refs.agentWorkbench.innerHTML = `
         ${openOpportunities.length ? `
@@ -3950,7 +4469,7 @@
                 <div class="panel-soft rounded-2xl p-4">
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p class="font-semibold">Quest #${quest.questId}</p>
+                      <p class="font-semibold">Task #${quest.questId}</p>
                       <p class="text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
                     </div>
                     <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="accept-quest" data-id="${quest.questId}">Accept</button>
@@ -3960,7 +4479,7 @@
             </div>
           </div>
         ` : ""}
-        ${agentQuests.length ? agentQuests.map(renderAgentQuestCard).join("") : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">This wallet has not accepted a quest yet.</div>`}
+        ${agentQuests.length ? agentQuests.map(renderAgentQuestCard).join("") : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">This wallet has not accepted a task yet.</div>`}
       `;
     }
 
@@ -3973,7 +4492,7 @@
         <article class="quest-card panel-soft rounded-[24px] p-5">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+              <p class="heading-font text-lg font-semibold">Task #${quest.questId}</p>
               <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
             </div>
             ${stateBadge(quest.state)}
@@ -4011,7 +4530,7 @@
         <article class="quest-card panel-soft rounded-[24px] p-5">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+              <p class="heading-font text-lg font-semibold">Task #${quest.questId}</p>
               <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(formatQuestValue(quest.currency, quest.depositAmount))}</p>
             </div>
             ${stateBadge(quest.state)}
@@ -4052,8 +4571,8 @@
         : [];
 
       refs.kpiGrid.innerHTML = [
-        ["Active quests", String(active), "Funded, accepted, in progress, or submitted"],
-        ["Total quests", String(total), "All quests ever created on this deployment"],
+        ["Active tasks", String(active), "Funded, accepted, in progress, or submitted"],
+        ["Total tasks", String(total), "All tasks ever created on this deployment"],
         ["Fee stage", `${appState.feeStage}%`, "Live currentFeeStage() read from escrow"],
         [`${appState.tvrnSymbol} balance`, formatUnits(appState.balances.tvrn, appState.tvrnDecimals), "Connected wallet balance"]
       ].map(([title, value, note]) => `
@@ -4071,7 +4590,7 @@
               <article class="panel-soft rounded-[24px] p-5">
                 <div class="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+                    <p class="heading-font text-lg font-semibold">Task #${quest.questId}</p>
                     <p class="mt-1 text-sm text-[var(--muted)]">${escapeHtml(getCompensationReason(quest))}</p>
                   </div>
                   <span class="badge state-compensated rounded-full px-3 py-1 text-xs font-semibold">Compensation complete</span>
@@ -4093,14 +4612,14 @@
               </article>
             `;
           }).join("")
-        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No compensated quests on the board yet.</div>`;
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No compensated tasks on the board yet.</div>`;
 
       refs.evaluationQueue.innerHTML = submittedForClient.length
         ? submittedForClient.map((quest) => `
           <article class="panel-soft rounded-[24px] p-5">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p class="heading-font text-lg font-semibold">Quest #${quest.questId}</p>
+                <p class="heading-font text-lg font-semibold">Task #${quest.questId}</p>
                 <p class="mt-1 text-sm text-[var(--muted)]">Submitted by ${escapeHtml(shortenAddress(quest.agent))}</p>
               </div>
               <button class="action-button primary rounded-full px-4 py-2 text-sm font-semibold" data-action="open-evaluation" data-id="${quest.questId}">Evaluate now</button>
@@ -4108,7 +4627,7 @@
             <p class="mt-3 text-sm text-[var(--muted)]">Result viewed: ${escapeHtml(formatTimestamp(quest.resultViewedAt))}</p>
           </article>
         `).join("")
-        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No submitted quests waiting for your evaluation.</div>`;
+        : `<div class="panel-soft rounded-2xl p-5 text-sm text-[var(--muted)]">No submitted tasks waiting for your evaluation.</div>`;
 
       refs.quotaGrid.innerHTML = JOB_LABELS.map((label, index) => {
         const value = appState.quotas[index] || 0;
@@ -4153,10 +4672,10 @@
           <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Agent profile</p>
           ${appState.agentProfile && appState.agentProfile.isActive ? `
             <div class="mt-2 space-y-1 text-sm">
-              <p>Guild ID: ${appState.agentProfile.guildId}</p>
+              <p>Specialty ID: ${appState.agentProfile.guildId}</p>
               <p>Rank: ${appState.agentProfile.rank}</p>
               <p>Reputation: ${appState.agentProfile.reputation}</p>
-              <p>Quests done: ${appState.agentProfile.questsDone}</p>
+              <p>Tasks done: ${appState.agentProfile.questsDone}</p>
               <p>Model type: ${escapeHtml(appState.agentProfile.modelType || "n/a")}</p>
             </div>
           ` : `<p class="mt-2 text-sm text-[var(--muted)]">This wallet is not currently registered as an active agent.</p>`}
@@ -4191,7 +4710,7 @@
       if (isZeroAddress(CONFIG.addresses.tavernStaking)) {
         refs.stakingContent.innerHTML = `
           <div class="panel rounded-[28px] p-6">
-            <p class="heading-font text-xl font-semibold">Staking</p>
+            <p class="heading-font text-xl font-semibold">Bond Status</p>
             <p class="mt-3 text-sm text-[var(--muted)]">
               The staking contract is not yet deployed on ${escapeHtml(CONFIG.networkLabel)}.
               Check back after the next coordinated deploy.
@@ -4210,7 +4729,7 @@
       const isWithdrawReady = cooldownEndsAt > 0 && cooldownEndsAt <= Math.floor(Date.now() / 1000);
 
       let statusTitle = "No active stake";
-      let statusBody = "Connect a wallet to inspect your bond and post the 100 TVRN guild bond.";
+      let statusBody = "Connect a wallet to inspect your bond and post the 100 TVRN specialty bond.";
       let badgeClass = "stake-badge inactive";
       let badgeLabel = appState.account ? "Idle" : "Wallet needed";
       let actionHtml = appState.account
@@ -4219,7 +4738,7 @@
 
       if (appState.account && hasStake && !isSlashed && !isWithdrawPending) {
         statusTitle = "Bond posted";
-        statusBody = `Staked amount: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave the guild before requesting an unstake.`;
+        statusBody = `Staked amount: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave your specialty lane before requesting an unstake.`;
         badgeClass = "stake-badge";
         badgeLabel = "Active bond";
         actionHtml = `<button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="request-unstake">Request unstake</button>`;
@@ -4231,12 +4750,12 @@
         actionHtml = `<button class="action-button ${isWithdrawReady ? "primary" : ""} rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="withdraw-bond" ${isWithdrawReady ? "" : "disabled"}>${isWithdrawReady ? "Withdraw bond" : "Withdraw locked"}</button>`;
       } else if (appState.account && hasStake && isSlashed) {
         statusTitle = "Bond slashed";
-        statusBody = `Remaining bond: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave the guild, then request unstake to start the 7 day cooldown.`;
+        statusBody = `Remaining bond: ${formatUnits(stakeAmount, appState.tvrnDecimals)} ${appState.tvrnSymbol}. Leave your specialty lane, then request unstake to start the 7 day cooldown.`;
         badgeClass = "stake-badge slashed";
         badgeLabel = "Slashed";
         actionHtml = `<button class="action-button rounded-full px-5 py-3 text-sm font-semibold" data-phase2-action="request-unstake">Request unstake</button>`;
       } else if (appState.account) {
-        statusBody = "Post the fixed 100 TVRN bond to unlock guild registration on the Phase 2 registry.";
+        statusBody = "Post the fixed 100 TVRN bond to unlock specialty registration on the Phase 2 registry.";
       }
 
       refs.stakingContent.innerHTML = `
@@ -4244,15 +4763,15 @@
           <div class="panel rounded-[28px] p-6">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p class="heading-font text-xl font-semibold">Staking Bond</p>
-                <p class="mt-1 text-sm text-[var(--muted)]">A fixed 100 TVRN bond is required to join the guild. Cooldown and slash rules are enforced on-chain by TavernStaking.</p>
+                <p class="heading-font text-xl font-semibold">Wallet Bond</p>
+                <p class="mt-1 text-sm text-[var(--muted)]">A fixed 100 TVRN bond is required to join a specialty. Cooldown and slash rules are enforced on-chain by TavernStaking.</p>
               </div>
               <span class="badge rounded-full px-3 py-1 text-xs">Live contract</span>
             </div>
 
             <div class="panel-soft mt-6 rounded-[24px] p-5">
               <p class="text-xs uppercase tracking-[0.22em] text-[var(--muted)]">Bond rule</p>
-              <p class="mt-3 text-sm leading-6 text-[var(--muted)]">100 TVRN bond required to join a guild. 7 day cooldown to withdraw. 50% slash penalty for bad actors.</p>
+              <p class="mt-3 text-sm leading-6 text-[var(--muted)]">100 TVRN bond required to join a specialty. 7 day cooldown to withdraw. 50% slash penalty for bad actors.</p>
             </div>
 
             <div class="panel-soft mt-4 rounded-[24px] p-5">
@@ -4302,7 +4821,7 @@
               </div>
             </div>
             <div class="panel rounded-[28px] p-6">
-              <p class="heading-font text-xl font-semibold">Guild Notes</p>
+              <p class="heading-font text-xl font-semibold">Specialty Notes</p>
               <div class="mt-4 space-y-3 text-sm text-[var(--muted)]">
                 <p>Staking uses the live Phase 2 TavernStaking deployment at ${escapeHtml(shortenAddress(CONFIG.addresses.tavernStaking))}.</p>
                 <p>Approval and stake happen as two separate wallet prompts when TVRN allowance is too low.</p>
@@ -4392,11 +4911,11 @@
             <p class="heading-font text-xl font-semibold">Proposal Type Reference</p>
             <div class="mt-6 grid gap-3">
               ${[
-                ["Guild Fee Change", "Change a guild's fee rate"],
-                ["Guild Master Change", "Replace a guild master"],
-                ["Sub-Token Issuance", "Issue sub-tokens for a guild"],
+                ["Specialty Fee Change", "Change a specialty fee rate"],
+                ["Specialty Lead Change", "Replace a specialty lead"],
+                ["Sub-Token Issuance", "Issue sub-tokens for a specialty"],
                 ["Platform Fee Change", "Change platform-wide fee"],
-                ["Force Dissolve Guild", "Force dissolve an inactive guild"],
+                ["Force Dissolve Specialty", "Force dissolve an inactive specialty"],
                 ["Emergency Freeze", "Instant queue, no timelock delay"]
               ].map(([title, copy]) => `
                 <div class="panel-soft rounded-2xl p-4">
@@ -4523,6 +5042,10 @@
         panel.classList.toggle("hidden", panel.id !== `tab-${tabName}`);
       });
 
+      if (tabName === "quest-board") {
+        syncQuestBoardView();
+      }
+
       if (tabName === "rpg") {
         loadRPGData().catch((error) => {
           appState.rpgStatus = extractErrorMessage(error);
@@ -4640,7 +5163,7 @@
       }
 
       if (!briefText) {
-        pushToast("Write a quest brief before creating the quest.", "error");
+      pushToast("Write a task brief before creating the task.", "error");
         return;
       }
 
@@ -4650,7 +5173,7 @@
         : ethers.parseUnits(amountText, appState.usdcDecimals);
       const briefHash = ethers.keccak256(ethers.toUtf8Bytes(briefText));
       const confirmed = await askConfirmation(
-        "Create and fund quest?",
+        "Create and fund task?",
         buildConfirmationDetails([
           ["Currency", currencyLabel],
           ["Amount", currencyLabel === "ETH" ? `${amountText} ETH` : `${amountText} USDC`],
@@ -4664,18 +5187,18 @@
       await ensureConfiguredNetwork();
       const { escrow, usdc } = getWriteContracts();
 
-      const createTx = await performWrite("Creating quest", () =>
+      const createTx = await performWrite("Creating task", () =>
         escrow.createQuest(currency, depositAmount, briefHash, briefUri)
       );
       const createReceipt = await createTx.wait();
       const questId = await parseQuestIdFromReceipt(createReceipt, escrow);
 
       if (!questId) {
-        throw new Error("Quest created but questId could not be parsed from logs.");
+        throw new Error("Task created but the task ID could not be parsed from logs.");
       }
 
       if (currencyLabel === "ETH") {
-        const fundTx = await performWrite(`Funding quest #${questId} with ETH`, () =>
+        const fundTx = await performWrite(`Funding task #${questId} with ETH`, () =>
           escrow.fundQuestETH(questId, { value: depositAmount })
         );
         await fundTx.wait();
@@ -4687,7 +5210,7 @@
           );
           await approveTx.wait();
         }
-        const fundTx = await performWrite(`Funding quest #${questId} with USDC`, () =>
+        const fundTx = await performWrite(`Funding task #${questId} with USDC`, () =>
           escrow.fundQuestUSDC(questId)
         );
         await fundTx.wait();
@@ -4701,11 +5224,11 @@
     async function fundCreatedQuest(questId) {
       const quest = appState.quests.find((item) => item.questId === questId);
       if (!quest) {
-        throw new Error("Quest not found.");
+        throw new Error("Task not found.");
       }
 
       const confirmed = await askConfirmation(
-        `Fund quest #${questId}?`,
+        `Fund task #${questId}?`,
         buildConfirmationDetails([
           ["Amount", formatQuestValue(quest.currency, quest.depositAmount)],
           ["Wallet flow", quest.currency === CONFIG.zeroAddress ? "1 wallet confirmation expected" : "1-2 wallet confirmations expected"]
@@ -4718,7 +5241,7 @@
       await ensureConfiguredNetwork();
       const { escrow, usdc } = getWriteContracts();
       if (quest.currency === CONFIG.zeroAddress) {
-        const tx = await performWrite(`Funding quest #${questId} with ETH`, () =>
+        const tx = await performWrite(`Funding task #${questId} with ETH`, () =>
           escrow.fundQuestETH(questId, { value: quest.depositAmount })
         );
         await tx.wait();
@@ -4730,7 +5253,7 @@
           );
           await approveTx.wait();
         }
-        const tx = await performWrite(`Funding quest #${questId} with USDC`, () =>
+        const tx = await performWrite(`Funding task #${questId} with USDC`, () =>
           escrow.fundQuestUSDC(questId)
         );
         await tx.wait();
@@ -4741,7 +5264,7 @@
 
     async function acceptQuest(questId) {
       const confirmed = await askConfirmation(
-        `Accept quest #${questId}?`,
+        `Accept task #${questId}?`,
         buildConfirmationDetails([
           ["Function", `acceptQuest(${questId})`]
         ])
@@ -4752,14 +5275,14 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Accepting quest #${questId}`, () => escrow.acceptQuest(questId));
+      const tx = await performWrite(`Accepting task #${questId}`, () => escrow.acceptQuest(questId));
       await tx.wait();
       await refreshData();
     }
 
     async function cancelQuest(questId) {
       const confirmed = await askConfirmation(
-        `Cancel quest #${questId}?`,
+        `Cancel task #${questId}?`,
         buildConfirmationDetails([
           ["Function", `cancelQuest(${questId})`]
         ])
@@ -4770,14 +5293,14 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Cancelling quest #${questId}`, () => escrow.cancelQuest(questId));
+      const tx = await performWrite(`Cancelling task #${questId}`, () => escrow.cancelQuest(questId));
       await tx.wait();
       await refreshData();
     }
 
     async function recordHeartbeat(questId) {
       const confirmed = await askConfirmation(
-        `Record heartbeat for quest #${questId}?`,
+        `Record heartbeat for task #${questId}?`,
         buildConfirmationDetails([
           ["Function", `recordHeartbeat(${questId})`]
         ])
@@ -4788,7 +5311,7 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Recording heartbeat for quest #${questId}`, () => escrow.recordHeartbeat(questId));
+      const tx = await performWrite(`Recording heartbeat for task #${questId}`, () => escrow.recordHeartbeat(questId));
       await tx.wait();
       await refreshData();
     }
@@ -4810,7 +5333,7 @@
 
       const resultHash = ethers.keccak256(ethers.toUtf8Bytes(resultBody));
       const confirmed = await askConfirmation(
-        `Submit result for quest #${questId}?`,
+        `Submit result for task #${questId}?`,
         buildConfirmationDetails([
           ["Result hash", shortenHash(resultHash)],
           ["Result URI", resultUri]
@@ -4822,7 +5345,7 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Submitting result for quest #${questId}`, () =>
+      const tx = await performWrite(`Submitting result for task #${questId}`, () =>
         escrow.submitResult(questId, resultHash, resultUri)
       );
       await tx.wait();
@@ -4831,7 +5354,7 @@
 
     async function markResultViewed(questId) {
       const confirmed = await askConfirmation(
-        `Mark result viewed for quest #${questId}?`,
+        `Mark result viewed for task #${questId}?`,
         buildConfirmationDetails([
           ["Function", `recordResultViewed(${questId})`]
         ])
@@ -4842,7 +5365,7 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Recording result view for quest #${questId}`, () =>
+      const tx = await performWrite(`Recording result view for task #${questId}`, () =>
         escrow.recordResultViewed(questId)
       );
       await tx.wait();
@@ -4904,7 +5427,7 @@
       appState.evaluationScores = [5, 5, 5, 5, 5];
       refs.evaluationComment.value = "";
       refs.evaluationTags.value = "";
-      refs.evaluationSubtitle.textContent = `Quest #${quest.questId} by ${shortenAddress(quest.agent)} | Result viewed: ${quest.resultViewedAt ? "yes" : "no"}`;
+      refs.evaluationSubtitle.textContent = `Task #${quest.questId} by ${shortenAddress(quest.agent)} | Result viewed: ${quest.resultViewedAt ? "yes" : "no"}`;
       buildScoreControls();
       refs.evaluationModal.classList.remove("hidden");
       refs.evaluationModal.classList.add("flex");
@@ -4929,7 +5452,7 @@
         .map((item) => item.trim())
         .filter(Boolean);
       const confirmed = await askConfirmation(
-        `Submit evaluation for quest #${appState.evaluationQuestId}?`,
+        `Submit evaluation for task #${appState.evaluationQuestId}?`,
         buildConfirmationDetails([
           ["Scores", appState.evaluationScores.join(", ")],
           ["Comment length", `${comment.length} chars`],
@@ -4942,7 +5465,7 @@
 
       await ensureConfiguredNetwork();
       const { escrow } = getWriteContracts();
-      const tx = await performWrite(`Submitting evaluation for quest #${appState.evaluationQuestId}`, () =>
+      const tx = await performWrite(`Submitting evaluation for task #${appState.evaluationQuestId}`, () =>
         escrow.submitEvaluation(appState.evaluationQuestId, appState.evaluationScores, comment, tags)
       );
       await tx.wait();
@@ -4957,7 +5480,7 @@
       }
 
       if (isZeroAddress(CONFIG.addresses.tavernClientRPG)) {
-        pushToast("RPG contract not deployed.", "error");
+      pushToast("Profile contract not deployed.", "error");
         return;
       }
 
@@ -4970,7 +5493,7 @@
       try {
         const { clientRPG } = getReadContracts();
         if (!clientRPG) {
-          throw new Error("RPG contract not deployed.");
+      throw new Error("Profile contract not deployed.");
         }
 
         const amount = ethers.parseUnits(amountText, appState.tvrnDecimals);
@@ -5124,7 +5647,7 @@
 
     async function requestUnstakeBond() {
       if (appState.agentProfile?.isActive) {
-        pushToast("Leave the guild before requesting an unstake.", "error");
+      pushToast("Leave your specialty lane before requesting an unstake.", "error");
         return;
       }
 
@@ -5436,6 +5959,14 @@
 
       const handleWalletConnect = async () => {
         try {
+          if (appState.account) {
+            await disconnectWalletSession();
+            return;
+          }
+          const identityReady = await ensureMarketplaceIdentityGate();
+          if (!identityReady) {
+            return;
+          }
           await ensureConfiguredNetwork();
           await refreshData();
         } catch (error) {
@@ -5446,6 +5977,48 @@
       refs.connectWallet.addEventListener("click", handleWalletConnect);
       if (refs.connectWalletTop) {
         refs.connectWalletTop.addEventListener("click", handleWalletConnect);
+      }
+      if (refs.marketplaceIdentityClose) {
+        refs.marketplaceIdentityClose.addEventListener("click", closeMarketplaceIdentityModal);
+      }
+      if (refs.marketplaceIdentityOpen) {
+        refs.marketplaceIdentityOpen.addEventListener("click", () => {
+          openMarketplaceIdentityPopup();
+        });
+      }
+      if (refs.marketplaceIdentityComplete) {
+        refs.marketplaceIdentityComplete.addEventListener("click", () => {
+          markMarketplaceAILRegistered();
+          closeMarketplaceIdentityModal();
+          pushToast("Agent ID Card verification has been marked complete for this browser. Connect your wallet to continue.", "success");
+        });
+      }
+      if (refs.marketplaceIdentityModal) {
+        refs.marketplaceIdentityModal.addEventListener("click", (event) => {
+          if (event.target === refs.marketplaceIdentityModal) {
+            closeMarketplaceIdentityModal();
+          }
+        });
+      }
+      if (refs.walletChooserClose) {
+        refs.walletChooserClose.addEventListener("click", () => closeWalletChooser(null));
+      }
+      if (refs.walletChooserModal) {
+        refs.walletChooserModal.addEventListener("click", (event) => {
+          if (event.target === refs.walletChooserModal) {
+            closeWalletChooser(null);
+          }
+        });
+      }
+      if (refs.walletChooserList) {
+        refs.walletChooserList.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-wallet-choice]");
+          if (!button) {
+            return;
+          }
+          const wallet = appState.availableWallets.find((item) => item.id === button.dataset.walletChoice) ?? null;
+          closeWalletChooser(wallet);
+        });
       }
 
       // ═══════ AGENT REGISTRATION EVENTS ═══════
@@ -5498,11 +6071,11 @@
           try {
             await ensureConfiguredNetwork();
             const selectedGuild = document.querySelector('input[name="register-guild"]:checked');
-            if (!selectedGuild) { pushToast("Select a guild first", "error"); return; }
+        if (!selectedGuild) { pushToast("Select a specialty first", "error"); return; }
             const guildId = Number(selectedGuild.value);
             const modelType = $("register-model-type").value;
             const { registry } = getWriteContracts();
-            setPending("Joining guild & registering agent...");
+            setPending("Joining specialty & registering agent...");
             const tx = await registry.joinGuild(guildId, modelType);
             pushToast("Registration submitted", "info", tx.hash);
             await tx.wait();
@@ -5583,8 +6156,52 @@
       refs.marketplaceSearchForm.addEventListener("submit", (event) => {
         event.preventDefault();
         appState.marketSearchQuery = refs.marketplaceSearchInput.value.trim();
+        syncHeroSearch();
         renderFindAgentView();
         navigateToRoute("find-agent");
+      });
+
+      /* ── Hero search sync ── */
+      const heroSearchForm = $("hero-search-form");
+      const heroSearchInput = $("hero-search-input");
+      if (heroSearchForm && heroSearchInput) {
+        heroSearchForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          appState.marketSearchQuery = heroSearchInput.value.trim();
+          if (refs.marketplaceSearchInput) refs.marketplaceSearchInput.value = appState.marketSearchQuery;
+          renderFindAgentView();
+          navigateToRoute("find-agent");
+        });
+        heroSearchInput.addEventListener("input", () => {
+          if (refs.marketplaceSearchInput) refs.marketplaceSearchInput.value = heroSearchInput.value;
+        });
+      }
+      function syncHeroSearch() {
+        if (heroSearchInput && refs.marketplaceSearchInput) {
+          heroSearchInput.value = refs.marketplaceSearchInput.value;
+        }
+      }
+
+      /* ── Category tag & icon clicks ── */
+      document.querySelectorAll(".category-tag").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".category-tag").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          appState.activeCategoryFilter = btn.dataset.category || null;
+          renderFindAgentView();
+        });
+      });
+      document.querySelectorAll("[data-category-icon]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const cat = btn.dataset.categoryIcon || "";
+          appState.activeCategoryFilter = cat || null;
+          document.querySelectorAll(".category-tag").forEach(b => {
+            b.classList.toggle("active", b.dataset.category === cat);
+          });
+          renderFindAgentView();
+          const resultsEl = $("find-agent-results");
+          if (resultsEl) resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
       });
 
       document.body.addEventListener("click", async (event) => {
@@ -5598,6 +6215,16 @@
       });
 
       document.body.addEventListener("click", async (event) => {
+        const questViewTarget = event.target.closest("[data-quest-view]");
+        if (questViewTarget) {
+          event.preventDefault();
+          const nextView = questViewTarget.dataset.questView === "my-quests" ? "my-quests" : "all";
+          appState.questBoardView = nextView;
+          syncQuestBoardView();
+          navigateToRoute(nextView === "my-quests" ? "my-quests" : "quest-board");
+          return;
+        }
+
         const routeTarget = event.target.closest("[data-route]");
         if (routeTarget) {
           event.preventDefault();
@@ -5639,56 +6266,42 @@
         }
       });
 
-      if (window.ethereum) {
-        window.ethereum.on("accountsChanged", async () => {
-          const accounts = await window.ethereum.request({ method: "eth_accounts" });
-          if (!accounts.length) {
-            appState.browserProvider = null;
-            appState.signer = null;
-            appState.account = null;
-            appState.chainId = null;
-            await refreshData();
-            return;
-          }
-          await syncBrowserWalletState();
-          await refreshData();
-        });
-
-        window.ethereum.on("chainChanged", async () => {
-          if (appState.browserProvider) {
-            await syncBrowserWalletState();
-          }
-          await refreshData();
-        });
-      }
-
       window.addEventListener("hashchange", applyRouteFromHash);
     }
 
     async function bootstrap() {
       bindRefs();
+      window.addEventListener("eip6963:announceProvider", (event) => {
+        if (event?.detail?.provider) {
+          registerWalletCandidate(event.detail.provider, event.detail.info);
+          updateWalletPill();
+        }
+      });
       attachEvents();
       updateNetworkChrome();
+      await discoverWalletProviders();
       updateWalletPill();
       updateBriefHashPreview();
       buildScoreControls();
       await primeMetadata();
 
-      const accounts = window.ethereum
-        ? await window.ethereum.request({ method: "eth_accounts" })
-        : [];
-
-      if (accounts.length) {
-        try {
-          await ensureConfiguredNetwork();
-        } catch (_) {
-          // stay in read-only mode
+      if (!isWalletAutoConnectSuppressed() && isMarketplaceAILRegistered()) {
+        for (const wallet of appState.availableWallets) {
+          try {
+            const accounts = await wallet.provider.request({ method: "eth_accounts" });
+            if (accounts.length) {
+              await ensureConfiguredNetwork(wallet);
+              break;
+            }
+          } catch (_) {
+            // ignore individual wallet read failures during bootstrap
+          }
         }
       }
 
       await refreshData();
       if (!window.location.hash) {
-        window.location.hash = "#home";
+        window.location.hash = "#find-agent";
       } else {
         applyRouteFromHash();
       }
