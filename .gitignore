@@ -32,6 +32,7 @@ deployments/baseSepolia.automation.json
 
 # Claude internal
 .claude/
+.worktrees/
 
 # AI design prompts (internal use)
 prompts/
