@@ -200,22 +200,19 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
 });
 
 test("marketplace layout width uses the new 1200px target", () => {
-  assert.match(
-    html,
-    /<div class="mx-auto flex max-w-\[1200px\] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">\s*\n\s*<a href="\/" class="flex items-center gap-3 text-\[var\(--ink\)\] no-underline">/
+  const shellMatch = html.match(
+    /<div class="([^"]*)">\s*\n\s*<a href="\/" class="flex items-center gap-3 text-\[var\(--ink\)\] no-underline">/
   );
-  assert.doesNotMatch(
-    html,
-    /<div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">\s*\n\s*<a href="\/" class="flex items-center gap-3 text-\[var\(--ink\)\] no-underline">/
+  assert.ok(shellMatch, "Expected to find the Marketplace shell wrapper");
+  assert.match(shellMatch[1], /max-w-\[1200px\]/);
+  assert.doesNotMatch(shellMatch[1], /max-w-7xl/);
+
+  const mainMatch = html.match(
+    /<div class="([^"]*)">\s*\n\s*<!-- Hidden legacy header elements kept for JS references -->/
   );
-  assert.match(
-    html,
-    /<div class="mx-auto max-w-\[1200px\] px-4 py-4 sm:px-6 lg:px-8">\s*\n\s*<!-- Hidden legacy header elements kept for JS references -->/
-  );
-  assert.doesNotMatch(
-    html,
-    /<div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">\s*\n\s*<!-- Hidden legacy header elements kept for JS references -->/
-  );
+  assert.ok(mainMatch, "Expected to find the Marketplace main wrapper");
+  assert.match(mainMatch[1], /max-w-\[1200px\]/);
+  assert.doesNotMatch(mainMatch[1], /max-w-7xl/);
 });
 
 test("brand home identity modal matches the three-intent reauth copy", () => {
@@ -255,6 +252,11 @@ test("brand home wallet flow also requires Agent ID Card before connection", () 
   assert.ok(brandHome.includes("https://www.agentidcard.org/register"));
   assert.ok(brandHome.includes('fetch("/api/identity/session"'));
   assert.ok(brandHome.includes("async function submitAilJwt("));
+  assert.match(
+    brandHome,
+    /refs\.identityComplete\.addEventListener\("click", async \(\) => \{[\s\S]*const session = await fetchIdentitySession\(\);/
+  );
+  assert.match(brandHome, /const session = await submitAilJwt\(jwt\);/);
   assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
   assert.match(brandHome, /case "verification-unavailable":/);
   assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
