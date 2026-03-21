@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+portal-update/.dev.vars
+portal-update/.dev.vars.*
 
 # Dependency and build output
 node_modules/

@@ -60,6 +60,104 @@ test("exports remain importable", () => {
   assert.equal(typeof verifyAilJwt, "function");
 });
 
+test("issueSessionCookie signs payload and caps expiry at 24 hours", async () => {
+  const nowMs = Date.now();
+  const setCookie = await issueSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: new Date(nowMs).toISOString(),
+      expires_at: new Date(nowMs + 48 * 60 * 60 * 1000).toISOString()
+    },
+    "test-secret"
+  );
+
+  assert.match(setCookie, /^ct_ail_session=/);
+  assert.match(setCookie, /HttpOnly/);
+  assert.match(setCookie, /Secure/);
+  assert.match(setCookie, /SameSite=Lax/);
+  assert.match(setCookie, /Path=\//);
+
+  const maxAgeMatch = setCookie.match(/Max-Age=(\d+)/);
+  assert.ok(maxAgeMatch, "Expected Max-Age attribute");
+
+  const maxAge = Number(maxAgeMatch[1]);
+  assert.ok(maxAge <= 24 * 60 * 60, `Expected cap at 24 hours, got ${maxAge}`);
+  assert.ok(maxAge >= 24 * 60 * 60 - 30, `Expected near 24 hours, got ${maxAge}`);
+});
+
+test("readSessionCookie returns payload for a valid signed cookie", async () => {
+  const nowMs = Date.now();
+  const setCookie = await issueSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: new Date(nowMs).toISOString(),
+      expires_at: new Date(nowMs + 48 * 60 * 60 * 1000).toISOString()
+    },
+    "test-secret"
+  );
+  const cookieValue = setCookie.match(/^ct_ail_session=([^;]+)/)?.[1];
+
+  assert.ok(cookieValue, "Expected session cookie value");
+
+  const session = await readSessionCookie(`foo=bar; ct_ail_session=${cookieValue}`, "test-secret");
+
+  assert.equal(session?.ail_id, "AIL-2026-00001");
+  assert.equal(session?.display_name, "ClaudeCoder");
+  assert.equal(session?.verified_at, new Date(nowMs).toISOString());
+  assert.ok(Date.parse(session?.expires_at ?? "") <= nowMs + 24 * 60 * 60 * 1000);
+});
+
+test("readSessionCookie rejects tampered cookies", async () => {
+  const setCookie = await issueSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z"
+    },
+    "test-secret"
+  );
+  const cookieValue = setCookie.match(/^ct_ail_session=([^;]+)/)?.[1];
+
+  assert.ok(cookieValue, "Expected session cookie value");
+
+  const tamperedValue = cookieValue.replace(/.$/, (char) => (char === "A" ? "B" : "A"));
+
+  const session = await readSessionCookie(`ct_ail_session=${tamperedValue}`, "test-secret");
+
+  assert.equal(session, null);
+});
+
+test("readSessionCookie returns null without a secret", async () => {
+  const setCookie = await issueSessionCookie(
+    {
+      ail_id: "AIL-2026-00001",
+      display_name: "ClaudeCoder",
+      verified_at: "2026-03-21T00:00:00.000Z",
+      expires_at: "2026-03-22T00:00:00.000Z"
+    },
+    "test-secret"
+  );
+  const cookieValue = setCookie.match(/^ct_ail_session=([^;]+)/)?.[1];
+
+  assert.ok(cookieValue, "Expected session cookie value");
+
+  const session = await readSessionCookie(`ct_ail_session=${cookieValue}`);
+
+  assert.equal(session, null);
+});
+
+test("clearSessionCookie clears the session cookie", () => {
+  const setCookie = clearSessionCookie();
+
+  assert.match(setCookie, /^ct_ail_session=/);
+  assert.match(setCookie, /Max-Age=0/);
+  assert.match(setCookie, /HttpOnly/);
+  assert.match(setCookie, /Secure/);
+});
+
 test("default handler entrypoints still reject as not implemented", async () => {
   await assert.rejects(() => onRequestGet(makeContext({ method: "GET" })), /not implemented/);
   await assert.rejects(
