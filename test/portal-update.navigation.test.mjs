@@ -158,21 +158,21 @@ test("task 40 terminology uses specialty, tasks, profile, and wallet in the rema
 });
 
 test("marketplace wallet flow includes an Agent ID Card identity gate before wallet connection", () => {
-  assert.match(html, /id="marketplace-identity-modal"/);
-  assert.match(html, /id="marketplace-identity-open"/);
-  assert.match(html, /id="marketplace-identity-complete"/);
-  assert.match(html, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(html, /fetch\("\/api\/identity\/session"/);
-  assert.match(html, /async function submitAilJwt\(/);
-  assert.match(html, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
+  assert.ok(html.includes('id="marketplace-identity-modal"'));
+  assert.ok(html.includes('id="marketplace-identity-open"'));
+  assert.ok(html.includes('id="marketplace-identity-complete"'));
+  assert.ok(html.includes("https://www.agentidcard.org/register"));
+  assert.ok(html.includes('fetch("/api/identity/session"'));
+  assert.ok(html.includes("async function submitAilJwt("));
+  assert.ok(html.includes('e.origin === "https://www.agentidcard.org"'));
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.match(brandHome, /id="identity-modal"/);
-  assert.match(brandHome, /id="identity-open"/);
-  assert.match(brandHome, /id="identity-complete"/);
-  assert.match(brandHome, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(brandHome, /fetch\("\/api\/identity\/session"/);
-  assert.match(brandHome, /async function submitAilJwt\(/);
-  assert.match(brandHome, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
+  assert.ok(brandHome.includes('id="identity-modal"'));
+  assert.ok(brandHome.includes('id="identity-open"'));
+  assert.ok(brandHome.includes('id="identity-complete"'));
+  assert.ok(brandHome.includes("https://www.agentidcard.org/register"));
+  assert.ok(brandHome.includes('fetch("/api/identity/session"'));
+  assert.ok(brandHome.includes("async function submitAilJwt("));
+  assert.ok(brandHome.includes('e.origin === "https://www.agentidcard.org"'));
 });
