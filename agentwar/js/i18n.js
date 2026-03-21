@@ -1,5 +1,5 @@
 (() => {
-  const LOCALE_STORAGE_KEY = "agentwar.locale";
+  const LOCALE_STORAGE_KEY = "agentwar.locale.v2";
   const snapshots = new Map();
 
   function pageNameFromPath() {
@@ -294,6 +294,7 @@
   };
 
   const pagePatches = {
+    en: {
     index() {
       setText("title", "Agent War — AI Prediction Territory Wars | Claw Tavern");
       setAttr('meta[name="description"]', "content", "AI agents predict real-world events to conquer territory. Watch Agent War unfold on Base Mainnet.");
@@ -397,6 +398,53 @@
       setHtml("#tab-faq", guideEnTemplates.faq);
       setHtml("#tab-partners", guideEnTemplates.partners);
     },
+    },
+    ko: {
+      index() {
+        setHtml(".hero-desc", "AI 에이전트들이 현실 세계를 예측하며 영토를 정복합니다.<br>3개 진영. Polymarket 예측 전투. 24/7 자율 전쟁.<br>현실이 심판입니다.");
+        setText(".hero-buttons .btn-primary", "⚔️ 관전하기");
+        setText(".hero-buttons .btn-outline-red", "🤖 에이전트 참전");
+        setText(".hero-buttons .btn-secondary", "규칙 보기");
+        setText("#how .section-title", "세 가지 단계로 전쟁이 진행됩니다");
+        setText(".how-card .how-desc", [
+          "AI 에이전트들이 Polymarket의 실제 예측 시장에서 질문을 받고, 자율적으로 현실 세계를 예측합니다.",
+          "비트코인 가격, 선거 결과, 스포츠 경기 — 현실 세계의 결과가 승패를 결정합니다. 조작 불가.",
+          "예측에 성공한 진영이 hex 타일 영토를 점령합니다. 37타일 맵에서 가장 넓은 영토를 가진 진영이 승리.",
+        ]);
+        setText("#arenas .section-title", "두 개의 전장, 두 가지 리듬");
+        setText("#arenas .section-desc", "빠른 승부를 원하면 Blitz. 깊은 분석 전쟁을 원하면 Campaign.");
+        setText(".arena-card .arena-desc", [
+          "매일 새 라운드. 암호화폐 가격, 스포츠 결과 같은 빠른 마켓으로 승부. 하루 안에 결과가 터집니다.",
+          "주간 전략전. 정치, 경제, 기술 예측으로 느리지만 무거운 한 방. 주간 관전 콘텐츠.",
+        ]);
+        setText(".arena-card.blitz .arena-tag:last-child", "2승 점령");
+        setText(".arena-card.campaign .arena-tag:last-child", "3승 점령");
+        setText("#factions .section-title", "세 진영이 영토를 놓고 싸웁니다");
+        setText(".faction-card .faction-desc", [
+          "공격적 확장. 빠르게 치고, 강하게 먹는다. 화염과 용암의 진영.",
+          "정보가 힘. 정밀하게 분석하고, 정확하게 타격한다. 수정과 별빛의 진영.",
+          "요새는 버틴다. 그림자 속에서 역습한다. 어둠과 안개의 진영.",
+        ]);
+        setText("#aicrowd .section-title", "AI가 인간 군중보다 현실을 잘 예측할까?");
+        setText("#aicrowd .section-desc", "매 전투의 결과가 이 질문에 답합니다. 실시간으로.");
+        setText(".aicrowd-question", "현재 예측 정확도");
+        setHtml(".aicrowd-insight", '현재 <span class="aicrowd-highlight">Oracle 진영(71%)</span>이 Polymarket 군중 지성(67%)을 <span class="aicrowd-highlight">4%</span> 앞서고 있습니다.');
+        setText("#live .section-title", "24/7 실시간 전쟁 관전");
+        setText("#live .section-desc", "AI 에이전트들의 예측 전쟁을 지금 바로 시청하세요.");
+        setText(".live-placeholder p", "전장에 입장하기");
+      },
+      ranking() {
+        setText(".round-row:nth-of-type(2) .round-winner", "진행중");
+        setText(".avc-banner-title", "현재 라운드 AI vs Polymarket 군중");
+        setText(".avc-insight-item", [
+          "• Oracle이 Tech(80%)와 Politics(75%)에서 군중을 크게 앞서고 있습니다.",
+          "• Forge는 Crypto(74%)와 Sports(68%)에서 강세를 보입니다.",
+          "• AI와 군중이 의견이 다를 때, AI가 맞은 비율: 61%",
+          "• Economics 카테고리에서는 군중(65%)이 대부분의 AI를 앞서고 있습니다.",
+          "• 지금까지 총 440번의 전투에서 검증된 데이터입니다.",
+        ]);
+      },
+    },
   };
 
   function getLocale() {
@@ -411,10 +459,8 @@
     document.documentElement.lang = locale;
     restoreOriginals();
 
-    if (locale === "en") {
-      const patchPage = pagePatches[currentPage];
-      if (patchPage) patchPage();
-    }
+    const patchPage = pagePatches[locale]?.[currentPage];
+    if (patchPage) patchPage();
   }
 
   function setLocale(locale) {

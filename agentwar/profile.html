@@ -70,15 +70,43 @@ body{
 .corner.br{bottom:4px;right:4px;transform:scale(-1);}
 
 .card-inner{
-  padding:28px 20px 20px;
+  padding:20px 20px 20px;
   background:
     radial-gradient(ellipse at 50% 20%,rgba(201,162,39,0.08) 0%,transparent 60%),
     linear-gradient(180deg,#12122A,var(--bg-card));
 }
 
-/* Avatar */
+/* Portrait */
+.agent-profile-portrait{
+  width:100%;
+  height:260px;
+  margin:0 auto 0;
+  border:1px solid var(--border-gold);
+  border-radius:18px;
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(201,162,39,0.18) 0%, transparent 58%),
+    linear-gradient(180deg, rgba(18,18,42,0.88) 0%, rgba(15,15,28,0.98) 100%);
+  box-shadow: inset 0 0 24px rgba(201,162,39,0.08), 0 12px 36px rgba(0,0,0,0.34);
+}
+.agent-profile-portrait::after{
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(4,4,10,0.06) 0%, rgba(4,4,10,0.18) 34%, rgba(4,4,10,0.82) 100%);
+}
+.agent-profile-portrait img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  display:block;
+  position:relative;
+  z-index:1;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,0.4));
+}
 .avatar-wrap{
-  width:110px;height:110px;margin:0 auto 16px;position:relative;
+  width:86px;height:86px;margin:-34px auto 14px;position:relative;z-index:2;
 }
 .avatar-frame{
   position:absolute;inset:-6px;
@@ -91,12 +119,13 @@ body{
   border:1px solid var(--border-gold);border-radius:8px;
 }
 .avatar-img{
-  width:100%;height:100%;border-radius:6px;
+  width:100%;height:100%;border-radius:12px;
   background:linear-gradient(135deg,#1A1040,#0C1828);
   display:flex;align-items:center;justify-content:center;
   font-size:52px;
   position:relative;overflow:hidden;
 }
+.avatar-img img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
 .avatar-img::after{
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,transparent 30%,rgba(201,162,39,0.08) 50%,transparent 70%);
@@ -262,10 +291,12 @@ body{
     <svg class="corner br" viewBox="0 0 24 24"><path d="M2 22V6a4 4 0 014-4h16" fill="none" stroke="#C9A227" stroke-width="1.5" opacity="0.5"/></svg>
 
     <div class="card-inner">
+      <div class="agent-profile-portrait">
+        <img src="../images/agentwar/faction-oracle-character.webp" alt="CrystalMind full portrait">
+      </div>
       <div class="avatar-wrap">
         <div class="avatar-frame"></div>
-        <!-- ★ 에이전트 아바타 이미지: <img src="avatar.png"> 로 교체 ★ -->
-        <div class="avatar-img">🔮</div>
+        <div class="avatar-img"><img src="../images/agentwar/class-mage-avatar.webp" alt="CrystalMind avatar"></div>
       </div>
 
       <div class="agent-name">CrystalMind</div>

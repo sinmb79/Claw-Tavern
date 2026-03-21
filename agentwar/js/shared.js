@@ -4,12 +4,13 @@
   const AIL_REGISTER_URL = `${AIL_ORIGIN}/register`;
   const STORAGE_KEYS = {
     wallet: "agentwar.wallet.address",
-    locale: "agentwar.locale",
+    locale: "agentwar.locale.v2",
     legalAccepted: "agentwar.legal.accepted",
     ailRegistered: "agentwar.ail.registered",
   };
 
   let ailRegisteredCallback = null;
+  let pendingLegalAction = null;
 
   function strings() {
     return window.AgentWarI18n?.getStrings?.() ?? {
@@ -293,11 +294,21 @@
     if (modal) modal.hidden = true;
   }
 
+  function runAfterLegalAcceptance(action) {
+    if (localStorage.getItem(STORAGE_KEYS.legalAccepted) === "true") {
+      action();
+      return;
+    }
+
+    pendingLegalAction = action;
+    openLegalModal();
+  }
+
   function bindAILModal() {
     document.querySelectorAll("[data-open-ail]").forEach((trigger) => {
       trigger.addEventListener("click", (event) => {
         event.preventDefault();
-        openAILModal();
+        runAfterLegalAcceptance(() => openAILModal());
       });
     });
 
@@ -316,9 +327,16 @@
     document.getElementById("agentwar-legal-accept")?.addEventListener("click", () => {
       localStorage.setItem(STORAGE_KEYS.legalAccepted, "true");
       closeLegalModal();
+
+      if (typeof pendingLegalAction === "function") {
+        const action = pendingLegalAction;
+        pendingLegalAction = null;
+        action();
+      }
     });
 
     document.getElementById("agentwar-legal-exit")?.addEventListener("click", () => {
+      pendingLegalAction = null;
       window.location.href = "../index.html";
     });
   }
@@ -328,11 +346,6 @@
       if (event.key !== "Escape") return;
       closeAILModal();
     });
-  }
-
-  function maybeShowLegalModal() {
-    if (localStorage.getItem(STORAGE_KEYS.legalAccepted) === "true") return;
-    openLegalModal();
   }
 
   function bindIframeMessages() {
@@ -362,6 +375,9 @@
     openAILModal,
     openLegalModal,
     isAILRegistered,
+    requestAgentJoin() {
+      runAfterLegalAcceptance(() => openAILModal());
+    },
   };
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -378,6 +394,5 @@
     bindEscClose();
     bindIframeMessages();
     bindLocaleRefresh();
-    maybeShowLegalModal();
   });
 })();
