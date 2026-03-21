@@ -18,6 +18,7 @@ function makeContext({
   body,
   headers = {},
   env = {},
+  deps = {},
   cookie,
   url = "https://portal-update.example/api/identity/session"
 } = {}) {
@@ -38,10 +39,14 @@ function makeContext({
       headers: requestHeaders,
       body: hasBody ? JSON.stringify(body) : undefined
     }),
-    env,
+    env: { ...env, __testDeps: deps },
     waitUntil() {},
     params: {}
   };
+}
+
+function makeVerifierStub(result) {
+  return async () => result;
 }
 
 test("exports remain importable", () => {
@@ -59,7 +64,15 @@ test("POST issues a signed cookie after verifier success", async () => {
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
-      body: { jwt: "valid.jwt.token" }
+      deps: {
+        verifyAilJwt: makeVerifierStub({
+          valid: true,
+          ail_id: "AIL-2026-00001",
+          display_name: "ClaudeCoder",
+          expires_at: "2026-03-22T00:00:00.000Z"
+        })
+      },
+      body: { jwt: "opaque-jwt" }
     })
   );
 
@@ -73,7 +86,10 @@ test("POST rejects invalid JWTs", async () => {
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
-      body: { jwt: "invalid.jwt.token" }
+      deps: {
+        verifyAilJwt: makeVerifierStub({ valid: false, error: "invalid-jwt" })
+      },
+      body: { jwt: "opaque-jwt" }
     })
   );
 
@@ -86,7 +102,10 @@ test("POST rejects expired JWTs", async () => {
     makeContext({
       method: "POST",
       env: { CT_SESSION_SECRET: "test-secret" },
-      body: { jwt: "expired.jwt.token" }
+      deps: {
+        verifyAilJwt: makeVerifierStub({ valid: false, error: "expired-jwt" })
+      },
+      body: { jwt: "opaque-jwt" }
     })
   );
 
@@ -98,7 +117,10 @@ test("POST fails closed when the session secret is missing", async () => {
   const response = await onRequestPost(
     makeContext({
       method: "POST",
-      body: { jwt: "valid.jwt.token" }
+      deps: {
+        verifyAilJwt: makeVerifierStub({ valid: true, ail_id: "AIL-2026-00001" })
+      },
+      body: { jwt: "opaque-jwt" }
     })
   );
 
@@ -114,6 +136,7 @@ test("GET reports unverified when no valid cookie is present", async () => {
 });
 
 test("GET reports verified when a valid cookie is present", async () => {
+  const env = { CT_SESSION_SECRET: "test-secret" };
   const cookie = await issueSessionCookie(
     {
       ail_id: "AIL-2026-00001",
@@ -127,6 +150,7 @@ test("GET reports verified when a valid cookie is present", async () => {
   const response = await onRequestGet(
     makeContext({
       method: "GET",
+      env,
       cookie: `ct_ail_session=${cookie}`
     })
   );

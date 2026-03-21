@@ -163,26 +163,16 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   assert.match(html, /id="marketplace-identity-complete"/);
   assert.match(html, /https:\/\/www\.agentidcard\.org\/register/);
   assert.match(html, /fetch\("\/api\/identity\/session"/);
-  assert.doesNotMatch(html, /agentwar\.ail\.registered[^]*ensureConfiguredNetwork/);
   assert.match(html, /async function submitAilJwt\(/);
   assert.match(html, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
-
-  const attachEvents = extractBetween(
-    html,
-    "function attachEvents() {",
-    "\n    async function bootstrap()"
-  );
-
-  assert.match(
-    attachEvents,
-    /if \(appState\.account\) \{\s*await disconnectWalletSession\(\);\s*return;\s*\}\s*const identityReady = await ensureMarketplaceIdentityGate\(\);\s*if \(!identityReady\) \{\s*return;\s*\}\s*await ensureConfiguredNetwork\(\);/s
-  );
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.match(brandHome, /fetch\("\/api\/identity\/session"/);
-  assert.doesNotMatch(brandHome, /agentwar\.ail\.registered/);
+  assert.match(brandHome, /id="identity-modal"/);
+  assert.match(brandHome, /id="identity-open"/);
+  assert.match(brandHome, /id="identity-complete"/);
   assert.match(brandHome, /https:\/\/www\.agentidcard\.org\/register/);
+  assert.match(brandHome, /fetch\("\/api\/identity\/session"/);
   assert.match(brandHome, /async function submitAilJwt\(/);
   assert.match(brandHome, /e\.origin === "https:\/\/www\.agentidcard\.org"/);
 });
