@@ -82,7 +82,7 @@ export async function onRequestGet(context) {
   }
 
   const identity = await readSignedCookie(getCookieHeader(context.request), SESSION_COOKIE, secret);
-  if (!identity) {
+  if (!identity?.ail_id) {
     return json({ verified: false });
   }
 
@@ -131,10 +131,12 @@ export async function onRequestPost(context) {
 
   const exchangeResult = await exchangeAilAuthCode(code, context.env);
   if (!exchangeResult.valid) {
+    const status = exchangeResult.status >= 500 ? exchangeResult.status : 401;
+
     return json(
       { verified: false, error: exchangeResult.error ?? "identity_exchange_failed" },
       {
-        status: exchangeResult.status === 500 ? 500 : 401,
+        status,
         headers: {
           "set-cookie": clearCookie(OAUTH_STATE_COOKIE)
         }

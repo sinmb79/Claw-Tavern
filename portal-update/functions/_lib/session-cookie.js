@@ -143,7 +143,7 @@ export async function issueSignedCookie(name, payload, secret, options = {}) {
   }
 
   const encodedPayload = base64UrlEncode(JSON.stringify(envelope));
-  const signature = await signValue(encodedPayload, secret);
+  const signature = await signValue(`${name}.${encodedPayload}`, secret);
 
   return serializeCookie(name, `${encodedPayload}.${signature}`, {
     ...options,
@@ -172,7 +172,7 @@ export async function readSignedCookie(cookieHeader, name, secret) {
   const encodedPayload = rawValue.slice(0, separatorIndex);
   const signature = rawValue.slice(separatorIndex + 1);
 
-  if (!(await verifySignature(encodedPayload, signature, secret))) {
+  if (!(await verifySignature(`${name}.${encodedPayload}`, signature, secret))) {
     return null;
   }
 

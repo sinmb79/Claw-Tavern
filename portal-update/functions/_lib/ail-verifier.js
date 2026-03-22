@@ -1,21 +1,39 @@
 const EXCHANGE_URL = "https://api.agentidcard.org/auth/exchange";
 
 function normalizeExpiry(source) {
-  const rawExpiry = source?.expires_at ?? source?.expiresAt ?? source?.expires;
+  const absoluteExpiry = source?.expires_at ?? source?.expiresAt;
+
+  if (absoluteExpiry !== undefined && absoluteExpiry !== null) {
+    const parsedDate = new Date(absoluteExpiry);
+    const normalized = Number.isFinite(parsedDate.getTime())
+      ? parsedDate.toISOString()
+      : String(absoluteExpiry);
+
+    return { expires_at: normalized };
+  }
+
+  const rawExpiry = source?.expires;
 
   if (rawExpiry === undefined || rawExpiry === null) {
     return {};
   }
 
-  const parsedDate = new Date(rawExpiry);
-  const normalized = Number.isFinite(parsedDate.getTime())
-    ? parsedDate.toISOString()
-    : String(rawExpiry);
+  const numericSeconds = typeof rawExpiry === "number"
+    ? rawExpiry
+    : (typeof rawExpiry === "string" && /^\d+(\.\d+)?$/.test(rawExpiry.trim()) ? Number(rawExpiry) : NaN);
+
+  let normalized;
+  if (Number.isFinite(numericSeconds)) {
+    normalized = new Date(Date.now() + numericSeconds * 1000).toISOString();
+  } else {
+    const parsedDate = new Date(rawExpiry);
+    normalized = Number.isFinite(parsedDate.getTime())
+      ? parsedDate.toISOString()
+      : String(rawExpiry);
+  }
 
   const result = { expires_at: normalized };
-  if (source?.expires !== undefined) {
-    result.expires = source.expires;
-  }
+  result.expires = source.expires;
 
   return result;
 }

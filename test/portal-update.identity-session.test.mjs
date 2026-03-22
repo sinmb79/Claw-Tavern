@@ -94,9 +94,17 @@ async function createOauthChallenge(env = { CT_SESSION_SECRET: TEST_SECRET }) {
   };
 }
 
-async function createVerifiedSessionCookie() {
+async function createVerifiedSessionCookie({
+  exchangePayload = {
+    valid: true,
+    ail_id: "AIL-100",
+    display_name: "Pilot",
+    role: "builder"
+  },
+  mockFetch
+} = {}) {
   return withMockedFetch(
-    async (url, init) => {
+    mockFetch ?? (async (url, init) => {
       assert.equal(String(url), "https://api.agentidcard.org/auth/exchange");
       assert.equal(init?.method, "POST");
       assert.equal(new Headers(init?.headers).get("content-type"), "application/json");
@@ -106,13 +114,8 @@ async function createVerifiedSessionCookie() {
         client_secret: BASE_ENV.AIL_CLIENT_SECRET
       });
 
-      return jsonResponse({
-        valid: true,
-        ail_id: "AIL-100",
-        display_name: "Pilot",
-        role: "builder"
-      });
-    },
+      return jsonResponse(exchangePayload);
+    }),
     async () => {
       const { onRequestPost } = await import(sessionModuleUrl.href);
       const challenge = await createOauthChallenge();
@@ -284,6 +287,23 @@ test("GET /api/identity/session returns unverified with a malformed session cook
   assert.deepEqual(await response.json(), { verified: false });
 });
 
+test("GET /api/identity/session rejects a replayed oauth-state cookie under ct_ail_session", async () => {
+  const { onRequestGet } = await import(sessionModuleUrl.href);
+  const challenge = await createOauthChallenge();
+  const replayedCookie = challenge.cookie.replace("ct_ail_oauth_state=", "ct_ail_session=");
+
+  const response = await onRequestGet(
+    makeContext({
+      method: "GET",
+      env: { CT_SESSION_SECRET: TEST_SECRET },
+      cookie: replayedCookie
+    })
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { verified: false });
+});
+
 test("GET /api/identity/session returns verified with a valid session cookie", async () => {
   const { onRequestGet } = await import(sessionModuleUrl.href);
   const { cookie: sessionCookie } = await createVerifiedSessionCookie();
@@ -302,6 +322,58 @@ test("GET /api/identity/session returns verified with a valid session cookie", a
   assert.equal(payload.identity?.ail_id, "AIL-100");
   assert.equal(payload.identity?.display_name, "Pilot");
   assert.equal(payload.identity?.role, "builder");
+});
+
+test("POST /api/identity/session normalizes numeric expires into a future session expiry", async () => {
+  const { onRequestGet } = await import(sessionModuleUrl.href);
+  const beforeRequest = Date.now();
+  const { payload, cookie: sessionCookie } = await createVerifiedSessionCookie({
+    exchangePayload: {
+      valid: true,
+      ail_id: "AIL-200",
+      display_name: "Timer",
+      role: "builder",
+      expires: 3600
+    }
+  });
+
+  assert.equal(payload.verified, true);
+  assert.equal(payload.identity?.ail_id, "AIL-200");
+  assert.ok(Date.parse(payload.identity?.expires_at ?? "") >= beforeRequest + 3500 * 1000);
+
+  const response = await onRequestGet(
+    makeContext({
+      method: "GET",
+      env: { CT_SESSION_SECRET: TEST_SECRET },
+      cookie: sessionCookie
+    })
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).verified, true);
+});
+
+test("POST /api/identity/session preserves exchange_unavailable as 502", async () => {
+  await withMockedFetch(
+    async () => {
+      throw new Error("network down");
+    },
+    async () => {
+      const { onRequestPost } = await import(sessionModuleUrl.href);
+      const challenge = await createOauthChallenge();
+
+      const response = await onRequestPost(
+        makeContext({
+          env: BASE_ENV,
+          body: { code: "oauth-code", state: challenge.state },
+          cookie: challenge.cookie
+        })
+      );
+
+      assert.equal(response.status, 502);
+      assert.doesNotMatch(response.headers.get("set-cookie") ?? "", /ct_ail_session=/);
+    }
+  );
 });
 
 test("DELETE /api/identity/session clears the session cookie", async () => {
