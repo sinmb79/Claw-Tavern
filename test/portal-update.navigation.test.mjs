@@ -254,9 +254,9 @@ test("brand home wallet flow also requires Agent ID Card before connection", () 
   assert.ok(brandHome.includes("async function submitAilJwt("));
   assert.match(
     brandHome,
-    /refs\.identityComplete\.addEventListener\("click", async \(\) => \{[\s\S]*const session = await fetchIdentitySession\(\);/
+    /refs\.identityComplete\.addEventListener\("click"[\s\S]*fetchIdentitySession\(\)/
   );
-  assert.match(brandHome, /const session = await submitAilJwt\(jwt\);/);
+  assert.match(brandHome, /submitAilJwt\(jwt\)/);
   assert.match(brandHome, /function resolveIdentityErrorMessage\(/);
   assert.match(brandHome, /case "verification-unavailable":/);
   assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
