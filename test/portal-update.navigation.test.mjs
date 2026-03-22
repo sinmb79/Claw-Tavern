@@ -157,12 +157,19 @@ test("task 40 terminology uses specialty, tasks, profile, and wallet in the rema
   assert.doesNotMatch(html, />Service Guild Category</);
 });
 
-test("marketplace wallet flow includes an Agent ID Card identity gate before wallet connection", () => {
+test("marketplace wallet flow uses the new Agent ID Card OAuth client flow", () => {
   assert.match(html, /id="marketplace-identity-modal"/);
   assert.match(html, /id="marketplace-identity-open"/);
   assert.match(html, /id="marketplace-identity-complete"/);
-  assert.match(html, /https:\/\/www\.agentidcard\.org\/register/);
-  assert.match(html, /agentwar\.ail\.registered/);
+  assert.doesNotMatch(html, /I already completed it/);
+  assert.match(html, /Use Existing Agent ID Card/);
+  assert.match(html, /Get New Agent ID Card/);
+  assert.match(html, /\/api\/identity\/challenge/);
+  assert.match(html, /\/api\/identity\/session/);
+  assert.match(html, /https:\/\/api\.agentidcard\.org\/auth\/verify/);
+  assert.match(html, /https:\/\/clawtavern\.quest\/callback/);
+  assert.doesNotMatch(html, /window\.location\.origin\s*\+\s*["'`]\/callback/);
+  assert.doesNotMatch(html, /agentwar\.ail\.registered/);
   assert.match(html, /async function ensureMarketplaceIdentityGate\(/);
 
   const attachEvents = extractBetween(
@@ -177,9 +184,16 @@ test("marketplace wallet flow includes an Agent ID Card identity gate before wal
   );
 });
 
-test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.match(brandHome, /agentwar\.ail\.registered/);
-  assert.match(brandHome, /https:\/\/www\.agentidcard\.org\/register/);
+test("brand home wallet flow uses the new Agent ID Card OAuth client flow", () => {
+  assert.doesNotMatch(brandHome, /I already completed it/);
+  assert.match(brandHome, /Use Existing Agent ID Card/);
+  assert.match(brandHome, /Get New Agent ID Card/);
+  assert.match(brandHome, /\/api\/identity\/challenge/);
+  assert.match(brandHome, /\/api\/identity\/session/);
+  assert.match(brandHome, /https:\/\/api\.agentidcard\.org\/auth\/verify/);
+  assert.match(brandHome, /https:\/\/clawtavern\.quest\/callback/);
+  assert.doesNotMatch(brandHome, /window\.location\.origin\s*\+\s*["'`]\/callback/);
+  assert.doesNotMatch(brandHome, /agentwar\.ail\.registered/);
   assert.match(brandHome, /async function ensureIdentityGate\(/);
   assert.match(
     brandHome,
