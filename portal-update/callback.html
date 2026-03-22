@@ -134,6 +134,15 @@
         }
       }
 
+      if (error) {
+        render(
+          "Verification failed",
+          "Claw Tavern could not finish the sign-in flow.",
+          errorDescription ? `${error}: ${errorDescription}` : error
+        );
+        return;
+      }
+
       if (!code || !state) {
         render(
           "Verification incomplete",
@@ -149,27 +158,19 @@
         source: "clawtavern-callback"
       };
 
-      if (error) {
-        render(
-          "Verification failed",
-          "Claw Tavern could not finish the sign-in flow.",
-          errorDescription ? `${error}: ${errorDescription}` : error
-        );
-        return;
-      }
-
       const stored = storeRecoveryPayload();
-      if (window.opener) {
-        notifyOpener();
+      const openerDelivered = notifyOpener();
+      const transportSucceeded = stored || openerDelivered;
+
+      if (transportSucceeded) {
         render("Verification complete", "Returning to Claw Tavern...");
         window.setTimeout(() => window.close(), 150);
         return;
       }
+
       render(
         "Verification complete",
-        stored
-          ? "Your browser did not pass the result back automatically. Return to Claw Tavern to continue."
-          : "Your browser did not pass the result back automatically. You can close this tab and return to Claw Tavern."
+        "Your browser did not pass the result back automatically. You can close this tab and return to Claw Tavern."
       );
     })();
   </script>

@@ -26,7 +26,10 @@ function extractCallbackScript(source) {
   return match[1];
 }
 
-function runCallbackScenario(callbackHtml, { search = "", opener = null } = {}) {
+function runCallbackScenario(
+  callbackHtml,
+  { search = "", opener = null, storageThrows = false } = {}
+) {
   const script = extractCallbackScript(callbackHtml);
   const events = [];
   const elements = {
@@ -39,6 +42,9 @@ function runCallbackScenario(callbackHtml, { search = "", opener = null } = {}) 
   const localStorage = {
     setItem(key, value) {
       events.push(`setItem:${key}`);
+      if (storageThrows) {
+        throw new Error("storage unavailable");
+      }
       storage.set(key, String(value));
     },
     getItem(key) {
@@ -311,4 +317,39 @@ test("callback route stores recovery before opener delivery and close", () => {
   assert.notEqual(closeIndex, -1);
   assert.ok(recoveryIndex < messageIndex);
   assert.ok(recoveryIndex < closeIndex);
+});
+
+test("callback route renders provider errors before the code and state guard", () => {
+  const callbackHtml = fs.readFileSync(callbackHtmlPath, "utf8").replace(/\r\n/g, "\n");
+  const result = runCallbackScenario(callbackHtml, {
+    search: "?error=access_denied&state=state-xyz"
+  });
+
+  assert.equal(result.elements.headline.textContent, "Verification failed");
+  assert.match(result.elements.message.textContent, /could not finish/i);
+  assert.equal(result.elements.details.hidden, false);
+  assert.match(result.elements.details.textContent, /access_denied/);
+  assert.equal(result.events.length, 0);
+  assert.equal(result.storage.size, 0);
+});
+
+test("callback route stays open when opener and recovery both fail", () => {
+  const callbackHtml = fs.readFileSync(callbackHtmlPath, "utf8").replace(/\r\n/g, "\n");
+  const opener = {
+    closed: false,
+    postMessage() {
+      throw new Error("postMessage failed");
+    }
+  };
+  const result = runCallbackScenario(callbackHtml, {
+    search: "?code=abc123&state=state-xyz",
+    opener,
+    storageThrows: true
+  });
+
+  assert.equal(result.elements.headline.textContent, "Verification complete");
+  assert.match(result.elements.message.textContent, /did not pass the result back automatically/i);
+  assert.ok(!result.events.includes("close"));
+  assert.ok(!result.events.includes("setTimeout"));
+  assert.ok(result.events.includes("postMessage"));
 });
