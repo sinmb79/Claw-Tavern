@@ -41,6 +41,8 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <script src="https://api.agentidcard.org/widget.js" defer></script>
+  <script src="https://api.agentidcard.org/badge.js" defer></script>
   <style>
     :root {
       --bg: #120f16;
@@ -1227,11 +1229,11 @@
         <button id="marketplace-identity-close" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
       </div>
       <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-[var(--muted)]">
-        Agent War and Marketplace share the same browser identity flag. If you already completed Agent ID Card there, confirm it here once and continue.
+        Claw Tavern now completes Agent ID Card verification through the official OAuth flow. Existing card holders should re-authenticate with the same provider flow before wallet access opens.
       </div>
       <div class="mt-6 flex flex-wrap gap-3">
-        <button id="marketplace-identity-open" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Issue Agent ID Card</button>
-        <button id="marketplace-identity-complete" class="action-button rounded-full px-5 py-3 text-sm font-semibold">I already completed it</button>
+        <button id="marketplace-identity-open" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Get New Agent ID Card</button>
+        <button id="marketplace-identity-complete" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Use Existing Agent ID Card</button>
       </div>
     </div>
   </div>
@@ -1735,14 +1737,23 @@
       activeWalletProvider: null,
       activeWalletInfo: null,
       walletChooserResolver: null,
+      pendingOauthState: null,
+      pendingOauthMode: null,
+      pendingIdentityContinuation: null,
+      submittingIdentityCode: false,
       evaluationQuestId: null,
       evaluationScores: [5, 5, 5, 5, 5]
     };
 
     const refs = {};
     const walletListenerRegistry = new WeakSet();
-    const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
-    const AIL_COMPLETION_STORAGE_KEY = "agentwar.ail.registered";
+    const AIL_AUTH_URL = "https://api.agentidcard.org/auth/verify";
+    const AIL_WIDGET_URL = "https://api.agentidcard.org/widget.js";
+    const AIL_BADGE_URL = "https://api.agentidcard.org/badge.js";
+    const AIL_CLIENT_ID = "ail_client_a29015e82e08428590ffbf4884adfce4";
+    const AIL_REDIRECT_URI = "https://clawtavern.quest/callback";
+    const OAUTH_RECOVERY_KEY = "clawtavern:oauth:recovery";
+    const OAUTH_RECOVERY_EXPIRES_KEY = "clawtavern:oauth:recovery:expiresAt";
     const WALLET_SUPPRESSION_KEY = "clawtavern.wallet.suppressed";
 
     function $(id) {
@@ -2370,19 +2381,43 @@
       }
     }
 
-    function isMarketplaceAILRegistered() {
+    function clearStoredOauthRecovery() {
       try {
-        return window.localStorage.getItem(AIL_COMPLETION_STORAGE_KEY) === "true";
+        window.localStorage.removeItem(OAUTH_RECOVERY_KEY);
+        window.localStorage.removeItem(OAUTH_RECOVERY_EXPIRES_KEY);
       } catch (_) {
-        return false;
+        // ignore storage access failures
       }
     }
 
-    function markMarketplaceAILRegistered() {
+    function readStoredOauthRecovery() {
       try {
-        window.localStorage.setItem(AIL_COMPLETION_STORAGE_KEY, "true");
+        const rawPayload = window.localStorage.getItem(OAUTH_RECOVERY_KEY);
+        const rawExpiresAt = window.localStorage.getItem(OAUTH_RECOVERY_EXPIRES_KEY);
+        if (!rawPayload || !rawExpiresAt) {
+          return null;
+        }
+
+        const expiresAt = Number(rawExpiresAt);
+        if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+          clearStoredOauthRecovery();
+          return null;
+        }
+
+        const payload = JSON.parse(rawPayload);
+        if (
+          payload?.type !== "ail-oauth-complete" ||
+          typeof payload.code !== "string" ||
+          typeof payload.state !== "string"
+        ) {
+          clearStoredOauthRecovery();
+          return null;
+        }
+
+        return payload;
       } catch (_) {
-        // ignore storage access failures
+        clearStoredOauthRecovery();
+        return null;
       }
     }
 
@@ -2396,7 +2431,89 @@
       refs.marketplaceIdentityModal.classList.add("flex");
     }
 
-    function openMarketplaceIdentityPopup() {
+    async function readJsonResponse(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        return null;
+      }
+
+      try {
+        return await response.json();
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function clearPendingMarketplaceOauthAttempt() {
+      appState.pendingOauthState = null;
+      appState.pendingOauthMode = null;
+    }
+
+    async function fetchIdentitySession() {
+      const response = await fetch("/api/identity/session", {
+        method: "GET",
+        credentials: "same-origin",
+        cache: "no-store"
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok && !payload?.verified) {
+        throw new Error("Unable to check Agent ID Card verification right now.");
+      }
+      return payload ?? { verified: false };
+    }
+
+    async function createIdentityChallenge() {
+      const response = await fetch("/api/identity/challenge", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok || payload?.ok !== true || typeof payload?.state !== "string" || !payload.state) {
+        throw new Error("Unable to start Agent ID Card verification right now.");
+      }
+      return payload;
+    }
+
+    async function submitAuthCode(code, state) {
+      const response = await fetch("/api/identity/session", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ code, state })
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok || payload?.verified !== true) {
+        const errorCode = typeof payload?.error === "string" ? payload.error : "";
+        if (errorCode === "invalid_state") {
+          throw new Error("Verification expired. Please restart the Agent ID Card flow.");
+        }
+        if (errorCode === "exchange_unavailable") {
+          throw new Error("Agent ID Card verification is temporarily unavailable. Please try again.");
+        }
+        throw new Error("Agent ID Card verification failed. Please try again.");
+      }
+      return payload;
+    }
+
+    function buildAilAuthUrl({ state, mode }) {
+      const url = new URL(AIL_AUTH_URL);
+      url.searchParams.set("client_id", AIL_CLIENT_ID);
+      url.searchParams.set("redirect_uri", AIL_REDIRECT_URI);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("scope", "identity");
+      url.searchParams.set("state", state);
+
+      // The two CTA buttons share the same OAuth URL; mode is tracked only in opener state.
+      if (mode === "existing" || mode === "new") {
+        appState.pendingOauthMode = mode;
+      }
+
+      return url.toString();
+    }
+
+    function openMarketplaceIdentityPopup(url) {
       const width = 560;
       const height = 820;
       const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
@@ -2415,24 +2532,109 @@
         "scrollbars=yes"
       ].join(",");
 
-      const popup = window.open(AIL_REGISTER_URL, "clawtavern_marketplace_ail", features);
+      const popup = window.open(url, "clawtavern_marketplace_ail", features);
       if (popup) {
         popup.focus?.();
         return popup;
       }
 
       pushToast("Agent ID Card popup was blocked. Opening a new tab instead.", "info");
-      window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+      window.open(url, "_blank", "noopener,noreferrer");
       return null;
     }
 
-    async function ensureMarketplaceIdentityGate() {
-      if (isMarketplaceAILRegistered()) {
+    async function continuePendingMarketplaceIdentityFlow() {
+      const continuation = appState.pendingIdentityContinuation;
+      appState.pendingIdentityContinuation = null;
+      if (typeof continuation === "function") {
+        await continuation();
+      }
+    }
+
+    async function completeMarketplaceIdentityVerification(payload) {
+      if (
+        payload?.type !== "ail-oauth-complete" ||
+        typeof payload.code !== "string" ||
+        typeof payload.state !== "string"
+      ) {
+        return false;
+      }
+
+      if (!appState.pendingOauthState) {
+        clearStoredOauthRecovery();
+        pushToast("Verification response no longer matches an active request. Please try again.", "error");
+        return false;
+      }
+
+      if (payload.state !== appState.pendingOauthState) {
+        clearStoredOauthRecovery();
+        clearPendingMarketplaceOauthAttempt();
+        pushToast("Verification state mismatch. Please restart the Agent ID Card flow.", "error");
+        return false;
+      }
+
+      if (appState.submittingIdentityCode) {
+        return false;
+      }
+
+      appState.submittingIdentityCode = true;
+      try {
+        await submitAuthCode(payload.code, payload.state);
+        clearStoredOauthRecovery();
+        clearPendingMarketplaceOauthAttempt();
+        closeMarketplaceIdentityModal();
+        pushToast("Agent ID Card verified. Continue with wallet connection.", "success");
+        await continuePendingMarketplaceIdentityFlow();
+        return true;
+      } catch (error) {
+        clearStoredOauthRecovery();
+        clearPendingMarketplaceOauthAttempt();
+        pushToast(extractErrorMessage(error), "error");
+        openMarketplaceIdentityModal();
+        return false;
+      } finally {
+        appState.submittingIdentityCode = false;
+      }
+    }
+
+    async function maybeResumeMarketplaceIdentityFromRecovery() {
+      const payload = readStoredOauthRecovery();
+      if (!payload) {
+        return false;
+      }
+
+      clearStoredOauthRecovery();
+      return completeMarketplaceIdentityVerification(payload);
+    }
+
+    async function ensureMarketplaceIdentityGate(continuation = null) {
+      const session = await fetchIdentitySession();
+      if (session?.verified) {
+        clearStoredOauthRecovery();
+        clearPendingMarketplaceOauthAttempt();
+        return true;
+      }
+
+      if (continuation) {
+        appState.pendingIdentityContinuation = continuation;
+      } else if (!appState.pendingIdentityContinuation) {
+        appState.pendingIdentityContinuation = continueMarketplaceWalletFlow;
+      }
+
+      if (await maybeResumeMarketplaceIdentityFromRecovery()) {
         return true;
       }
 
       openMarketplaceIdentityModal();
       return false;
+    }
+
+    async function startMarketplaceIdentityVerification(mode) {
+      appState.pendingIdentityContinuation = appState.pendingIdentityContinuation || continueMarketplaceWalletFlow;
+      const challenge = await createIdentityChallenge();
+      appState.pendingOauthState = challenge.state;
+      appState.pendingOauthMode = mode;
+      openMarketplaceIdentityPopup(buildAilAuthUrl({ state: challenge.state, mode }));
     }
 
     function getWalletDisplayName(info, provider) {
@@ -2673,10 +2875,18 @@
       }
     }
 
+    async function continueMarketplaceWalletFlow() {
+      await ensureConfiguredNetwork();
+      await refreshData();
+    }
+
     async function ensureConfiguredNetwork(selectedWallet = null) {
-      if (!appState.account && !isMarketplaceAILRegistered()) {
-        openMarketplaceIdentityModal();
-        throw new Error("Complete Agent ID Card verification before connecting your wallet.");
+      if (!appState.account) {
+        const identityReady = await ensureMarketplaceIdentityGate(continueMarketplaceWalletFlow);
+        if (!identityReady) {
+          openMarketplaceIdentityModal();
+          throw new Error("Complete Agent ID Card verification before connecting your wallet.");
+        }
       }
 
       const wallet = selectedWallet || await chooseWalletProvider();
@@ -5983,14 +6193,16 @@
       }
       if (refs.marketplaceIdentityOpen) {
         refs.marketplaceIdentityOpen.addEventListener("click", () => {
-          openMarketplaceIdentityPopup();
+          startMarketplaceIdentityVerification("new").catch((error) => {
+            pushToast(extractErrorMessage(error), "error");
+          });
         });
       }
       if (refs.marketplaceIdentityComplete) {
         refs.marketplaceIdentityComplete.addEventListener("click", () => {
-          markMarketplaceAILRegistered();
-          closeMarketplaceIdentityModal();
-          pushToast("Agent ID Card verification has been marked complete for this browser. Connect your wallet to continue.", "success");
+          startMarketplaceIdentityVerification("existing").catch((error) => {
+            pushToast(extractErrorMessage(error), "error");
+          });
         });
       }
       if (refs.marketplaceIdentityModal) {
@@ -6266,6 +6478,20 @@
         }
       });
 
+      window.addEventListener("message", (event) => {
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+        void completeMarketplaceIdentityVerification(event.data);
+      });
+      window.addEventListener("focus", () => {
+        void maybeResumeMarketplaceIdentityFromRecovery();
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          void maybeResumeMarketplaceIdentityFromRecovery();
+        }
+      });
       window.addEventListener("hashchange", applyRouteFromHash);
     }
 
@@ -6285,17 +6511,26 @@
       buildScoreControls();
       await primeMetadata();
 
-      if (!isWalletAutoConnectSuppressed() && isMarketplaceAILRegistered()) {
-        for (const wallet of appState.availableWallets) {
-          try {
-            const accounts = await wallet.provider.request({ method: "eth_accounts" });
-            if (accounts.length) {
-              await ensureConfiguredNetwork(wallet);
-              break;
+      await maybeResumeMarketplaceIdentityFromRecovery();
+
+      if (!isWalletAutoConnectSuppressed()) {
+        try {
+          const session = await fetchIdentitySession();
+          if (session?.verified) {
+            for (const wallet of appState.availableWallets) {
+              try {
+                const accounts = await wallet.provider.request({ method: "eth_accounts" });
+                if (accounts.length) {
+                  await ensureConfiguredNetwork(wallet);
+                  break;
+                }
+              } catch (_) {
+                // ignore individual wallet read failures during bootstrap
+              }
             }
-          } catch (_) {
-            // ignore individual wallet read failures during bootstrap
           }
+        } catch (_) {
+          // ignore identity session fetch failures during bootstrap
         }
       }
 

@@ -16,6 +16,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <script src="https://api.agentidcard.org/widget.js" defer></script>
+  <script src="https://api.agentidcard.org/badge.js" defer></script>
   <script>
     window.tailwind = window.tailwind || {};
     window.tailwind.config = {
@@ -416,14 +418,15 @@
         <button id="identity-close" class="rounded-full border border-white/10 px-3 py-2 text-xs text-muted">Close</button>
       </div>
       <div class="panel-soft mt-5 rounded-[24px] p-4 text-sm leading-7 text-muted">
-        This uses the same browser-local Agent ID Card completion flag as Agent War. If you already completed it there, confirm it once here and continue.
+        Claw Tavern now completes Agent ID Card verification through the official OAuth flow. Existing card holders should choose the re-authentication option below.
       </div>
       <div class="mt-5 flex flex-wrap gap-3">
-        <button id="identity-open" class="rounded-full border border-gold/30 bg-gold px-5 py-3 text-sm font-semibold text-bg-deep transition hover:brightness-110">Issue Agent ID Card</button>
-        <button id="identity-complete" class="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ink transition hover:border-gold/30 hover:text-gold-soft">I already completed it</button>
+        <button id="identity-open" class="rounded-full border border-gold/30 bg-gold px-5 py-3 text-sm font-semibold text-bg-deep transition hover:brightness-110">Get New Agent ID Card</button>
+        <button id="identity-complete" class="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ink transition hover:border-gold/30 hover:text-gold-soft">Use Existing Agent ID Card</button>
       </div>
     </div>
   </div>
+  <div id="toast-stack" class="pointer-events-none fixed bottom-5 right-5 z-[60] flex max-w-sm flex-col gap-3"></div>
   <script>
     const BASE_CONFIG = {
       chainId: 8453,
@@ -434,8 +437,13 @@
       tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
       tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0"
     };
-    const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
-    const AIL_COMPLETION_STORAGE_KEY = "agentwar.ail.registered";
+    const AIL_AUTH_URL = "https://api.agentidcard.org/auth/verify";
+    const AIL_WIDGET_URL = "https://api.agentidcard.org/widget.js";
+    const AIL_BADGE_URL = "https://api.agentidcard.org/badge.js";
+    const AIL_CLIENT_ID = "ail_client_a29015e82e08428590ffbf4884adfce4";
+    const AIL_REDIRECT_URI = "https://clawtavern.quest/callback";
+    const OAUTH_RECOVERY_KEY = "clawtavern:oauth:recovery";
+    const OAUTH_RECOVERY_EXPIRES_KEY = "clawtavern:oauth:recovery:expiresAt";
 
     const ESCROW_ABI = [
       "function activeAgentCount() view returns (uint256)",
@@ -447,7 +455,11 @@
       walletProvider: null,
       browserProvider: null,
       signer: null,
-      account: null
+      account: null,
+      pendingOauthState: null,
+      pendingOauthMode: null,
+      pendingIdentityContinuation: null,
+      submittingIdentityCode: false
     };
 
     const refs = {
@@ -458,6 +470,7 @@
       identityClose: document.getElementById("identity-close"),
       identityOpen: document.getElementById("identity-open"),
       identityComplete: document.getElementById("identity-complete"),
+      toastStack: document.getElementById("toast-stack"),
       walletModal: document.getElementById("wallet-modal"),
       walletModalClose: document.getElementById("wallet-modal-close"),
       walletList: document.getElementById("wallet-list"),
@@ -476,19 +489,60 @@
 
     function setStat(el, value) { el.textContent = value; }
 
-    function isIdentityRegistered() {
+    function pushToast(message, kind = "info") {
+      if (!refs.toastStack) {
+        return;
+      }
+
+      const palette = {
+        info: "border-white/10 bg-[rgba(20,24,36,0.94)] text-ink",
+        success: "border-emerald/30 bg-[rgba(34,92,64,0.94)] text-[#defbe8]",
+        error: "border-amber/30 bg-[rgba(96,32,23,0.96)] text-[#ffe0d1]"
+      };
+      const toast = document.createElement("div");
+      toast.className = `rounded-2xl border px-4 py-3 text-sm shadow-2xl backdrop-blur ${palette[kind] ?? palette.info}`;
+      toast.textContent = message;
+      refs.toastStack.appendChild(toast);
+      window.setTimeout(() => toast.remove(), 3200);
+    }
+
+    function clearStoredOauthRecovery() {
       try {
-        return localStorage.getItem(AIL_COMPLETION_STORAGE_KEY) === "true";
+        localStorage.removeItem(OAUTH_RECOVERY_KEY);
+        localStorage.removeItem(OAUTH_RECOVERY_EXPIRES_KEY);
       } catch (_) {
-        return false;
+        // ignore storage access failures
       }
     }
 
-    function markIdentityRegistered() {
+    function readStoredOauthRecovery() {
       try {
-        localStorage.setItem(AIL_COMPLETION_STORAGE_KEY, "true");
+        const rawPayload = localStorage.getItem(OAUTH_RECOVERY_KEY);
+        const rawExpiresAt = localStorage.getItem(OAUTH_RECOVERY_EXPIRES_KEY);
+        if (!rawPayload || !rawExpiresAt) {
+          return null;
+        }
+
+        const expiresAt = Number(rawExpiresAt);
+        if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+          clearStoredOauthRecovery();
+          return null;
+        }
+
+        const payload = JSON.parse(rawPayload);
+        if (
+          payload?.type !== "ail-oauth-complete" ||
+          typeof payload.code !== "string" ||
+          typeof payload.state !== "string"
+        ) {
+          clearStoredOauthRecovery();
+          return null;
+        }
+
+        return payload;
       } catch (_) {
-        // ignore storage access failures
+        clearStoredOauthRecovery();
+        return null;
       }
     }
 
@@ -506,7 +560,89 @@
       }
     }
 
-    function openIdentityPopup() {
+    async function readJsonResponse(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        return null;
+      }
+
+      try {
+        return await response.json();
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function clearPendingOauthAttempt() {
+      state.pendingOauthState = null;
+      state.pendingOauthMode = null;
+    }
+
+    async function fetchIdentitySession() {
+      const response = await fetch("/api/identity/session", {
+        method: "GET",
+        credentials: "same-origin",
+        cache: "no-store"
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok && !payload?.verified) {
+        throw new Error("Unable to check Agent ID Card session right now.");
+      }
+      return payload ?? { verified: false };
+    }
+
+    async function createIdentityChallenge() {
+      const response = await fetch("/api/identity/challenge", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok || payload?.ok !== true || typeof payload?.state !== "string" || !payload.state) {
+        throw new Error("Unable to start Agent ID Card verification right now.");
+      }
+      return payload;
+    }
+
+    async function submitAuthCode(code, stateValue) {
+      const response = await fetch("/api/identity/session", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ code, state: stateValue })
+      });
+      const payload = await readJsonResponse(response);
+      if (!response.ok || payload?.verified !== true) {
+        const errorCode = typeof payload?.error === "string" ? payload.error : "";
+        if (errorCode === "invalid_state") {
+          throw new Error("Verification expired. Please start the Agent ID Card flow again.");
+        }
+        if (errorCode === "exchange_unavailable") {
+          throw new Error("Agent ID Card verification is temporarily unavailable. Please try again.");
+        }
+        throw new Error("Agent ID Card verification failed. Please try again.");
+      }
+      return payload;
+    }
+
+    function buildAilAuthUrl({ state: stateValue, mode }) {
+      const url = new URL(AIL_AUTH_URL);
+      url.searchParams.set("client_id", AIL_CLIENT_ID);
+      url.searchParams.set("redirect_uri", AIL_REDIRECT_URI);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("scope", "identity");
+      url.searchParams.set("state", stateValue);
+
+      // The two buttons share the same OAuth URL; mode is kept only for opener UX state.
+      if (mode === "existing" || mode === "new") {
+        state.pendingOauthMode = mode;
+      }
+
+      return url.toString();
+    }
+
+    function openIdentityPopup(url) {
       const width = 560;
       const height = 820;
       const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
@@ -525,23 +661,113 @@
         "scrollbars=yes"
       ].join(",");
 
-      const popup = window.open(AIL_REGISTER_URL, "clawtavern_home_ail", features);
+      const popup = window.open(url, "clawtavern_home_ail", features);
       if (popup) {
         popup.focus?.();
         return popup;
       }
 
-      window.open(AIL_REGISTER_URL, "_blank", "noopener,noreferrer");
+      pushToast("Agent ID Card popup was blocked. Opening a new tab instead.", "info");
+      window.open(url, "_blank", "noopener,noreferrer");
       return null;
     }
 
-    async function ensureIdentityGate() {
-      if (isIdentityRegistered()) {
+    async function continuePendingIdentityFlow() {
+      const continuation = state.pendingIdentityContinuation;
+      state.pendingIdentityContinuation = null;
+      if (typeof continuation === "function") {
+        await continuation();
+      }
+    }
+
+    async function completeIdentityVerification(payload) {
+      if (
+        payload?.type !== "ail-oauth-complete" ||
+        typeof payload.code !== "string" ||
+        typeof payload.state !== "string"
+      ) {
+        return false;
+      }
+
+      if (!state.pendingOauthState) {
+        clearStoredOauthRecovery();
+        pushToast("Verification response no longer matches an active request. Please try again.", "error");
+        refs.walletMode.textContent = "Verification restart required";
+        return false;
+      }
+
+      if (payload.state !== state.pendingOauthState) {
+        clearStoredOauthRecovery();
+        clearPendingOauthAttempt();
+        pushToast("Verification state mismatch. Please restart the Agent ID Card flow.", "error");
+        refs.walletMode.textContent = "Verification failed";
+        return false;
+      }
+
+      if (state.submittingIdentityCode) {
+        return false;
+      }
+
+      state.submittingIdentityCode = true;
+      try {
+        await submitAuthCode(payload.code, payload.state);
+        clearStoredOauthRecovery();
+        clearPendingOauthAttempt();
+        closeIdentityModal();
+        pushToast("Agent ID Card verified. Continue with wallet connection.", "success");
+        await continuePendingIdentityFlow();
+        return true;
+      } catch (error) {
+        clearStoredOauthRecovery();
+        clearPendingOauthAttempt();
+        refs.walletMode.textContent = "Verification failed";
+        pushToast(error instanceof Error ? error.message : "Agent ID Card verification failed.", "error");
+        openIdentityModal();
+        return false;
+      } finally {
+        state.submittingIdentityCode = false;
+      }
+    }
+
+    async function maybeResumeIdentityFromRecovery() {
+      const payload = readStoredOauthRecovery();
+      if (!payload) {
+        return false;
+      }
+
+      clearStoredOauthRecovery();
+      return completeIdentityVerification(payload);
+    }
+
+    async function ensureIdentityGate(continuation = null) {
+      const session = await fetchIdentitySession();
+      if (session?.verified) {
+        clearStoredOauthRecovery();
+        clearPendingOauthAttempt();
+        return true;
+      }
+
+      if (continuation) {
+        state.pendingIdentityContinuation = continuation;
+      } else if (!state.pendingIdentityContinuation) {
+        state.pendingIdentityContinuation = connectWalletFlow;
+      }
+
+      if (await maybeResumeIdentityFromRecovery()) {
         return true;
       }
 
       openIdentityModal();
+      refs.walletMode.textContent = "Agent ID Card required";
       return false;
+    }
+
+    async function startIdentityVerification(mode) {
+      state.pendingIdentityContinuation = state.pendingIdentityContinuation || connectWalletFlow;
+      const challenge = await createIdentityChallenge();
+      state.pendingOauthState = challenge.state;
+      state.pendingOauthMode = mode;
+      openIdentityPopup(buildAilAuthUrl({ state: challenge.state, mode }));
     }
 
     function pushWallet(wallet) {
@@ -644,6 +870,20 @@
       closeWalletModal();
     }
 
+    async function connectWalletFlow() {
+      await discoverWallets();
+      updateWalletChrome();
+      if (!state.wallets.length) {
+        openWalletModal();
+        return;
+      }
+      if (state.wallets.length === 1) {
+        await connectWithProvider(state.wallets[0].provider);
+        return;
+      }
+      openWalletModal();
+    }
+
     async function toggleWalletSession() {
       if (state.account) {
         state.walletProvider = null;
@@ -714,12 +954,14 @@
       }
     });
     refs.identityOpen.addEventListener("click", () => {
-      openIdentityPopup();
+      startIdentityVerification("new").catch((error) => {
+        pushToast(error instanceof Error ? error.message : "Unable to start Agent ID Card verification.", "error");
+      });
     });
     refs.identityComplete.addEventListener("click", () => {
-      markIdentityRegistered();
-      closeIdentityModal();
-      refs.walletMode.textContent = "Identity ready";
+      startIdentityVerification("existing").catch((error) => {
+        pushToast(error instanceof Error ? error.message : "Unable to start Agent ID Card verification.", "error");
+      });
     });
     refs.walletModalClose.addEventListener("click", closeWalletModal);
     refs.walletModal.addEventListener("click", (event) => {
@@ -737,6 +979,21 @@
       } catch (error) {
         console.error(error);
         refs.walletMode.textContent = "Wallet error";
+      }
+    });
+
+    window.addEventListener("message", (event) => {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+      void completeIdentityVerification(event.data);
+    });
+    window.addEventListener("focus", () => {
+      void maybeResumeIdentityFromRecovery();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        void maybeResumeIdentityFromRecovery();
       }
     });
 
