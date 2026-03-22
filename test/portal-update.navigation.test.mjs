@@ -56,7 +56,7 @@ function runCallbackScenario(
   };
 
   const windowObj = {
-    location: { search, origin: "https://clawtavern.quest" },
+    location: { search, origin: "https://www.clawtavern.quest" },
     opener,
     setTimeout(callback) {
       events.push("setTimeout");
@@ -241,7 +241,7 @@ test("marketplace wallet flow uses the new Agent ID Card OAuth client flow", () 
   assert.match(html, /\/api\/identity\/challenge/);
   assert.match(html, /\/api\/identity\/session/);
   assert.match(html, /https:\/\/api\.agentidcard\.org\/auth\/verify/);
-  assert.match(html, /https:\/\/clawtavern\.quest\/callback/);
+  assert.match(html, /https:\/\/www\.clawtavern\.quest\/callback/);
   assert.doesNotMatch(html, /window\.location\.origin\s*\+\s*["'`]\/callback/);
   assert.doesNotMatch(html, /agentwar\.ail\.registered/);
   assert.match(html, /async function ensureMarketplaceIdentityGate\(/);
@@ -265,7 +265,7 @@ test("brand home wallet flow uses the new Agent ID Card OAuth client flow", () =
   assert.match(brandHome, /\/api\/identity\/challenge/);
   assert.match(brandHome, /\/api\/identity\/session/);
   assert.match(brandHome, /https:\/\/api\.agentidcard\.org\/auth\/verify/);
-  assert.match(brandHome, /https:\/\/clawtavern\.quest\/callback/);
+  assert.match(brandHome, /https:\/\/www\.clawtavern\.quest\/callback/);
   assert.doesNotMatch(brandHome, /window\.location\.origin\s*\+\s*["'`]\/callback/);
   assert.doesNotMatch(brandHome, /agentwar\.ail\.registered/);
   assert.match(brandHome, /async function ensureIdentityGate\(/);

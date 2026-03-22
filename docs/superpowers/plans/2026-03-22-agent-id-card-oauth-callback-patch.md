@@ -35,13 +35,12 @@
 
 ## Preflight Constraint
 
-Do not mark the feature production-ready until the live launch origin is aligned with the registered AIL client:
+The live launch origin is now aligned with the registered AIL client:
 
-- registered origin: `https://clawtavern.quest`
-- registered callback: `https://clawtavern.quest/callback`
-- current reachable live site has historically been `https://www.clawtavern.quest`
+- registered origin: `https://www.clawtavern.quest`
+- registered callback: `https://www.clawtavern.quest/callback`
 
-Implementation can proceed with mocks before that blocker is resolved, but live OAuth validation must stop if the site still launches from `www`.
+Implementation and live OAuth validation can proceed on the current production hostname.
 
 ---
 
@@ -308,8 +307,8 @@ Add explicit constants to both pages:
 const AIL_AUTH_URL = "https://api.agentidcard.org/auth/verify";
 const AIL_WIDGET_URL = "https://api.agentidcard.org/widget.js";
 const AIL_BADGE_URL = "https://api.agentidcard.org/badge.js";
-const AIL_CLIENT_ID = "ail_client_a29015e82e08428590ffbf4884adfce4";
-const AIL_REDIRECT_URI = "https://clawtavern.quest/callback";
+const AIL_CLIENT_ID = "ail_client_c74c4d278959405297171e92bc76a559";
+const AIL_REDIRECT_URI = "https://www.clawtavern.quest/callback";
 ```
 
 Do not compute `AIL_REDIRECT_URI` from `window.location.origin`.
@@ -421,11 +420,7 @@ Check at minimum:
 
 - [ ] **Step 4: Record the live OAuth blocker if unresolved**
 
-If the live origin is still `https://www.clawtavern.quest`, explicitly stop before production release and note:
-
-```text
-Live OAuth blocked: registered AIL client origin is https://clawtavern.quest but the live user entrypoint remains https://www.clawtavern.quest.
-```
+Confirm production Pages continues to serve wallet entrypoints from `https://www.clawtavern.quest` so the registered origin and callback stay aligned.
 
 - [ ] **Step 5: Commit final verification adjustments**
 

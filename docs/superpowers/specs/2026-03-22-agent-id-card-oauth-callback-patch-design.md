@@ -42,19 +42,16 @@ That means the migration rule is interpreted narrowly for this codebase:
 
 The issued Claw Tavern production client is:
 
-- `client_id`: `ail_client_a29015e82e08428590ffbf4884adfce4`
-- `allowed_origin`: `https://clawtavern.quest`
-- `redirect_uri`: `https://clawtavern.quest/callback`
+- `client_id`: `ail_client_c74c4d278959405297171e92bc76a559`
+- `allowed_origin`: `https://www.clawtavern.quest`
+- `redirect_uri`: `https://www.clawtavern.quest/callback`
 
 This creates two hard rules:
 
 1. Claw Tavern must use `/callback` exactly for the OAuth return path.
-2. If the live product continues to launch verification from `https://www.clawtavern.quest`, a separate client registration is required because the registered origin is apex, not `www`.
+2. The live product must launch verification from `https://www.clawtavern.quest` so the opener origin and callback origin remain aligned.
 
-At design time, `https://www.clawtavern.quest` is the reachable live site and `https://clawtavern.quest` is not confirmed healthy. This is an implementation blocker for live OAuth unless one of these happens before production rollout:
-
-- the live app is served from `https://clawtavern.quest`
-- or a second Agent ID Card client is issued for `https://www.clawtavern.quest`
+This blocker is now resolved because a dedicated `www` production client has been issued for the current live site.
 
 ## Scope
 
@@ -129,7 +126,7 @@ The product difference is UX framing, not protocol shape.
 The popup flow must initialize with:
 
 - exact `client_id`
-- exact `redirect_uri = https://clawtavern.quest/callback` in production
+- exact `redirect_uri = https://www.clawtavern.quest/callback` in production
 - `scope = identity` by default
 - `state` generated per launch for CSRF protection
 
@@ -293,7 +290,7 @@ Explicit non-behavior:
 The production client is registered only for:
 
 - origin: `https://clawtavern.quest`
-- callback: `https://clawtavern.quest/callback`
+- callback: `https://www.clawtavern.quest/callback`
 
 Therefore:
 
@@ -358,11 +355,6 @@ Therefore:
 - wallet connect remains blocked until the verified Claw Tavern session exists
 - no durable account-mapping database is introduced in this task
 
-## Open Operational Blocker
+## Operational Note
 
-Before live release, confirm one of these exact deployment conditions:
-
-1. production user entrypoint is `https://clawtavern.quest`
-2. or Agent ID Card issues a separate production client for `https://www.clawtavern.quest`
-
-Without that alignment, the OAuth patch can be implemented and tested with mocks, but the live production popup flow cannot be considered fully valid.
+Production origin and callback are now aligned on `https://www.clawtavern.quest`, so live OAuth is no longer blocked by the earlier apex-vs-www mismatch.
