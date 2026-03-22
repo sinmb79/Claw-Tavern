@@ -135,6 +135,8 @@ The popup flow must initialize with:
 
 `identity+reputation` may be added later only if the UI actually consumes reputation data.
 
+The client must not derive the redirect URI from `window.location.origin`. The redirect URI has to be injected from configuration as the exact registered value, otherwise the live `www` host will generate an invalid OAuth request.
+
 ### Popup and Recovery Behavior
 
 Preferred path:
