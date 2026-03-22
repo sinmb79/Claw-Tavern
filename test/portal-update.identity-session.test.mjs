@@ -69,6 +69,24 @@ function forgeJwt(payload) {
   return `${headerPart}.${payloadPart}.signature`;
 }
 
+const SESSION_TEST_VERIFIED_OFFSET_MS = -60 * 1000;
+const SESSION_TEST_EXPIRES_OFFSET_MS = 24 * 60 * 60 * 1000;
+
+function makeIdentityTimestamps(nowMs = Date.now()) {
+  return {
+    verified_at: new Date(nowMs + SESSION_TEST_VERIFIED_OFFSET_MS).toISOString(),
+    expires_at: new Date(nowMs + SESSION_TEST_EXPIRES_OFFSET_MS).toISOString()
+  };
+}
+
+function makeIdentityPayload(nowMs = Date.now()) {
+  return {
+    ail_id: "AIL-2026-00001",
+    display_name: "ClaudeCoder",
+    ...makeIdentityTimestamps(nowMs)
+  };
+}
+
 test("exports remain importable", () => {
   assert.equal(typeof createIdentitySessionHandlers, "function");
   assert.equal(typeof onRequestGet, "function");
@@ -81,15 +99,17 @@ test("exports remain importable", () => {
 });
 
 test("verifyAilJwt normalizes successful SDK verification results", async () => {
+  const identity = makeIdentityPayload();
+
   class FakeAilClient {
     async verify(token) {
       assert.equal(token, "opaque-jwt");
       return {
         valid: true,
-        ail_id: "AIL-2026-00001",
-        display_name: "ClaudeCoder",
-        issued: "2026-03-21T00:00:00.000Z",
-        expires: "2026-03-22T00:00:00.000Z"
+        ail_id: identity.ail_id,
+        display_name: identity.display_name,
+        issued: identity.verified_at,
+        expires: identity.expires_at
       };
     }
   }
@@ -100,31 +120,33 @@ test("verifyAilJwt normalizes successful SDK verification results", async () => 
 
   assert.deepEqual(result, {
     valid: true,
-    ail_id: "AIL-2026-00001",
-    display_name: "ClaudeCoder",
-    verified_at: "2026-03-21T00:00:00.000Z",
-    expires_at: "2026-03-22T00:00:00.000Z"
+    ail_id: identity.ail_id,
+    display_name: identity.display_name,
+    verified_at: identity.verified_at,
+    expires_at: identity.expires_at
   });
 });
 
 test("verifyAilJwt derives expiry from JWT claims when the verifier omits expiry fields", async () => {
+  const identity = makeIdentityPayload();
+
   class FakeAilClient {
     async verify(token) {
       assert.equal(token, jwt);
       return {
         valid: true,
-        ail_id: "AIL-2026-00001",
-        display_name: "ClaudeCoder",
+        ail_id: identity.ail_id,
+        display_name: identity.display_name,
         owner_org: "22B Labs",
-        issued: "2026-03-21T00:00:00.000Z",
+        issued: identity.verified_at,
         revoked: false
       };
     }
   }
 
   const jwt = forgeJwt({
-    sub: "AIL-2026-00001",
-    exp: Math.floor(Date.parse("2026-03-22T00:00:00.000Z") / 1000)
+    sub: identity.ail_id,
+    exp: Math.floor(Date.parse(identity.expires_at) / 1000)
   });
   const result = await verifyAilJwt(jwt, {
     sdk: { AilClient: FakeAilClient }
@@ -132,10 +154,10 @@ test("verifyAilJwt derives expiry from JWT claims when the verifier omits expiry
 
   assert.deepEqual(result, {
     valid: true,
-    ail_id: "AIL-2026-00001",
-    display_name: "ClaudeCoder",
-    verified_at: "2026-03-21T00:00:00.000Z",
-    expires_at: "2026-03-22T00:00:00.000Z"
+    ail_id: identity.ail_id,
+    display_name: identity.display_name,
+    verified_at: identity.verified_at,
+    expires_at: new Date(Math.floor(Date.parse(identity.expires_at) / 1000) * 1000).toISOString()
   });
 });
 
@@ -171,6 +193,7 @@ test("verifyAilJwt treats missing jwt input as invalid at the verifier boundary"
 test("verifyAilJwt falls back to HTTP verification when the SDK is unavailable", async () => {
   let requestUrl = null;
   let requestBody = null;
+  const identity = makeIdentityPayload();
 
   const result = await verifyAilJwt("opaque-jwt", {
     loadSdk: async () => null,
@@ -181,10 +204,10 @@ test("verifyAilJwt falls back to HTTP verification when the SDK is unavailable",
       return new Response(
         JSON.stringify({
           valid: true,
-          ail_id: "AIL-2026-00001",
-          display_name: "ClaudeCoder",
-          issued: "2026-03-21T00:00:00.000Z",
-          expires: "2026-03-22T00:00:00.000Z"
+          ail_id: identity.ail_id,
+          display_name: identity.display_name,
+          issued: identity.verified_at,
+          expires: identity.expires_at
         }),
         {
           status: 200,
@@ -198,10 +221,10 @@ test("verifyAilJwt falls back to HTTP verification when the SDK is unavailable",
   assert.deepEqual(requestBody, { token: "opaque-jwt" });
   assert.deepEqual(result, {
     valid: true,
-    ail_id: "AIL-2026-00001",
-    display_name: "ClaudeCoder",
-    verified_at: "2026-03-21T00:00:00.000Z",
-    expires_at: "2026-03-22T00:00:00.000Z"
+    ail_id: identity.ail_id,
+    display_name: identity.display_name,
+    verified_at: identity.verified_at,
+    expires_at: identity.expires_at
   });
 });
 
@@ -271,13 +294,14 @@ test("issueSessionCookie keeps a still-valid cookie alive for subsecond expiry w
 });
 
 test("issueSessionCookie rejects payloads missing required claims", async () => {
+  const identity = makeIdentityPayload();
   await assert.rejects(
     () =>
       issueSessionCookie(
         {
-          ail_id: "AIL-2026-00001",
-          display_name: "ClaudeCoder",
-          verified_at: "2026-03-21T00:00:00.000Z"
+          ail_id: identity.ail_id,
+          display_name: identity.display_name,
+          verified_at: identity.verified_at
         },
         "test-secret"
       ),
@@ -286,12 +310,13 @@ test("issueSessionCookie rejects payloads missing required claims", async () => 
 });
 
 test("readSessionCookie strips unsupported claims from the emitted session payload", async () => {
+  const identity = makeIdentityPayload();
   const setCookie = await issueSessionCookie(
     {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z",
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at,
       roles: ["admin"],
       source: "browser"
     },
@@ -304,21 +329,22 @@ test("readSessionCookie strips unsupported claims from the emitted session paylo
   const session = await readSessionCookie(`ct_ail_session=${cookieValue}`, "test-secret");
 
   assert.deepEqual(session, {
-    ail_id: "AIL-2026-00001",
-    display_name: "ClaudeCoder",
-    verified_at: "2026-03-21T00:00:00.000Z",
-    expires_at: "2026-03-22T00:00:00.000Z"
+    ail_id: identity.ail_id,
+    display_name: identity.display_name,
+    verified_at: identity.verified_at,
+    expires_at: identity.expires_at
   });
   assert.equal(Object.hasOwn(session ?? {}, "roles"), false);
   assert.equal(Object.hasOwn(session ?? {}, "source"), false);
 });
 
 test("readSessionCookie rejects cookies missing required claims", async () => {
+  const identity = makeIdentityPayload();
   const cookie = forgeSignedSessionCookie(
     {
-      ail_id: "AIL-2026-00001",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     },
     "test-secret"
   );
@@ -352,12 +378,13 @@ test("readSessionCookie returns payload for a valid signed cookie", async () => 
 });
 
 test("readSessionCookie rejects tampered cookies", async () => {
+  const identity = makeIdentityPayload();
   const setCookie = await issueSessionCookie(
     {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     },
     "test-secret"
   );
@@ -373,12 +400,13 @@ test("readSessionCookie rejects tampered cookies", async () => {
 });
 
 test("readSessionCookie returns null without a secret", async () => {
+  const identity = makeIdentityPayload();
   const setCookie = await issueSessionCookie(
     {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     },
     "test-secret"
   );
@@ -428,13 +456,14 @@ test("default handler entrypoints expose the live route behavior", async () => {
 });
 
 test("POST issues a signed cookie after verifier success", async () => {
+  const identity = makeIdentityPayload();
   const { onRequestPost: post } = makeHandlers({
     verifyAilJwt: async () => ({
       valid: true,
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     })
   });
 
@@ -450,10 +479,10 @@ test("POST issues a signed cookie after verifier success", async () => {
   assert.deepEqual(await response.json(), {
     verified: true,
     identity: {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     }
   });
   assert.match(response.headers.get("set-cookie") ?? "", /ct_ail_session=/);
@@ -560,12 +589,13 @@ test("GET reports unverified when no valid cookie is present", async () => {
 
 test("GET reports verified when a valid cookie is present", async () => {
   const env = { CT_SESSION_SECRET: "test-secret" };
+  const identity = makeIdentityPayload();
   const cookie = await issueSessionCookie(
     {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     },
     "test-secret"
   );
@@ -583,10 +613,10 @@ test("GET reports verified when a valid cookie is present", async () => {
   assert.deepEqual(await response.json(), {
     verified: true,
     identity: {
-      ail_id: "AIL-2026-00001",
-      display_name: "ClaudeCoder",
-      verified_at: "2026-03-21T00:00:00.000Z",
-      expires_at: "2026-03-22T00:00:00.000Z"
+      ail_id: identity.ail_id,
+      display_name: identity.display_name,
+      verified_at: identity.verified_at,
+      expires_at: identity.expires_at
     }
   });
 });
