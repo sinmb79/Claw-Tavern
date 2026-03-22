@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claw Tavern | Verification complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0910;
+      --panel: rgba(23, 19, 30, 0.96);
+      --line: rgba(245, 232, 200, 0.12);
+      --ink: #f5e8c8;
+      --muted: #c1b39b;
+      --gold: #d8a933;
+      --gold-soft: #f6df8e;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      font: 16px/1.5 "Georgia", serif;
+      background:
+        radial-gradient(circle at top right, rgba(111, 41, 77, 0.32), transparent 28%),
+        radial-gradient(circle at left center, rgba(216, 169, 51, 0.16), transparent 30%),
+        linear-gradient(180deg, #17111f 0%, var(--bg) 100%);
+    }
+
+    main {
+      width: min(100%, 420px);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .eyebrow {
+      color: var(--gold-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      font-size: 0.72rem;
+    }
+
+    h1 {
+      margin: 12px 0 10px;
+      font-size: 2rem;
+      line-height: 1.1;
+      letter-spacing: 0.03em;
+    }
+
+    .message {
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .details {
+      display: inline-block;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 232, 200, 0.1);
+      padding: 8px 12px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.92rem;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main role="status" aria-live="polite">
+    <p class="eyebrow">Claw Tavern</p>
+    <h1 id="headline">Verification complete</h1>
+    <p id="message" class="message">You can close this window and return to Claw Tavern.</p>
+    <p id="details" class="details" hidden></p>
+  </main>
+  <script>
+    (() => {
+      const RECOVERY_KEY = "clawtavern:oauth:recovery";
+      const RECOVERY_EXPIRES_KEY = "clawtavern:oauth:recovery:expiresAt";
+      const RECOVERY_TTL_MS = 2 * 60 * 1000;
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code") || "";
+      const state = params.get("state") || "";
+      const error = params.get("error") || "";
+      const errorDescription = params.get("error_description") || "";
+      const payload = {
+        type: "ail-oauth-complete",
+        code,
+        state,
+        source: "clawtavern-callback"
+      };
+
+      const headline = document.getElementById("headline");
+      const message = document.getElementById("message");
+      const details = document.getElementById("details");
+
+      function render(title, body, extra) {
+        headline.textContent = title;
+        message.textContent = body;
+        if (extra) {
+          details.hidden = false;
+          details.textContent = extra;
+        }
+      }
+
+      function storeRecoveryPayload() {
+        try {
+          localStorage.setItem(RECOVERY_KEY, JSON.stringify(payload));
+          localStorage.setItem(RECOVERY_EXPIRES_KEY, String(Date.now() + RECOVERY_TTL_MS));
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      function notifyOpener() {
+        if (!window.opener) {
+          return false;
+        }
+
+        try {
+          window.opener.postMessage(payload, window.location.origin);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      if (error) {
+        render(
+          "Verification failed",
+          "Claw Tavern could not finish the sign-in flow.",
+          errorDescription ? `${error}: ${errorDescription}` : error
+        );
+        return;
+      }
+
+      const delivered = notifyOpener();
+      if (delivered) {
+        render("Verification complete", "Returning to Claw Tavern...");
+        window.setTimeout(() => window.close(), 150);
+        return;
+      }
+
+      const stored = storeRecoveryPayload();
+      render(
+        "Verification complete",
+        stored
+          ? "Your browser did not pass the result back automatically. Return to Claw Tavern to continue."
+          : "Your browser did not pass the result back automatically. You can close this tab and return to Claw Tavern."
+      );
+    })();
+  </script>
+</body>
+</html>

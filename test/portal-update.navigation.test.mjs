@@ -7,6 +7,7 @@ const htmlPath = path.resolve("portal-update/app/index.html");
 const html = fs.readFileSync(htmlPath, "utf8").replace(/\r\n/g, "\n");
 const brandHomePath = path.resolve("portal-update/index.html");
 const brandHome = fs.readFileSync(brandHomePath, "utf8").replace(/\r\n/g, "\n");
+const callbackHtmlPath = path.resolve("portal-update/callback.html");
 
 function extractBetween(source, startMarker, endMarker) {
   const startIndex = source.indexOf(startMarker);
@@ -199,4 +200,16 @@ test("brand home wallet flow uses the new Agent ID Card OAuth client flow", () =
     brandHome,
     /const identityReady = await ensureIdentityGate\(\);\s*if \(!identityReady\) \{\s*return;\s*\}\s*await discoverWallets\(\);/s
   );
+});
+
+test("callback route renders a recovery-safe completion page", () => {
+  assert.ok(fs.existsSync(callbackHtmlPath), "Expected portal-update/callback.html to exist");
+
+  const callbackHtml = fs.readFileSync(callbackHtmlPath, "utf8").replace(/\r\n/g, "\n");
+
+  assert.match(callbackHtml, /Verification complete/i);
+  assert.match(callbackHtml, /postMessage/);
+  assert.match(callbackHtml, /code/);
+  assert.match(callbackHtml, /state/);
+  assert.match(callbackHtml, /clawtavern/i);
 });
