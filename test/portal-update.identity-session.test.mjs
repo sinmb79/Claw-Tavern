@@ -9,10 +9,6 @@ const sessionModuleUrl = new URL(
   "../portal-update/functions/api/identity/session.js",
   import.meta.url
 );
-const sessionCookieModuleUrl = new URL(
-  "../portal-update/functions/_lib/session-cookie.js",
-  import.meta.url
-);
 const TEST_SECRET = "test-secret";
 const BASE_ENV = {
   CT_SESSION_SECRET: TEST_SECRET,
@@ -59,15 +55,13 @@ function jsonResponse(payload, { status = 200 } = {}) {
   });
 }
 
-function extractCookiePair(setCookie) {
+function extractCookiePair(setCookie, name) {
   assert.ok(setCookie, "Expected Set-Cookie output");
-  return String(setCookie).split(";")[0];
-}
-
-async function issueRequestCookie(name, payload, secret = TEST_SECRET) {
-  const { issueSignedCookie } = await import(sessionCookieModuleUrl.href);
-  const setCookie = await issueSignedCookie(name, payload, secret);
-  return extractCookiePair(setCookie);
+  const match = String(setCookie).match(
+    new RegExp(`${name}=([^;]+)`)
+  );
+  assert.ok(match, `Expected ${name} cookie in Set-Cookie header`);
+  return `${name}=${match[1]}`;
 }
 
 async function withMockedFetch(mockFetch, run) {
@@ -81,28 +75,27 @@ async function withMockedFetch(mockFetch, run) {
   }
 }
 
-test("POST /api/identity/challenge returns state and signed cookie", async () => {
+async function createOauthChallenge(env = { CT_SESSION_SECRET: TEST_SECRET }) {
   const { onRequestPost } = await import(challengeModuleUrl.href);
-
   const response = await onRequestPost(
     makeContext({
       url: "https://clawtavern.quest/api/identity/challenge",
       method: "POST",
-      env: { CT_SESSION_SECRET: TEST_SECRET }
+      env
     })
   );
 
   assert.equal(response.status, 200);
 
   const payload = await response.json();
-  assert.equal(payload.ok, true);
-  assert.match(payload.state, /^[a-f0-9]{32,}$/);
-  assert.match(response.headers.get("set-cookie") ?? "", /ct_ail_oauth_state=/);
-  assert.match(response.headers.get("set-cookie") ?? "", /HttpOnly/i);
-});
+  return {
+    state: payload.state,
+    cookie: extractCookiePair(response.headers.get("set-cookie"), "ct_ail_oauth_state")
+  };
+}
 
-test("POST /api/identity/session exchanges a code and issues ct_ail_session", async () => {
-  await withMockedFetch(
+async function createVerifiedSessionCookie() {
+  return withMockedFetch(
     async (url, init) => {
       assert.equal(String(url), "https://api.agentidcard.org/auth/exchange");
       assert.equal(init?.method, "POST");
@@ -122,38 +115,61 @@ test("POST /api/identity/session exchanges a code and issues ct_ail_session", as
     },
     async () => {
       const { onRequestPost } = await import(sessionModuleUrl.href);
-      const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-        state: "known-state"
-      });
-
+      const challenge = await createOauthChallenge();
       const response = await onRequestPost(
         makeContext({
           env: BASE_ENV,
-          body: { code: "oauth-code", state: "known-state" },
-          cookie: oauthStateCookie
+          body: { code: "oauth-code", state: challenge.state },
+          cookie: challenge.cookie
         })
       );
 
       assert.equal(response.status, 200);
+
       const payload = await response.json();
-      assert.equal(payload.verified, true);
-      assert.equal(payload.identity?.ail_id, "AIL-100");
-      assert.match(response.headers.get("set-cookie") ?? "", /ct_ail_session=/);
+      return {
+        payload,
+        cookie: extractCookiePair(response.headers.get("set-cookie"), "ct_ail_session")
+      };
     }
   );
+}
+
+test("POST /api/identity/challenge returns state and signed cookie", async () => {
+  const { onRequestPost } = await import(challengeModuleUrl.href);
+  const response = await onRequestPost(
+    makeContext({
+      url: "https://clawtavern.quest/api/identity/challenge",
+      method: "POST",
+      env: { CT_SESSION_SECRET: TEST_SECRET }
+    })
+  );
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(payload.ok, true);
+  assert.match(payload.state, /^[a-f0-9]{32,}$/);
+  assert.match(response.headers.get("set-cookie") ?? "", /ct_ail_oauth_state=/);
+  assert.match(response.headers.get("set-cookie") ?? "", /HttpOnly/i);
+});
+
+test("POST /api/identity/session exchanges a code and issues ct_ail_session", async () => {
+  const { payload, cookie } = await createVerifiedSessionCookie();
+
+  assert.equal(payload.verified, true);
+  assert.equal(payload.identity?.ail_id, "AIL-100");
+  assert.match(cookie, /^ct_ail_session=/);
 });
 
 test("POST /api/identity/session rejects missing code", async () => {
   const { onRequestPost } = await import(sessionModuleUrl.href);
-  const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-    state: "known-state"
-  });
+  const challenge = await createOauthChallenge();
 
   const response = await onRequestPost(
     makeContext({
       env: BASE_ENV,
-      body: { state: "known-state" },
-      cookie: oauthStateCookie
+      body: { state: challenge.state },
+      cookie: challenge.cookie
     })
   );
 
@@ -162,15 +178,13 @@ test("POST /api/identity/session rejects missing code", async () => {
 
 test("POST /api/identity/session rejects missing state", async () => {
   const { onRequestPost } = await import(sessionModuleUrl.href);
-  const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-    state: "known-state"
-  });
+  const challenge = await createOauthChallenge();
 
   const response = await onRequestPost(
     makeContext({
       env: BASE_ENV,
       body: { code: "oauth-code" },
-      cookie: oauthStateCookie
+      cookie: challenge.cookie
     })
   );
 
@@ -192,15 +206,13 @@ test("POST /api/identity/session rejects missing csrf cookie state", async () =>
 
 test("POST /api/identity/session rejects mismatched state", async () => {
   const { onRequestPost } = await import(sessionModuleUrl.href);
-  const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-    state: "known-state"
-  });
+  const challenge = await createOauthChallenge();
 
   const response = await onRequestPost(
     makeContext({
       env: BASE_ENV,
       body: { code: "oauth-code", state: "wrong-state" },
-      cookie: oauthStateCookie
+      cookie: challenge.cookie
     })
   );
 
@@ -212,15 +224,13 @@ test("POST /api/identity/session rejects upstream exchange failure", async () =>
     async () => jsonResponse({ error: "invalid_code" }, { status: 401 }),
     async () => {
       const { onRequestPost } = await import(sessionModuleUrl.href);
-      const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-        state: "known-state"
-      });
+      const challenge = await createOauthChallenge();
 
       const response = await onRequestPost(
         makeContext({
           env: BASE_ENV,
-          body: { code: "oauth-code", state: "known-state" },
-          cookie: oauthStateCookie
+          body: { code: "oauth-code", state: challenge.state },
+          cookie: challenge.cookie
         })
       );
 
@@ -232,15 +242,13 @@ test("POST /api/identity/session rejects upstream exchange failure", async () =>
 
 test("POST /api/identity/session rejects missing env secrets", async () => {
   const { onRequestPost } = await import(sessionModuleUrl.href);
-  const oauthStateCookie = await issueRequestCookie("ct_ail_oauth_state", {
-    state: "known-state"
-  });
+  const challenge = await createOauthChallenge();
 
   const response = await onRequestPost(
     makeContext({
       env: { CT_SESSION_SECRET: TEST_SECRET },
-      body: { code: "oauth-code", state: "known-state" },
-      cookie: oauthStateCookie
+      body: { code: "oauth-code", state: challenge.state },
+      cookie: challenge.cookie
     })
   );
 
@@ -278,13 +286,7 @@ test("GET /api/identity/session returns unverified with a malformed session cook
 
 test("GET /api/identity/session returns verified with a valid session cookie", async () => {
   const { onRequestGet } = await import(sessionModuleUrl.href);
-  const sessionCookie = await issueRequestCookie("ct_ail_session", {
-    ail_id: "AIL-100",
-    display_name: "Pilot",
-    role: "builder",
-    verified_at: "2026-03-22T00:00:00.000Z",
-    expires_at: "2026-03-22T01:00:00.000Z"
-  });
+  const { cookie: sessionCookie } = await createVerifiedSessionCookie();
 
   const response = await onRequestGet(
     makeContext({
