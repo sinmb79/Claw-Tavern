@@ -249,7 +249,7 @@ test("trusted Agent ID Card origins allow both upstream hosts on both entry poin
 });
 
 test("brand home wallet flow also requires Agent ID Card before connection", () => {
-  assert.ok(brandHome.includes("https://www.agentidcard.org/register"));
+  assert.ok(brandHome.includes("https://api.agentidcard.org/register"));
   assert.ok(brandHome.includes('fetch("/api/identity/session"'));
   assert.ok(brandHome.includes("async function submitAilJwt("));
   assert.match(
@@ -261,8 +261,8 @@ test("brand home wallet flow also requires Agent ID Card before connection", () 
   assert.match(brandHome, /case "verification-unavailable":/);
   assert.match(brandHome, /Agent ID Card opened in a new tab\. Keep this tab open while you finish verification there\./);
   assert.match(brandHome, /If wallet access does not unlock automatically, return here and press "I already completed it"\./);
-  assert.match(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank"\);/);
-  assert.doesNotMatch(brandHome, /window\.open\(AIL_REGISTER_URL, "_blank", "noopener,noreferrer"\);/);
+  assert.match(brandHome, /window\.open\(AIL_AUTH_URL, "_blank"\);/);
+  assert.doesNotMatch(brandHome, /window\.open\(AIL_AUTH_URL, "_blank", "noopener,noreferrer"\);/);
   assert.match(brandHome, /Agent ID Card verification service is temporarily unavailable\. Please try again later\./);
   assert.match(brandHome, /Verification is temporarily unavailable\. Please try again later\./);
 });

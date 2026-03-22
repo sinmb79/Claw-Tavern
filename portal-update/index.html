@@ -436,8 +436,6 @@
       tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0"
     };
     const AIL_AUTH_URL = "https://api.agentidcard.org/register";
-    // Legacy upstream entry: https://www.agentidcard.org/register
-    const AIL_REGISTER_URL = AIL_AUTH_URL;
     const TRUSTED_AIL_ORIGINS = new Set(["https://www.agentidcard.org", "https://api.agentidcard.org"]);
 
     const ESCROW_ABI = [
@@ -600,7 +598,7 @@
         return popup;
       }
 
-      const fallbackTab = window.open(AIL_REGISTER_URL, "_blank");
+      const fallbackTab = window.open(AIL_AUTH_URL, "_blank");
       fallbackTab?.focus?.();
       refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-popup-fallback" });
       return fallbackTab;
