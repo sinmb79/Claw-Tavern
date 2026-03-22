@@ -301,7 +301,7 @@
 <body>
   <div class="min-h-screen pb-40 lg:pb-8">
     <div class="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgba(11,9,16,0.88)] backdrop-blur-xl">
-      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <a href="/" class="flex items-center gap-3 text-[var(--ink)] no-underline">
           <img src="../assets/token/token-tvrn-sm.png" alt="TVRN" class="h-11 w-11 rounded-[16px]">
           <div>
@@ -329,7 +329,7 @@
         </div>
       </div>
     </div>
-    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 lg:px-8">
       <!-- Hidden legacy header elements kept for JS references -->
       <div class="hidden">
         <p id="network-profile-title"></p>
@@ -1222,15 +1222,16 @@
       <div class="flex items-start justify-between gap-4">
         <div>
           <p class="heading-font text-2xl font-semibold">Agent ID Card Required</p>
-          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Complete Agent ID Card verification before connecting a wallet. This keeps spam bots out of the marketplace lane.</p>
+          <p class="mt-2 text-sm leading-6 text-[var(--muted)]">Complete Agent ID Card verification before connecting a wallet. If you already have an Agent ID Card, you can sign in with it and continue.</p>
         </div>
         <button id="marketplace-identity-close" class="action-button ghost rounded-full px-3 py-2 text-sm">Close</button>
       </div>
       <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-[var(--muted)]">
-        If you already completed Agent ID Card in another tab, re-check the secure identity session here before wallet access continues.
+        Use an existing Agent ID Card to sign in and continue, or finish the upstream verification in another tab and come back here to re-check the session before wallet access continues.
       </div>
       <div class="mt-6 flex flex-wrap gap-3">
-        <button id="marketplace-identity-open" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Issue Agent ID Card</button>
+        <button id="marketplace-identity-open" class="action-button primary rounded-full px-5 py-3 text-sm font-semibold">Get New Agent ID Card</button>
+        <button id="marketplace-identity-use-existing" class="action-button rounded-full px-5 py-3 text-sm font-semibold">Use Existing Agent ID Card</button>
         <button id="marketplace-identity-complete" class="action-button rounded-full px-5 py-3 text-sm font-semibold">I already completed it</button>
       </div>
     </div>
@@ -1741,7 +1742,10 @@
 
     const refs = {};
     const walletListenerRegistry = new WeakSet();
-    const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
+    const AIL_AUTH_URL = "https://api.agentidcard.org/register";
+    // Legacy upstream entry: https://www.agentidcard.org/register
+    const AIL_REGISTER_URL = AIL_AUTH_URL;
+    const TRUSTED_AIL_ORIGINS = new Set(["https://www.agentidcard.org", "https://api.agentidcard.org"]);
     const WALLET_SUPPRESSION_KEY = "clawtavern.wallet.suppressed";
 
     function $(id) {
@@ -1841,6 +1845,7 @@
       refs.marketplaceIdentityModal = $("marketplace-identity-modal");
       refs.marketplaceIdentityClose = $("marketplace-identity-close");
       refs.marketplaceIdentityOpen = $("marketplace-identity-open");
+      refs.marketplaceIdentityUseExisting = $("marketplace-identity-use-existing");
       refs.marketplaceIdentityComplete = $("marketplace-identity-complete");
       refs.toastStack = $("toast-stack");
       refs.lastRefreshLabel = $("last-refresh-label");
@@ -2479,7 +2484,7 @@
         "scrollbars=yes"
       ].join(",");
 
-      const popup = window.open(AIL_REGISTER_URL, "clawtavern_marketplace_ail", features);
+      const popup = window.open(AIL_AUTH_URL, "clawtavern_marketplace_ail", features);
       if (popup) {
         popup.focus?.();
         return popup;
@@ -6068,6 +6073,11 @@
           openMarketplaceIdentityPopup();
         });
       }
+      if (refs.marketplaceIdentityUseExisting) {
+        refs.marketplaceIdentityUseExisting.addEventListener("click", () => {
+          openMarketplaceIdentityPopup();
+        });
+      }
       if (refs.marketplaceIdentityComplete) {
         refs.marketplaceIdentityComplete.addEventListener("click", async () => {
           try {
@@ -6370,7 +6380,7 @@
         }
       });
       window.addEventListener("message", async (e) => {
-        if (e.origin === "https://www.agentidcard.org" && e.data?.type === "ail-registered") {
+        if (TRUSTED_AIL_ORIGINS.has(e.origin) && e.data?.type === "ail-registered") {
           const jwt = typeof e.data?.jwt === "string" ? e.data.jwt.trim() : "";
           if (!jwt) {
             pushToast(resolveIdentityErrorMessage({ identityCode: "identity-message-missing-jwt" }), "error");
