@@ -407,19 +407,20 @@
     </div>
   </div>
   <div id="identity-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/65 px-4">
-    <div class="panel w-full max-w-lg rounded-[28px] p-6">
+    <div class="panel w-full max-w-xl rounded-[28px] p-6 sm:p-8">
       <div class="flex items-center justify-between gap-3">
         <div>
-          <p class="font-display text-xl font-semibold text-ink">Agent ID Card Required</p>
-          <p class="mt-1 text-sm text-muted">Verify identity before wallet connection so the tavern can filter spam bots and low-trust traffic.</p>
+          <p class="font-display text-2xl font-semibold text-ink">Agent ID Card Required</p>
+          <p class="mt-2 text-sm leading-6 text-muted">Complete Agent ID Card verification before connecting a wallet. If you already have an Agent ID Card, you can sign in with it and continue.</p>
         </div>
         <button id="identity-close" class="rounded-full border border-white/10 px-3 py-2 text-xs text-muted">Close</button>
       </div>
-      <div class="panel-soft mt-5 rounded-[24px] p-4 text-sm leading-7 text-muted">
-        If you already completed Agent ID Card in another tab, re-check the secure identity session here before wallet access continues.
+      <div class="panel-soft mt-5 rounded-2xl p-4 text-sm text-muted">
+        Use an existing Agent ID Card to sign in and continue, or finish the upstream verification in another tab and come back here to re-check the session before wallet access continues.
       </div>
-      <div class="mt-5 flex flex-wrap gap-3">
-        <button id="identity-open" class="rounded-full border border-gold/30 bg-gold px-5 py-3 text-sm font-semibold text-bg-deep transition hover:brightness-110">Issue Agent ID Card</button>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <button id="identity-open" class="rounded-full border border-gold/30 bg-gold px-5 py-3 text-sm font-semibold text-bg-deep transition hover:brightness-110">Get New Agent ID Card</button>
+        <button id="identity-use-existing" class="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ink transition hover:border-gold/30 hover:text-gold-soft">Use Existing Agent ID Card</button>
         <button id="identity-complete" class="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ink transition hover:border-gold/30 hover:text-gold-soft">I already completed it</button>
       </div>
     </div>
@@ -434,7 +435,10 @@
       tavernToken: "0xbD06862576e6545C2A7D9566D86b7c7e7BbAB541",
       tavernEscrow: "0xF770eF7A9FD7a5D8f13f0Be58DC8F30f2C8e00e0"
     };
-    const AIL_REGISTER_URL = "https://www.agentidcard.org/register";
+    const AIL_AUTH_URL = "https://api.agentidcard.org/register";
+    // Legacy upstream entry: https://www.agentidcard.org/register
+    const AIL_REGISTER_URL = AIL_AUTH_URL;
+    const TRUSTED_AIL_ORIGINS = new Set(["https://www.agentidcard.org", "https://api.agentidcard.org"]);
 
     const ESCROW_ABI = [
       "function activeAgentCount() view returns (uint256)",
@@ -456,6 +460,7 @@
       identityModal: document.getElementById("identity-modal"),
       identityClose: document.getElementById("identity-close"),
       identityOpen: document.getElementById("identity-open"),
+      identityUseExisting: document.getElementById("identity-use-existing"),
       identityComplete: document.getElementById("identity-complete"),
       walletModal: document.getElementById("wallet-modal"),
       walletModalClose: document.getElementById("wallet-modal-close"),
@@ -589,7 +594,7 @@
         "scrollbars=yes"
       ].join(",");
 
-      const popup = window.open(AIL_REGISTER_URL, "clawtavern_home_ail", features);
+      const popup = window.open(AIL_AUTH_URL, "clawtavern_home_ail", features);
       if (popup) {
         popup.focus?.();
         return popup;
@@ -766,7 +771,7 @@
     });
 
     window.addEventListener("message", async (e) => {
-      if (e.origin === "https://www.agentidcard.org" && e.data?.type === "ail-registered") {
+      if (TRUSTED_AIL_ORIGINS.has(e.origin) && e.data?.type === "ail-registered") {
         const jwt = typeof e.data?.jwt === "string" ? e.data.jwt.trim() : "";
         if (!jwt) {
           refs.walletMode.textContent = resolveIdentityErrorMessage({ identityCode: "identity-message-missing-jwt" });
@@ -808,6 +813,9 @@
       }
     });
     refs.identityOpen.addEventListener("click", () => {
+      openIdentityPopup();
+    });
+    refs.identityUseExisting.addEventListener("click", () => {
       openIdentityPopup();
     });
     refs.identityComplete.addEventListener("click", async () => {
