@@ -353,3 +353,77 @@ test("callback route stays open when opener and recovery both fail", () => {
   assert.ok(!result.events.includes("setTimeout"));
   assert.ok(result.events.includes("postMessage"));
 });
+
+test("brand home keeps verification success separate from wallet continuation errors", () => {
+  const completeIdentityVerification = extractBetween(
+    brandHome,
+    "async function completeIdentityVerification(payload) {",
+    "\n    async function maybeResumeIdentityFromRecovery()"
+  );
+  const continuationCatch = extractBetween(
+    completeIdentityVerification,
+    'try {\n          await continuePendingIdentityFlow();',
+    "\n        return true;"
+  );
+
+  assert.match(
+    completeIdentityVerification,
+    /await submitAuthCode\(payload\.code, payload\.state\);\s*clearStoredOauthRecovery\(\);\s*clearPendingOauthAttempt\(\);\s*closeIdentityModal\(\);\s*pushToast\("Agent ID Card verified\. Continue with wallet connection\.", "success"\);\s*try\s*\{\s*await continuePendingIdentityFlow\(\);/s
+  );
+  assert.match(
+    continuationCatch,
+    /catch \(error\) \{[\s\S]*pushToast\(/s
+  );
+  assert.doesNotMatch(
+    continuationCatch,
+    /openIdentityModal\(\)|clearPendingOauthAttempt\(\)|Verification failed/
+  );
+});
+
+test("marketplace keeps verification success separate from wallet continuation errors", () => {
+  const completeMarketplaceIdentityVerification = extractBetween(
+    html,
+    "async function completeMarketplaceIdentityVerification(payload) {",
+    "\n    async function maybeResumeMarketplaceIdentityFromRecovery()"
+  );
+  const continuationCatch = extractBetween(
+    completeMarketplaceIdentityVerification,
+    'try {\n          await continuePendingMarketplaceIdentityFlow();',
+    "\n        return true;"
+  );
+
+  assert.match(
+    completeMarketplaceIdentityVerification,
+    /await submitAuthCode\(payload\.code, payload\.state\);\s*clearStoredOauthRecovery\(\);\s*clearPendingMarketplaceOauthAttempt\(\);\s*closeMarketplaceIdentityModal\(\);\s*pushToast\("Agent ID Card verified\. Continue with wallet connection\.", "success"\);\s*try\s*\{\s*await continuePendingMarketplaceIdentityFlow\(\);/s
+  );
+  assert.match(
+    continuationCatch,
+    /catch \(error\) \{[\s\S]*pushToast\(/s
+  );
+  assert.doesNotMatch(
+    continuationCatch,
+    /openMarketplaceIdentityModal\(\)|clearPendingMarketplaceOauthAttempt\(\)|Verification failed/
+  );
+});
+
+test("stale callback mismatch must not cancel a newer brand home oauth attempt", () => {
+  const mismatchBranch = extractBetween(
+    brandHome,
+    "if (payload.state !== state.pendingOauthState) {",
+    "\n\n      if (state.submittingIdentityCode) {"
+  );
+
+  assert.match(mismatchBranch, /clearStoredOauthRecovery\(\);/);
+  assert.doesNotMatch(mismatchBranch, /clearPendingOauthAttempt\(\)/);
+});
+
+test("stale callback mismatch must not cancel a newer marketplace oauth attempt", () => {
+  const mismatchBranch = extractBetween(
+    html,
+    "if (payload.state !== appState.pendingOauthState) {",
+    "\n\n      if (appState.submittingIdentityCode) {"
+  );
+
+  assert.match(mismatchBranch, /clearStoredOauthRecovery\(\);/);
+  assert.doesNotMatch(mismatchBranch, /clearPendingMarketplaceOauthAttempt\(\)/);
+});

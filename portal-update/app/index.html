@@ -2568,7 +2568,6 @@
 
       if (payload.state !== appState.pendingOauthState) {
         clearStoredOauthRecovery();
-        clearPendingMarketplaceOauthAttempt();
         pushToast("Verification state mismatch. Please restart the Agent ID Card flow.", "error");
         return false;
       }
@@ -2584,7 +2583,11 @@
         clearPendingMarketplaceOauthAttempt();
         closeMarketplaceIdentityModal();
         pushToast("Agent ID Card verified. Continue with wallet connection.", "success");
-        await continuePendingMarketplaceIdentityFlow();
+        try {
+          await continuePendingMarketplaceIdentityFlow();
+        } catch (error) {
+          pushToast(extractErrorMessage(error), "error");
+        }
         return true;
       } catch (error) {
         clearStoredOauthRecovery();

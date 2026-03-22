@@ -698,9 +698,7 @@
 
       if (payload.state !== state.pendingOauthState) {
         clearStoredOauthRecovery();
-        clearPendingOauthAttempt();
         pushToast("Verification state mismatch. Please restart the Agent ID Card flow.", "error");
-        refs.walletMode.textContent = "Verification failed";
         return false;
       }
 
@@ -715,7 +713,12 @@
         clearPendingOauthAttempt();
         closeIdentityModal();
         pushToast("Agent ID Card verified. Continue with wallet connection.", "success");
-        await continuePendingIdentityFlow();
+        try {
+          await continuePendingIdentityFlow();
+        } catch (error) {
+          refs.walletMode.textContent = "Wallet error";
+          pushToast(error instanceof Error ? error.message : "Wallet connection failed after verification.", "error");
+        }
         return true;
       } catch (error) {
         clearStoredOauthRecovery();
