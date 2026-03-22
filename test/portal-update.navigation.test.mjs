@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import vm from "node:vm";
 
 const htmlPath = path.resolve("portal-update/app/index.html");
 const html = fs.readFileSync(htmlPath, "utf8").replace(/\r\n/g, "\n");
@@ -17,6 +18,72 @@ function extractBetween(source, startMarker, endMarker) {
   assert.notEqual(endIndex, -1, `Missing end marker: ${endMarker}`);
 
   return source.slice(startIndex, endIndex);
+}
+
+function extractCallbackScript(source) {
+  const match = source.match(/<script>\s*([\s\S]*?)\s*<\/script>\s*<\/body>/);
+  assert.ok(match, "Missing callback inline script");
+  return match[1];
+}
+
+function runCallbackScenario(callbackHtml, { search = "", opener = null } = {}) {
+  const script = extractCallbackScript(callbackHtml);
+  const events = [];
+  const elements = {
+    headline: { textContent: "", hidden: false },
+    message: { textContent: "", hidden: false },
+    details: { textContent: "", hidden: true }
+  };
+  const storage = new Map();
+
+  const localStorage = {
+    setItem(key, value) {
+      events.push(`setItem:${key}`);
+      storage.set(key, String(value));
+    },
+    getItem(key) {
+      return storage.has(key) ? storage.get(key) : null;
+    },
+    removeItem(key) {
+      storage.delete(key);
+    }
+  };
+
+  const windowObj = {
+    location: { search, origin: "https://clawtavern.quest" },
+    opener,
+    setTimeout(callback) {
+      events.push("setTimeout");
+      callback();
+    },
+    close() {
+      events.push("close");
+    }
+  };
+
+  if (windowObj.opener) {
+    const originalPostMessage = windowObj.opener.postMessage;
+    windowObj.opener.postMessage = (...args) => {
+      events.push("postMessage");
+      return originalPostMessage(...args);
+    };
+  }
+
+  const context = vm.createContext({
+    window: windowObj,
+    document: {
+      getElementById(id) {
+        return elements[id];
+      }
+    },
+    localStorage,
+    URLSearchParams,
+    Date
+  });
+
+  vm.runInContext(script, context);
+
+  return { events, elements, storage };
 }
 
 test("desktop top nav exposes home, marketplace, and profile", () => {
@@ -212,4 +279,36 @@ test("callback route renders a recovery-safe completion page", () => {
   assert.match(callbackHtml, /code/);
   assert.match(callbackHtml, /state/);
   assert.match(callbackHtml, /clawtavern/i);
+});
+
+test("callback route requires both code and state before success handling", () => {
+  const callbackHtml = fs.readFileSync(callbackHtmlPath, "utf8").replace(/\r\n/g, "\n");
+  const result = runCallbackScenario(callbackHtml, { search: "?code=abc123" });
+
+  assert.equal(result.elements.headline.textContent, "Verification incomplete");
+  assert.match(result.elements.message.textContent, /code and state/i);
+  assert.equal(result.events.length, 0);
+  assert.equal(result.storage.size, 0);
+});
+
+test("callback route stores recovery before opener delivery and close", () => {
+  const callbackHtml = fs.readFileSync(callbackHtmlPath, "utf8").replace(/\r\n/g, "\n");
+  const opener = {
+    closed: false,
+    postMessage() {}
+  };
+  const result = runCallbackScenario(callbackHtml, {
+    search: "?code=abc123&state=state-xyz",
+    opener
+  });
+
+  const recoveryIndex = result.events.indexOf("setItem:clawtavern:oauth:recovery");
+  const messageIndex = result.events.indexOf("postMessage");
+  const closeIndex = result.events.indexOf("close");
+
+  assert.notEqual(recoveryIndex, -1);
+  assert.notEqual(messageIndex, -1);
+  assert.notEqual(closeIndex, -1);
+  assert.ok(recoveryIndex < messageIndex);
+  assert.ok(recoveryIndex < closeIndex);
 });

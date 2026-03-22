@@ -97,12 +97,6 @@
       const state = params.get("state") || "";
       const error = params.get("error") || "";
       const errorDescription = params.get("error_description") || "";
-      const payload = {
-        type: "ail-oauth-complete",
-        code,
-        state,
-        source: "clawtavern-callback"
-      };
 
       const headline = document.getElementById("headline");
       const message = document.getElementById("message");
@@ -140,6 +134,21 @@
         }
       }
 
+      if (!code || !state) {
+        render(
+          "Verification incomplete",
+          "Claw Tavern needs both code and state to finish the sign-in flow."
+        );
+        return;
+      }
+
+      const payload = {
+        type: "ail-oauth-complete",
+        code,
+        state,
+        source: "clawtavern-callback"
+      };
+
       if (error) {
         render(
           "Verification failed",
@@ -149,14 +158,13 @@
         return;
       }
 
-      const delivered = notifyOpener();
-      if (delivered) {
+      const stored = storeRecoveryPayload();
+      if (window.opener) {
+        notifyOpener();
         render("Verification complete", "Returning to Claw Tavern...");
         window.setTimeout(() => window.close(), 150);
         return;
       }
-
-      const stored = storeRecoveryPayload();
       render(
         "Verification complete",
         stored
